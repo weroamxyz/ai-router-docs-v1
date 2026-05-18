@@ -1,83 +1,132 @@
 import Link from 'next/link';
-import { Github, BookOpen } from 'lucide-react';
-import { Hero } from './page.client';
+import { BookOpen, Code2 } from 'lucide-react';
+import { Hero, Typewriter } from './page.client';
 import { getLocalePath, i18n } from '@/lib/i18n';
-import Image from 'next/image';
-import { AntifraudDialog } from '@/components/antifraud-dialog';
 
-const AtomGitIcon = () => (
-  <svg role="img" viewBox="0 0 24 24" fill="currentColor" className="size-4">
-    <path
-      fillRule="evenodd"
-      d="M15.5,5c.1,0,.3-.2.5-.3,0,.1,0,.2,0,.3,0,.1,0,.3,0,.4,0,1,.6,1.8,1.4,2,1.1.3,2.1-.2,2.7-1.1.7-1.1.4-2.4-.8-3.3C16.2.8,12.8.2,9.1,1.2,1.1,3.6-1.6,13.4,4,19.4c2.4,2.6,5.5,3.7,9,3.6,4.5-.1,7.7-2.3,9.7-6.2,1.5-2.7-.1-5.7-3.2-6.4-1.7-.3-3.5-.5-5.3-.3-.6,0-1.2.2-1.7.5-.6.3-.7.9-.7,1.5,0,.6.5.9,1,1,1,.2,2.1.3,3.1.3.3,0,.6,0,.9,0,.4,0,.9,0,1.3,0,1.2.2,1.6,1.2,1,2.3-.2.3-.3.5-.5.7-.8.9-1.9,1.5-3.1,1.8-2.2.5-4.3.6-6.5-.1-2.5-.8-3.9-2.6-4-5,0-1.5.4-3,1.1-4.3.3-.6.5-1.2.5-1.9,0-.3,0-.6,0-.9,0-.2,0-.3,0-.5.2,0,.5.1.7.2.9.4,1.9.5,2.9.3.6-.1,1.2-.2,1.8-.1,1,0,1.9-.2,2.7-.7.2-.1.4-.2.6-.4Z"
-    />
-  </svg>
-);
+// ─── Content ────────────────────────────────────────────────────────────────
 
-const contentMap: Record<
-  string,
-  {
-    badge: string;
-    title: string;
-    subtitle: string;
-    highlight: string;
-    getStarted: string;
-    github: string;
-    atomgit: string;
-    partnersTitle: string;
-    partnersSubtitle: string;
-    sponsorPartnersTitle: string;
-    sponsorPartnersSubtitle: string;
-    devContributorsTitle: string;
-    docsContributorsTitle: string;
-  }
-> = {
-  en: {
-    badge: 'The Foundation of Your AI Universe',
-    title: 'Connect all AI providers, manage your AI assets,',
-    subtitle: 'build the',
-    highlight: 'future',
-    getStarted: 'Getting Started',
-    github: 'GitHub',
-    atomgit: 'AtomGit',
-    partnersTitle: 'Our Partners & Clients',
-    partnersSubtitle: 'In no particular order',
-    sponsorPartnersTitle: 'Sponsor Partners',
-    sponsorPartnersSubtitle: 'Trusted sponsor collaborations',
-    devContributorsTitle: 'Development Contributors',
-    docsContributorsTitle: 'Documentation Contributors',
-  },
+const content = {
   zh: {
-    badge: '人工智能应用基座',
-    title: '承载 AI 应用，管理数字资产，',
-    subtitle: '连接',
-    highlight: '未来',
-    getStarted: '快速开始',
-    github: 'GitHub',
-    atomgit: 'AtomGit',
-    partnersTitle: '我们的合作伙伴与客户',
-    partnersSubtitle: '排名不分先后',
-    sponsorPartnersTitle: '赞助合作伙伴',
-    sponsorPartnersSubtitle: '值得信赖的赞助合作',
-    devContributorsTitle: '开发贡献者',
-    docsContributorsTitle: '文档贡献者',
+    typewriterText: '简化 AI 开发流程',
+    subtitle: '新一代大模型网关与 AI 资产管理系统',
+    stats: [
+      { number: '30+', label: 'AI 服务商' },
+      { number: '100%', label: 'OpenAI 兼容' },
+      { number: '100+', label: '海量模型支持' },
+    ],
+    features: [
+      { icon: '🚀', text: '一键部署，快速接入' },
+      { icon: '💰', text: '灵活计费，成本可控' },
+      { icon: '🛡️', text: '安全稳定，高可用性' },
+    ],
+    arch: {
+      client: '客户端应用',
+      gateway: '算力仓网关',
+      models: 'AI 模型',
+      chips: [
+        '🔒 用户管理', '⚖️ 负载均衡', '🧭 格式转换',
+        '📊 成本追踪', '🚦 速率限制', '📝 日志记录',
+        '💰 配额管理', '🔄 故障重试', '💳 在线充值',
+      ],
+    },
+    getStarted: '开始使用',
+    apiDocs: '接口文档',
+  },
+  en: {
+    typewriterText: 'Simplify AI Development',
+    subtitle: 'Next-Gen LLM Gateway & AI Asset Management Platform',
+    stats: [
+      { number: '30+', label: 'AI Providers' },
+      { number: '100%', label: 'OpenAI Compatible' },
+      { number: '100+', label: 'Many Models' },
+    ],
+    features: [
+      { icon: '🚀', text: 'One-click deploy, rapid integration' },
+      { icon: '💰', text: 'Flexible pricing, cost-effective' },
+      { icon: '🛡️', text: 'Secure & highly available' },
+    ],
+    arch: {
+      client: 'Client App',
+      gateway: 'ComputeVault Gateway',
+      models: 'AI Models',
+      chips: [
+        '🔒 Auth', '⚖️ Load Balance', '🧭 Format Convert',
+        '📊 Cost Track', '🚦 Rate Limit', '📝 Logging',
+        '💰 Quota', '🔄 Failover', '💳 Recharge',
+      ],
+    },
+    getStarted: 'Get Started',
+    apiDocs: 'API Docs',
   },
   ja: {
-    badge: 'あなたの AI ユニバースの基盤',
-    title: 'すべての AI プロバイダーを接続し、AI アセットを管理し、',
-    subtitle: '',
-    highlight: '未来を構築',
+    typewriterText: 'AI開発を簡略化',
+    subtitle: '次世代LLMゲートウェイ & AI資産管理プラットフォーム',
+    stats: [
+      { number: '30+', label: 'AIプロバイダー' },
+      { number: '100%', label: 'OpenAI互換' },
+      { number: '100+', label: '海量モデル対応' },
+    ],
+    features: [
+      { icon: '🚀', text: 'ワンクリックデプロイ、迅速な統合' },
+      { icon: '💰', text: '柔軟な価格設定、コスト効率' },
+      { icon: '🛡️', text: '安全で高可用性' },
+    ],
+    arch: {
+      client: 'クライアントアプリ',
+      gateway: 'ComputeVaultゲートウェイ',
+      models: 'AIモデル',
+      chips: [
+        '🔒 認証', '⚖️ 負荷分散', '🧭 フォーマット変換',
+        '📊 コスト追跡', '🚦 速率制限', '📝 ログ記録',
+        '💰 クォータ', '🔄 フェイルオーバー', '💳 充電',
+      ],
+    },
     getStarted: 'はじめに',
-    github: 'GitHub',
-    atomgit: 'AtomGit',
-    partnersTitle: '私たちのパートナーとお客様',
-    partnersSubtitle: '順不同',
-    sponsorPartnersTitle: 'スポンサーパートナー',
-    sponsorPartnersSubtitle: '信頼できるスポンサー協力',
-    devContributorsTitle: '開発貢献者',
-    docsContributorsTitle: 'ドキュメント貢献者',
+    apiDocs: 'APIドキュメント',
   },
 } as const;
+
+// ─── Arrow SVG ───────────────────────────────────────────────────────────────
+
+function ArrowRight() {
+  return (
+    <svg
+      className="size-5 shrink-0 text-white/30"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={1.5}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M13 7l5 5m0 0l-5 5m5-5H6"
+      />
+    </svg>
+  );
+}
+
+function DashedArrow() {
+  return (
+    <svg
+      className="h-3 w-12 shrink-0 text-white/30"
+      viewBox="0 0 100 12"
+      aria-hidden="true"
+    >
+      <path
+        d="M10 6 H90"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeDasharray="4 4"
+        fill="none"
+      />
+      <path d="M10,6 L16,3 L16,9 Z" fill="currentColor" />
+      <path d="M90,6 L84,3 L84,9 Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 
 export default async function Page({
   params,
@@ -85,207 +134,129 @@ export default async function Page({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  const content = contentMap[lang] || contentMap.en;
-
-  const partners = [
-    {
-      name: 'Cherry Studio',
-      url: 'https://www.cherry-ai.com/',
-      logo: '/assets/partner/cherry-studio.png',
-    },
-    {
-      name: 'AionUi',
-      url: 'https://github.com/iOfficeAI/AionUi',
-      logo: '/assets/partner/aionui.png',
-    },
-    {
-      name: 'Peking University',
-      url: 'https://bda.pku.edu.cn/',
-      logo: '/assets/partner/pku.png',
-    },
-    {
-      name: 'UCloud',
-      url: 'https://www.compshare.cn/?ytag=GPU_yy_gh_newapi',
-      logo: '/assets/partner/ucloud.png',
-    },
-    {
-      name: 'Alibaba Cloud',
-      url: 'https://www.aliyun.com/',
-      logo: '/assets/partner/aliyun.png',
-    },
-    {
-      name: 'IO.NET',
-      url: 'https://io.net/',
-      logo: '/assets/partner/io-net.png',
-    },
-  ];
-
-  const sponsorPartners = [
-    {
-      name: 'RixAPI',
-      url: 'https://rixapi.com/',
-      lightLogo: '/assets/partner/rixapi-black.png',
-      darkLogo: '/assets/partner/rixapi-white.png',
-    },
-  ];
+  const c = content[lang as keyof typeof content] ?? content.zh;
 
   return (
-    <main className="text-landing-foreground dark:text-landing-foreground-dark pt-4 pb-6 md:pb-12">
-      <div className="relative mx-auto flex h-[70vh] max-h-[900px] min-h-[600px] w-full max-w-[1400px] overflow-hidden rounded-2xl border bg-origin-border">
-        <Hero />
-        <div className="z-2 flex size-full flex-col px-4 max-md:items-center max-md:text-center md:p-12">
-          <p className="border-brand/50 text-brand mt-12 w-fit rounded-full border p-2 text-xs font-medium">
-            {content.badge}
-          </p>
-          <h1 className="leading-tighter my-8 text-4xl font-medium xl:mb-12 xl:text-5xl">
-            {content.title}
-            <br />
-            {content.subtitle}{' '}
-            <span className="text-brand">{content.highlight}</span>.
-          </h1>
-          <div className="flex w-fit flex-row flex-wrap items-center justify-center gap-4">
-            <Link
-              href={getLocalePath(lang, 'docs')}
-              className="bg-brand text-brand-foreground hover:bg-brand-200 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-medium tracking-tight transition-colors max-sm:text-sm"
+    <main className="relative overflow-hidden bg-[#060b18]">
+      {/* ── Background ── */}
+      <Hero />
+
+      {/* ── Content ── */}
+      <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-4 pt-20 pb-24 text-center">
+
+        {/* Title */}
+        <h1 className="text-5xl font-bold leading-tight tracking-tight text-white md:text-6xl lg:text-7xl">
+          <Typewriter text={c.typewriterText} />
+        </h1>
+
+        {/* Subtitle badge */}
+        <p className="mt-6 rounded-full border border-sky-500/30 bg-sky-500/10 px-5 py-2 text-sm font-medium text-sky-300/90 backdrop-blur-sm md:text-base">
+          {c.subtitle}
+        </p>
+
+        {/* Stats */}
+        <div className="mt-10 flex items-center gap-10 md:gap-16">
+          {c.stats.map((stat) => (
+            <div key={stat.label} className="flex flex-col items-center gap-1">
+              <span className="text-3xl font-bold text-white md:text-4xl">
+                {stat.number}
+              </span>
+              <span className="text-xs text-white/45 md:text-sm">
+                {stat.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Feature pills */}
+        <div className="mt-7 flex flex-wrap justify-center gap-3">
+          {c.features.map((f) => (
+            <span
+              key={f.text}
+              className="flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-4 py-2 text-sm text-white/75 backdrop-blur-sm"
             >
-              <BookOpen className="size-4" />
-              {content.getStarted}
-            </Link>
-            <a
-              href="https://github.com/QuantumNous/new-api"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="bg-fd-secondary text-fd-secondary-foreground hover:bg-fd-accent inline-flex items-center justify-center gap-2 rounded-full border px-5 py-3 font-medium tracking-tight transition-colors max-sm:text-sm"
-            >
-              <Github className="size-4" />
-              {content.github}
-            </a>
-            <a
-              href="https://atomgit.com/QuantumNous/new-api"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="bg-fd-secondary text-fd-secondary-foreground hover:bg-fd-accent inline-flex items-center justify-center gap-2 rounded-full border px-5 py-3 font-medium tracking-tight transition-colors max-sm:text-sm"
-            >
-              <AtomGitIcon />
-              {content.atomgit}
-            </a>
+              {f.icon} {f.text}
+            </span>
+          ))}
+        </div>
+
+        {/* ── Architecture Diagram ── */}
+        <div className="mt-12 w-full">
+          {/* Three-node flow */}
+          <div className="flex items-center justify-center gap-2 md:gap-4">
+
+            {/* Client node */}
+            <div className="flex min-w-[80px] flex-col items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-3 py-4 backdrop-blur-sm md:min-w-[110px] md:px-5">
+              <span className="text-3xl md:text-4xl">🧑‍💻</span>
+              <span className="text-center text-[11px] leading-tight text-white/60 md:text-xs">
+                {c.arch.client}
+              </span>
+            </div>
+
+            <ArrowRight />
+
+            {/* Gateway node */}
+            <div className="flex flex-1 flex-col items-center gap-3 rounded-2xl border border-sky-500/35 bg-sky-500/8 px-4 py-4 backdrop-blur-sm md:px-6">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">⚡</span>
+                <span className="font-semibold text-sky-300 text-sm md:text-base">
+                  {c.arch.gateway}
+                </span>
+              </div>
+              <div className="grid w-full grid-cols-3 gap-1.5">
+                {c.arch.chips.map((chip) => (
+                  <span
+                    key={chip}
+                    className="rounded-lg bg-white/8 px-1.5 py-1.5 text-center text-[10px] leading-tight text-white/55 md:text-[11px]"
+                  >
+                    {chip}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <ArrowRight />
+
+            {/* AI Models node */}
+            <div className="flex min-w-[80px] flex-col items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-3 py-4 backdrop-blur-sm md:min-w-[110px] md:px-5">
+              <span className="text-3xl md:text-4xl">🤖</span>
+              <span className="text-center text-[11px] leading-tight text-white/60 md:text-xs">
+                {c.arch.models}
+              </span>
+            </div>
+          </div>
+
+          {/* Provider row */}
+          <div className="mt-4 flex items-center justify-center gap-2">
+            {(['Gemini', 'OpenAI', 'Claude'] as const).map((name, i) => (
+              <div key={name} className="flex items-center gap-2">
+                {i > 0 && <DashedArrow />}
+                <span className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/50 md:text-sm">
+                  {name}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* Action buttons */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href={getLocalePath(lang, 'docs')}
+            className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-6 py-3 font-medium text-white transition-colors hover:bg-sky-400"
+          >
+            <BookOpen className="size-4" />
+            {c.getStarted}
+          </Link>
+          <Link
+            href={getLocalePath(lang, 'docs/api')}
+            className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-3 font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+          >
+            <Code2 className="size-4" />
+            {c.apiDocs}
+          </Link>
+        </div>
       </div>
-
-      {/* Partners Section */}
-      <section className="mx-auto mt-12 max-w-[1400px] px-4 text-center">
-        <h2 className="text-2xl font-semibold md:text-3xl">
-          {content.partnersTitle}
-        </h2>
-        <p className="text-muted-foreground mt-2 text-sm">
-          {content.partnersSubtitle}
-        </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-6 md:gap-10">
-          {partners.map((partner) => (
-            <a
-              key={partner.name}
-              href={partner.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="opacity-70 grayscale-[50%] transition-all duration-300 hover:opacity-100 hover:grayscale-0"
-            >
-              <Image
-                src={partner.logo}
-                alt={partner.name}
-                width={72}
-                height={60}
-                className="h-[50px] w-auto md:h-[60px]"
-                loading="lazy"
-                decoding="async"
-              />
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {/* Sponsor Partners Section */}
-      <section className="mx-auto mt-16 max-w-[1400px] px-4 text-center">
-        <h2 className="text-2xl font-semibold md:text-3xl">
-          {content.sponsorPartnersTitle}
-        </h2>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-6 md:gap-10">
-          {sponsorPartners.map((partner) => (
-            <a
-              key={partner.name}
-              href={partner.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="opacity-70 grayscale-[50%] transition-all duration-300 hover:opacity-100 hover:grayscale-0"
-            >
-              <Image
-                src={partner.lightLogo}
-                alt={partner.name}
-                width={120}
-                height={60}
-                className="block h-[50px] w-auto md:h-[60px] dark:hidden"
-                loading="lazy"
-                decoding="async"
-              />
-              <Image
-                src={partner.darkLogo}
-                alt={partner.name}
-                width={120}
-                height={60}
-                className="hidden h-[50px] w-auto md:h-[60px] dark:block"
-                loading="lazy"
-                decoding="async"
-              />
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {/* Development Contributors Section */}
-      <section className="mx-auto mt-16 max-w-[1400px] px-4 text-center">
-        <h2 className="text-2xl font-semibold md:text-3xl">
-          {content.devContributorsTitle}
-        </h2>
-        <div className="mt-8 flex justify-center">
-          <a
-            href="https://github.com/QuantumNous/new-api/graphs/contributors"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img
-              src="https://contrib.rocks/image?repo=QuantumNous/new-api"
-              alt="Development Contributors"
-              loading="lazy"
-              decoding="async"
-              className="max-w-full"
-            />
-          </a>
-        </div>
-      </section>
-
-      {/* Documentation Contributors Section */}
-      <section className="mx-auto mt-16 max-w-[1400px] px-4 text-center">
-        <h2 className="text-2xl font-semibold md:text-3xl">
-          {content.docsContributorsTitle}
-        </h2>
-        <div className="mt-8 flex justify-center">
-          <a
-            href="https://github.com/QuantumNous/new-api-docs-v1/graphs/contributors"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img
-              src="https://contrib.rocks/image?repo=QuantumNous/new-api-docs-v1"
-              alt="Documentation Contributors"
-              loading="lazy"
-              decoding="async"
-              className="max-w-full"
-            />
-          </a>
-        </div>
-      </section>
-
-      <AntifraudDialog lang={lang} />
     </main>
   );
 }

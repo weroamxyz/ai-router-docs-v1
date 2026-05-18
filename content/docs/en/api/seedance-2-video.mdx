@@ -1,0 +1,474 @@
+---
+title: SeeDance 2.0 Video API Documentation
+---
+
+# SeeDance 2.0 Video API Documentation
+
+ByteDance Doubao SeeDance 2.0 provides high-quality video generation models. This document describes the complete API interface specification for using SeeDance 2.0 models for video generation. All video generation calls use the same `/v1/video/generations` endpoint, with different parameters depending on the use case.
+
+---
+
+## Supported Models
+
+Currently supported models include:
+
+| Model | Description |
+| --- | --- |
+| **doubao-seedance-2-0-fast-260128** | SeeDance 2.0 fast video generation model |
+| **doubao-seedance-2-0-260128** | SeeDance 2.0 video generation model |
+| **dreamina-seedance-2-0-fast-260128** | SeeDance 2.0 fast video generation model (overseas version) |
+| **dreamina-seedance-2-0-260128** | SeeDance 2.0 video generation model (overseas version) |
+
+---
+
+## Overview
+
+The SeeDance 2.0 video generation feature provides an asynchronous task processing mechanism:
+
+1. Submit Task: Send an image and text prompt to create a video generation task
+2. Query Status: Query generation progress and status through task ID
+3. Get Results: Retrieve the generated video file after task completion
+
+### Task Status Flow
+
+```
+queued → in_progress → completed
+                ↓
+            failed
+```
+
+- queued: Task has been submitted and is waiting to be processed
+- in_progress: Task is being processed
+- completed: Task completed successfully, video has been generated
+- failed: Task failed
+
+---
+
+## API List
+
+| Method | Path | Description |
+|------|------|------|
+| POST | /v1/video/generations | Submit video generation task |
+| GET | /v1/video/generations/\{task_id\} | Query task status |
+
+## Usage Examples
+
+### 1. Basic Text Prompt
+
+Text-to-video uses `prompt` and `model`. Optional top-level fields include `duration` and `size`. Other options can go in `metadata` as needed.
+
+**Request body:**
+
+```json
+{
+    "prompt": "A large hand-shaped marble statue with vines growing on it, on a platform in the middle of a shallow pool of water.",
+    "model": "doubao-seedance-2-0-fast-260128",
+    "duration": 8,
+    "size": "720p",
+    "metadata": {
+        "ratio": "16:9",
+        "callback_url": ""
+    }
+}
+```
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| prompt | string | Yes | Text prompt for the video |
+| model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
+| duration | integer | No | Default `5`. Allowed: integers from `4` to `15`, inclusive, or `-1` for automatic duration selection |
+| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
+| metadata | object | No | Extra metadata |
+| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
+| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
+
+### 2. First/Last Frame Images
+
+Provide one or two image URLs in `images`: the first entry is the first frame; when two URLs are given, the second is the last frame. Optional top-level `duration` and `size` match **Basic Text Prompt**.
+
+**Request body:**
+
+```json
+{
+    "prompt": "The girl in the frame says cheese to the camera; 360-degree orbit camera move.",
+    "model": "doubao-seedance-2-0-fast-260128",
+    "images": [
+        "https://ark-project.tos-cn-beijing.volces.com/doc_image/seepro_first_frame.jpeg",
+        "https://ark-project.tos-cn-beijing.volces.com/doc_image/seepro_last_frame.jpeg"
+    ],
+    "duration": 8,
+    "size": "720p",
+    "metadata": {
+        "ratio": "16:9",
+        "callback_url": ""        
+    }
+}
+```
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| prompt | string | Yes | Text prompt for the video |
+| model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
+| images | array of string | Yes | One or two image URLs: first frame, and optionally last frame |
+| duration | integer | No | Default `5`. Allowed: integers from `4` to `15`, inclusive, or `-1` for automatic duration selection |
+| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
+| metadata | object | No | Extra metadata |
+| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
+| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
+
+### 3. Reference Images
+
+This flow also uses the top-level `images` array. Set `metadata.imageMode` to `reference` so each URL is treated as a **reference image** (not first/last frame). In this mode you can pass **up to nine** images. Optional top-level `duration` and `size` work the same as in **Basic Text Prompt**. In the prompt, reference images with tags such as `[image 1]`, `[image 2]`, … in the same order as `images`.
+
+**Request body:**
+
+```json
+{
+    "prompt": "[image 1] A boy wearing glasses and a blue T-shirt and [image 2] a corgi puppy, sitting on the lawn in [image 3], 3D cartoon style.",
+    "model": "doubao-seedance-2-0-fast-260128",
+    "images": [
+        "https://ark-project.tos-cn-beijing.volces.com/doc_image/seelite_ref_1.png",
+        "https://ark-project.tos-cn-beijing.volces.com/doc_image/seelite_ref_2.png",
+        "https://ark-project.tos-cn-beijing.volces.com/doc_image/seelite_ref_3.png"
+    ],
+    "duration": 8,
+    "size": "720p",
+    "metadata": {
+        "imageMode": "reference",
+        "ratio": "16:9",
+        "callback_url": ""
+    }
+}
+```
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| prompt | string | Yes | Text prompt; use `[image 1]` … `[image N]` to refer to images in order |
+| model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
+| images | array of string | Yes | Reference image URLs (up to **9** in this mode) |
+| duration | integer | No | Default `5`. Allowed: integers from `4` to `15`, inclusive, or `-1` for automatic duration selection |
+| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
+| metadata | object | No | Must include `imageMode`: `reference` for reference-image mode |
+| metadata.imageMode | string | Yes (this mode) | Set to `reference` |
+| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
+| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
+
+### 4. Reference Videos
+
+Pass reference clip URLs in `metadata.referenceVideos` (up to **three**). The prompt can refer to them in order (e.g. `[video 1]`, `[video 2]`, `[video 3]`).
+
+**Request body:**
+
+```json
+{
+    "prompt": "In [video 1], the arched window opens and we enter the gallery interior; cut to [video 2], then the camera moves into the painting; cut to [video 3].",
+    "model": "doubao-seedance-2-0-fast-260128",
+    "size": "720p",
+    "duration": 8,
+    "metadata": {
+        "ratio": "16:9",
+        "referenceVideos": [
+            "https://ark-project.tos-cn-beijing.volces.com/doc_video/r2v_extend_video1.mp4",
+            "https://ark-project.tos-cn-beijing.volces.com/doc_video/r2v_extend_video2.mp4",
+            "https://ark-project.tos-cn-beijing.volces.com/doc_video/r2v_extend_video3.mp4"
+        ],
+        "callback_url": ""
+    }
+}
+```
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| prompt | string | Yes | Text prompt describing how to use the reference videos (e.g. `[video 1]`, `[video 2]`, `[video 3]` in order) |
+| model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
+| duration | integer | No | Default `5`. Allowed: integers from `4` to `15`, inclusive, or `-1` for automatic duration selection |
+| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
+| metadata | object | No | Must include `referenceVideos` for this mode |
+| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
+| metadata.referenceVideos | array of string | Yes (this mode) | Up to **3** video URLs |
+| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
+
+**Constraints on each reference video (and inputs overall):**
+
+- **Count:** at most 3 URLs in `referenceVideos`.
+- **Container format:** `mp4` or `mov`.
+- **Resolution:** `480p` or `720p`.
+- **Duration per clip:** each video must be between **2** and **15** seconds (inclusive); **combined** duration of all input videos must not exceed **15** seconds.
+- **Aspect ratio** (width ÷ height): between **0.4** and **2.5** (inclusive).
+- **Width and height** (pixels): each between **300** and **6000** (inclusive).
+- **Total pixels** (width × height): between **409600** and **927408** (inclusive).
+- **File size:** each file must not exceed **50 MB**.
+- **Frame rate:** between **24** and **60** fps (inclusive).
+
+### 5. Multimodal References
+
+Combine **reference images** (`images` + `metadata.imageMode`: `reference`), **reference videos** (`metadata.referenceVideos`), and **reference audio** (`metadata.referenceAudio`) in one request. Prompts can reference assets by role (e.g. `[video 1]`, `[audio 1]`, `[image 1]`, `[image 2]`) as in the single-mode sections. Reference videos must still meet the [constraints in Reference Videos](#4-reference-videos).
+
+**Request body:**
+
+```json
+{
+    "prompt": "First-person framing from [video 1] throughout; use [audio 1] as background music throughout. First-person fruit tea ad for Seedance Ping Ping An An limited-edition apple fruit tea. First frame is [image 1]: your hand picks a dewy Aksu red apple, crisp apple impact sounds. 2-4s: quick cuts — your hands drop apple pieces into a shaker with ice and tea base, shake hard; ice and shaker sounds sync to light drum hits; voiceover: Fresh-cut, shaken fresh. 4-6s: first-person product close-up — layered fruit tea poured into a clear cup, you pipe cream on top and apply a pink label wrap; camera pushes in on cream and tea layers. 6-8s: first-person — you raise the drink from [image 2] toward the camera (as if offering it to the viewer); label clearly visible; voiceover: Take a fresh sip; end frame freezes on [image 2]. Female voice throughout.",
+    "model": "doubao-seedance-2-0-fast-260128",
+    "images": [
+        "https://ark-project.tos-cn-beijing.volces.com/doc_image/r2v_tea_pic1.jpg",
+        "https://ark-project.tos-cn-beijing.volces.com/doc_image/r2v_tea_pic2.jpg"
+    ],
+    "size": "720p",
+    "duration": 11,
+    "metadata": {
+        "imageMode": "reference",
+        "referenceVideos": [
+            "https://ark-project.tos-cn-beijing.volces.com/doc_video/r2v_tea_video1.mp4"
+        ],
+        "referenceAudio": [
+            "https://ark-project.tos-cn-beijing.volces.com/doc_audio/r2v_tea_audio1.mp3"
+        ],
+        "ratio": "16:9",
+        "callback_url": ""
+    }
+}
+```
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| prompt | string | Yes | Long-form prompt referencing `[video N]`, `[audio N]`, `[image N]` as needed |
+| model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
+| images | array of string | No | Reference image URLs when `metadata.imageMode` is `reference` (up to **9**; see [Reference Images](#3-reference-images)) |
+| duration | integer | No | Default `5`. Allowed: integers from `4` to `15`, inclusive, or `-1` for automatic duration selection |
+| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
+| metadata | object | No | Combines modes below |
+| metadata.imageMode | string | When using `images` as references | Set to `reference` |
+| metadata.referenceVideos | array of string | No | Reference video URLs (up to **3**; constraints in [Reference Videos](#4-reference-videos)) |
+| metadata.referenceAudio | array of string | No | Reference audio URLs |
+| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
+| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
+
+## 1. Submit Video Generation Task
+
+Use the JSON bodies in [Usage Examples](#usage-examples) above; adjust fields for your scenario. 
+
+### Complete Request:
+
+```bash
+curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer API_KEY" \
+  -d @request-body.json
+```
+
+### Endpoint:
+
+```
+POST /v1/video/generations
+```
+
+### Request Headers:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| Content-Type | string | Yes | application/json |
+| Authorization | string | Yes | Bearer API_KEY |
+
+### Response Example:
+
+```json
+{
+  "task_id": "TASK_ID"
+}
+```
+
+### Response Field Descriptions:
+
+| Field | Type | Description |
+|------|------|------|
+| task_id | string | Task ID for subsequent task status queries |
+
+## 2. Query Task Status
+
+### Complete Request:
+
+```bash
+curl -X GET "https://computevault.unodetech.xyz/v1/video/generations/TASK_ID" \
+  -H "Authorization: Bearer API_KEY"
+```
+
+### Endpoint:
+
+```
+GET /v1/video/generations/{task_id}
+```
+
+### Request Headers:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| Authorization | string | Yes | Bearer API_KEY |
+
+### Path Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| task_id | string | Yes | Task ID |
+
+### Response Example (Processing):
+```json
+{
+    "code": "success",
+    "message": "",
+    "data": {
+        "task_id": "<TASK_ID>",
+        "action": "generate",
+        "status": "IN_PROGRESS",
+        "fail_reason": "",
+        "submit_time": 1776717808,
+        "start_time": 1776717809,
+        "finish_time": 0,
+        "progress": "30%",
+        "data": {
+            "created_at": 1776717808,
+            "draft": false,
+            "execution_expires_after": 172800,
+            "generate_audio": true,
+            "id": "<TASK_ID>",
+            "model": "doubao-seedance-2-0-fast-260128",
+            "service_tier": "default",
+            "status": "running",
+            "updated_at": 1776717808
+        }
+    }
+}
+```
+
+### Response Example (Success):
+```json
+{
+    "code": "success",
+    "message": "",
+    "data": {
+        "task_id": "<TASK_ID>",
+        "action": "generate",
+        "status": "SUCCESS",
+        "fail_reason": "<VIDEO_URL>",
+        "submit_time": 1776717808,
+        "start_time": 1776717818,
+        "finish_time": 1776717962,
+        "progress": "100%",
+        "data": {
+            "content": {
+                "video_url": "<VIDEO_URL>"
+            },
+            "created_at": 1776717808,
+            "draft": false,
+            "duration": 4,
+            "execution_expires_after": 172800,
+            "framespersecond": 24,
+            "generate_audio": true,
+            "id": "<TASK_ID>",
+            "model": "doubao-seedance-2-0-fast-260128",
+            "ratio": "16:9",
+            "resolution": "480p",
+            "seed": 93719,
+            "service_tier": "default",
+            "status": "succeeded",
+            "updated_at": 1776717961,
+            "usage": {
+                "completion_tokens": 40594,
+                "total_tokens": 40594
+            }
+        }
+    }
+}
+```
+
+## 3. Callback
+
+```
+POST <YOUR_CALLBACK_URL>
+```
+
+The webhook requests consist of "wrapper" data, taking the following format:
+```json
+{
+  "webhook_type": "VIDEO_TASK",
+  "payload": {
+    "channel_type": "DoubaoVideo",
+    "data": {}
+  }
+}
+```
+The payload.data field contains the data in the same format that the [2. Query Task Status](#2-query-task-status) endpoint's response.data would provide.
+
+### Request Example (Task Running)
+```json
+{
+  "webhook_type": "VIDEO_TASK",
+  "payload": {
+    "channel_type": "DoubaoVideo",
+    "data": {
+      "task_id": "<TASK_ID>",
+      "action": "generate",
+      "status": "IN_PROGRESS",
+      "fail_reason": "",
+      "submit_time": 1776717808,
+      "start_time": 1776717809,
+      "finish_time": 0,
+      "progress": "30%",
+      "data": {
+        "created_at": 1776717808,
+        "draft": false,
+        "execution_expires_after": 172800,
+        "generate_audio": true,
+        "id": "<TASK_ID>",
+        "model": "doubao-seedance-2-0-fast-260128",
+        "service_tier": "default",
+        "status": "running",
+        "updated_at": 1776717808
+      }
+    }
+  }
+}
+```
+
+### Request Example (Task Completed Successfully)
+```json
+{
+  "webhook_type": "VIDEO_TASK",
+  "payload": {
+    "channel_type": "DoubaoVideo",
+    "data": {
+      "task_id": "<TASK_ID>",
+      "action": "generate",
+      "status": "SUCCESS",
+      "fail_reason": "<VIDEO_URL>",
+      "submit_time": 1776717808,
+      "start_time": 1776717818,
+      "finish_time": 1776717962,
+      "progress": "100%",
+      "data": {
+        "content": {
+          "video_url": "<VIDEO_URL>"
+        },
+        "created_at": 1776717808,
+        "draft": false,
+        "duration": 4,
+        "execution_expires_after": 172800,
+        "framespersecond": 24,
+        "generate_audio": true,
+        "id": "<TASK_ID>",
+        "model": "doubao-seedance-2-0-fast-260128",
+        "ratio": "16:9",
+        "resolution": "480p",
+        "seed": 93719,
+        "service_tier": "default",
+        "status": "succeeded",
+        "updated_at": 1776717961,
+        "usage": {
+          "completion_tokens": 40594,
+          "total_tokens": 40594
+        }
+      }
+    }
+  }
+}
+```

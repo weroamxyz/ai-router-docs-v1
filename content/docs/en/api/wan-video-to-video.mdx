@@ -1,0 +1,369 @@
+---
+title: Wan Model Video-to-Video API Documentation
+---
+
+# Wan Model Video-to-Video API Documentation
+
+Wan/Alibaba Cloud provides high-quality video-to-video generation models. This document describes the complete API interface specification for using Wan/Alibaba Cloud models for video-to-video generation. The Wan video-to-video model uses the character and voice from an input video, combined with a prompt, to generate a new video that maintains character consistency.
+
+---
+
+## Overview
+
+## Supported Models
+
+Currently supported models include:
+
+| Model | Description |
+| --- | --- |
+| **wan2.6-r2v** | Wan 2.6 video-to-video generation model |
+
+The Wan model video-to-video feature provides an asynchronous task processing mechanism:
+
+1. Submit Task: Send reference videos and a text prompt to create a video generation task
+2. Query Status: Query generation progress and status through task ID
+3. Get Results: Retrieve the generated video file after task completion
+
+### Task Status Flow
+
+```
+queued → in_progress → completed
+                ↓
+            failed
+```
+
+- queued: Task has been submitted and is waiting to be processed
+- in_progress: Task is being processed
+- completed: Task completed successfully, video has been generated
+- failed: Task failed
+
+### Features
+
+- **Basic features**: You can select the video duration (5 or 10 seconds), specify the video resolution (720P or 1080P), and add watermarks
+- **Multi-shot narrative**: You can generate videos with multiple shots while maintaining subject consistency across shot changes
+
+---
+
+## API List
+
+| Method | Path | Description |
+|------|------|------|
+| POST | /v1/video/generations | Submit video generation task |
+| GET | /v1/video/generations/\{task_id\} | Query task status |
+
+## Usage Examples
+
+### 1. Single-Character Reference
+
+Reference the character's appearance and voice from a video, set `shot_type` to `multi`, and generate a multi-shot video.
+
+**Request Body:**
+
+```json
+{
+  "prompt": "character1 drinks bubble tea while dancing spontaneously to the music.",
+  "model": "wan2.6-r2v",
+  "metadata": {
+    "input": {
+      "reference_video_urls": [
+        "https://example.com/reference-video.mp4"
+      ]
+    },
+    "parameters": {
+      "size": "1280*720",
+      "duration": 5,
+      "shot_type": "multi"
+    }
+  }
+}
+```
+
+### 2. Multi-Character Reference
+
+Based on reference videos for a character and a prop, define the relationship between them using a prompt, set `shot_type` to `multi`, and generate a multi-shot video. You can reference the same character multiple times in the prompt.
+
+**Request Body:**
+
+```json
+{
+  "prompt": "character1 and character2 talk to each other in an office.",
+  "model": "wan2.6-r2v",
+  "metadata": {
+    "input": {
+      "reference_video_urls": [
+        "https://example.com/character1-video.mp4",
+        "https://example.com/character2-video.mp4"
+      ],
+      "negative_prompt": "white walls"
+    },
+    "parameters": {
+      "size": "1280*720",
+      "duration": 10,
+      "shot_type": "multi",
+      "watermark": true
+    }
+  }
+}
+```
+
+**Complete Request:**
+
+```bash
+curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer API_KEY" \
+  -d '{
+    "prompt": "character1 and character2 talk to each other in an office.",
+    "model": "wan2.6-r2v",
+    "metadata": {
+      "input": {
+        "reference_video_urls": [
+          "https://example.com/character1-video.mp4",
+          "https://example.com/character2-video.mp4"
+        ],
+        "negative_prompt": "white walls"
+      },
+      "parameters": {
+        "size": "1280*720",
+        "duration": 10,
+        "shot_type": "multi",
+        "watermark": true
+      }
+    }
+  }'
+```
+
+### Request Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| model | string | Yes | Model name, must be `wan2.6-r2v` (currently the only supported model) |
+| prompt | string | Yes | Text prompt describing the video content to be generated. In multi-character scenarios, you can use identifiers like character1, character2 to reference different reference videos |
+| metadata | object | No | Metadata object containing `input` and `parameters` sub-objects for specifying optional fields from the official Wan request format |
+
+#### metadata.input Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| reference_video_urls | array[string] | Yes | Array of reference video URLs. A maximum of 3 videos are supported.<br /><br />**Multiple Video Usage**: If you use multiple videos, the order of the URLs in the array defines the character order. The first URL corresponds to `character1`, the second to `character2`, and so on.<br /><br />**Video Requirements**:<br />- Each reference video must contain only one character. For example, character1 is a little girl and character2 is an alarm clock<br />- Format: MP4 or MOV<br />- Duration: 2 to 30 seconds<br />- File size: The video cannot exceed 100 MB<br />- URLs support the HTTP or HTTPS protocol |
+| negative_prompt | string | No | Negative prompt text to exclude certain elements from the video |
+
+#### metadata.parameters Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| size | string | No | Video resolution. Default value is `"1920*1080"` (1080P). Options:<br /><br />**720P tier**:<br />- `"1280*720"` (16:9)<br />- `"720*1280"` (9:16)<br />- `"960*960"` (1:1)<br />- `"1088*832"` (4:3)<br />- `"832*1088"` (3:4)<br /><br />**1080P tier**:<br />- `"1920*1080"` (16:9, default)<br />- `"1080*1920"` (9:16)<br />- `"1440*1440"` (1:1)<br />- `"1632*1248"` (4:3)<br />- `"1248*1632"` (3:4) |
+| duration | integer | No | Video duration in seconds. Options: `5`, `10` |
+| shot_type | string | No | Specifies the shot type of the generated video. Options: `"single"` (default, outputs a single-shot video) or `"multi"` (outputs a multi-shot video while maintaining subject consistency across shot changes) |
+| watermark | boolean | No | Add watermark to the video |
+| seed | integer | No | Random number seed. The value must be in the range of [0, 2147483647]. If you do not specify this parameter, the system automatically generates a random seed. To improve the reproducibility of the results, you can set a fixed seed value. Note that because model generation is probabilistic, using the same seed does not guarantee that the results are identical every time. Example: `12345` |
+
+## 1. Submit Video Generation Task
+
+### Endpoint:
+
+```
+POST /v1/video/generations
+```
+
+### Request Headers:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| Content-Type | string | Yes | application/json |
+| Authorization | string | Yes | Bearer API_KEY |
+
+### Response Example:
+
+```json
+{
+  "id": "...",
+  "object": "video",
+  "model": "wan2.6-r2v",
+  "status": "queued",
+  "progress": 0,
+  "created_at": 1766086029
+}
+```
+
+### Response Field Descriptions:
+
+| Field | Type | Description |
+|------|------|------|
+| id | string | Task ID for subsequent task status queries |
+| object | string | Object type, fixed as "video" |
+| model | string | Model used to generate the video |
+| status | string | Task status, initially "queued" |
+| progress | integer | Task progress, 0-100 |
+| created_at | integer | Task creation timestamp |
+
+## 2. Query Task Status
+
+### Complete Request
+
+```bash
+curl -X GET "https://computevault.unodetech.xyz/v1/video/generations/TASK_ID" \
+  -H "Authorization: Bearer API_KEY"
+```
+
+### Endpoint:
+
+```
+GET /v1/video/generations/{task_id}
+```
+
+### Request Headers:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| Authorization | string | Yes | Bearer API_KEY |
+
+### Path Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| task_id | string | Yes | Task ID |
+
+### Response Example (Processing):
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "IN_PROGRESS",
+    "fail_reason": "",
+    "submit_time": 1766086029,
+    "start_time": 1766086038,
+    "finish_time": 0,
+    "progress": "30%",
+    "data": {
+      "output": {
+        "scheduled_time": "2025-12-19 03:27:09.887",
+        "submit_time": "2025-12-19 03:27:09.859",
+        "task_id": "...",
+        "task_status": "RUNNING"
+      },
+      "request_id": "..."
+    }
+  }
+}
+```
+
+### Response Example (Success):
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "SUCCESS",
+    "fail_reason": "<OUTPUT_URL>",
+    "submit_time": 1766086029,
+    "start_time": 1766086038,
+    "finish_time": 1766086419,
+    "progress": "100%",
+    "data": {
+      "output": {
+        "end_time": "2025-12-19 03:33:31.045",
+        "orig_prompt": "character1 and character2 talk to each other in an office.",
+        "scheduled_time": "2025-12-19 03:27:09.887",
+        "submit_time": "2025-12-19 03:27:09.859",
+        "task_id": "...",
+        "task_status": "SUCCEEDED",
+        "video_url": "<OUTPUT_URL>"
+      },
+      "request_id": "...",
+      "usage": {
+        "SR": 720,
+        "duration": 15,
+        "input_video_duration": 5,
+        "output_video_duration": 10,
+        "size": "1280*720",
+        "video_count": 1,
+        "video_ratio": "1280*720"
+      }
+    }
+  }
+}
+```
+
+You can retrieve the video URL from the `data.data.output.video_url` field.
+
+### Response Example (Failed):
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "FAILURE",
+    "fail_reason": "task failed, code: InvalidParameter , message: The size is not match xxxxxx",
+    "submit_time": 1766086029,
+    "start_time": 1766086038,
+    "finish_time": 1766086419,
+    "progress": "100%",
+    "data": {
+      "output": {
+        "code": "InvalidParameter",
+        "end_time": "2025-12-19 03:33:31.045",
+        "message": "The size is not match xxxxxx",
+        "scheduled_time": "2025-12-19 03:27:09.887",
+        "submit_time": "2025-12-19 03:27:09.859",
+        "task_id": "...",
+        "task_status": "FAILED"
+      },
+      "request_id": "..."
+    }
+  }
+}
+```
+
+### Response Field Descriptions:
+
+| Field | Type | Description |
+|------|------|------|
+| code | string | Response status code, "success" indicates success |
+| message | string | Response message |
+| data | object | Task data object |
+| data.task_id | string | Task ID |
+| data.status | string | Task status: IN_PROGRESS, SUCCESS, FAILURE |
+| data.progress | string | Task progress percentage |
+| data.data.output.video_url | string | Video access URL (when task succeeds). The link is valid for 24 hours |
+| data.data.output.task_status | string | Task status: RUNNING, SUCCEEDED, FAILED |
+| data.data.output.orig_prompt | string | Original input prompt |
+| data.data.usage | object | Usage statistics (when task succeeds) |
+| data.data.usage.input_video_duration | integer | Total duration of input reference videos in seconds |
+| data.data.usage.output_video_duration | integer | Duration of output video in seconds, same as the value of `parameters.duration` |
+| data.data.usage.duration | float | Total video duration in seconds, used for billing. Formula: duration = input_video_duration + output_video_duration |
+| data.data.usage.SR | integer | Resolution of generated video, e.g., 720 |
+| data.data.usage.video_ratio | string | Resolution of generated video, format "width*height", e.g., "1280*720" |
+| data.data.usage.video_count | integer | Number of videos generated, fixed at 1 |
+
+## Important Notes
+
+1. **Data Retention**: The task_id and video URL are retained for 24 hours. After this period, you can no longer query or download them.
+
+2. **Content Moderation**: Both the input prompt and the output video undergo content moderation. Requests that contain prohibited content return an "IPInfringementSuspect" or "DataInspectionFailed" error.
+
+3. **Network Access Configuration**: Video links are stored in Object Storage Service (OSS). If your business system cannot access external OSS links because of security policies, add the relevant OSS domain names to your network access whitelist.
+
+4. **Billing Description**:
+   - You are billed per second based on the combined duration of the **input video + output video**
+   - You are charged only when the API call returns a `task_status` of `SUCCEEDED` and a video is successfully generated
+   - Failed model calls or processing errors do not incur any fees or consume the free quota
+   - **Billable duration for input video**: The billable duration is the sum of the truncated durations of each reference video. The total billable duration for the input cannot exceed **5 seconds**
+   - **Billable duration for output video**: The duration in seconds of the video successfully generated by the model
+
+5. **Reference Video Count**: Supports 1-3 reference videos. Use 1 video for single-character scenarios, multiple videos for multi-character scenarios.
+
+## Related Links
+
+- [Alibaba Cloud Reference-to-Video API Official Documentation](https://www.alibabacloud.com/help/en/model-studio/wan-video-to-video-api-reference)
+

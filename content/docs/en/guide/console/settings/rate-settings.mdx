@@ -14,7 +14,7 @@ NewAPI uses a three-tier ratio system to calculate user quota consumption:
 
 ### Relationship between Quota and Ratios
 
-In the New API system, ratios are key parameters for calculating quota consumption. Quota is the internal billing unit of the system, and all API calls are ultimately converted into quota points for deduction.
+In the ComputeVault system, ratios are key parameters for calculating quota consumption. Quota is the internal billing unit of the system, and all API calls are ultimately converted into quota points for deduction.
 
 Quota Unit Conversion:
 
@@ -36,7 +36,7 @@ Quota Unit Conversion:
 配额消耗 = 模型固定价格 × 分组倍率 × 配额单位(500,000)
 ```
 
-#### Audio Models (Special handling, automatically processed internally by New API)
+#### Audio Models (Special handling, automatically processed internally by ComputeVault)
 
 ```
 配额消耗 = (文本输入token + 文本输出token × 补全倍率 + 音频输入token × 音频倍率 + 音频输出token × 音频倍率 × 音频补全倍率) × 模型倍率 × 分组倍率
@@ -44,7 +44,7 @@ Quota Unit Conversion:
 
 #### Pre-consumption and Post-consumption Mechanism
 
-New API adopts a dual billing mechanism of pre-consumption and post-consumption:
+ComputeVault adopts a dual billing mechanism of pre-consumption and post-consumption:
 
 1.  **Pre-consumption Phase**: Before an API call, calculate and pre-deduct quota consumption based on estimated token count.
 2.  **Post-consumption Phase**: After an API call is completed, recalculate quota consumption based on actual token count.
@@ -80,7 +80,7 @@ Ratio Meaning Explanation:
 1.  **JSON Format Setting**: Directly edit the model ratio JSON configuration
 2.  **Visual Editor**: Set ratios via a graphical interface
 
-![倍率1](/assets/guide/rate-setting-1.png)
+![倍率1](/assets/guide-en/rate-setting-1.png)
 
 ## Completion Ratio Settings
 
@@ -123,7 +123,7 @@ Group ratios allow setting differentiated billing multipliers for different user
 2.  **Group Ratio**: The ratio of the group the user belongs to
 3.  **Default Ratio**: System default ratio (usually 1.0)
 
-![倍率2](/assets/guide/rate-setting-2.png)
+![倍率2](/assets/guide-en/rate-setting-2.png)
 
 ## Visual Ratio Settings
 
@@ -134,7 +134,7 @@ The visual editor provides an intuitive ratio management interface, supporting:
 -   Conflict detection and alerts
 -   One-click synchronization of upstream ratios
 
-![倍率3](/assets/guide/rate-setting-3.png)
+![倍率3](/assets/guide-en/rate-setting-3.png)
 
 ## Models Without Ratio Settings
 
@@ -144,7 +144,7 @@ For models without ratio settings, the system will:
 2.  **Billing Mode**: Prompt with "Ratio or price not configured" error
 3.  **Automatic Detection**: Display unconfigured models in the management interface
 
-![倍率4](/assets/guide/rate-setting-4.png)
+![倍率4](/assets/guide-en/rate-setting-4.png)
 
 ## Upstream Ratio Synchronization
 
@@ -155,7 +155,7 @@ The system supports automatic synchronization of ratio settings from upstream ch
 -   Stay synchronized with upstream prices
 -   Supports manual adjustment and override
 
-![倍率5](/assets/guide/rate-setting-5.png)
+![倍率5](/assets/guide-en/rate-setting-5.png)
 
 ## Frequently Asked Questions
 

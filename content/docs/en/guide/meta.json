@@ -1,20 +1,14 @@
 {
   "title": "User Guide",
-  "description": "Quick start and basic tutorials",
+  "description": "Quick start and basic usage tutorials",
   "icon": "BookOpen",
   "root": true,
   "pages": [
-    "---Introduction---",
-    "../index",
-    "wiki/basic-concepts/project-introduction",
-    "wiki/basic-concepts/features-introduction",
-    "wiki/basic-concepts/technical-architecture",
-    "wiki/basic-concepts/analytics-setup",
-    "wiki/basic-concepts/performance-analysis",
-    "wiki/changelog",
-    "---Feature Guide---",
-    "feature-guide/index",
-    "feature-guide/user",
-    "feature-guide/admin"
+    "console/playground",
+    "console/dashboard",
+    "console/api-token",
+    "console/usage-log",
+    "console/wallet",
+    "console/profile"
   ]
 }

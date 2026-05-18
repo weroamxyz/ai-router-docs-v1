@@ -1,0 +1,246 @@
+---
+title: Veo 模型文生视频接口文档
+---
+
+# Veo 模型文生视频接口文档
+
+Veo 是 Google 开发的高质量文本到视频生成模型,本文档描述了使用 Google Veo 模型进行文本到视频生成的完整 API 接口规范。
+
+---
+
+## 支持的模型
+
+目前支持的模型包括：
+
+| 模型 | 描述 |
+| --- | --- |
+| **veo-3.0-generate-001** | Veo 3.0 文本到视频生成模型 |
+| **veo-3.0-fast-generate-001** | Veo 3.0 快速文本到视频生成模型 |
+| **veo-3.1-generate-001** | Veo 3.1 文本到视频生成模型 |
+| **veo-3.1-fast-generate-001** | Veo 3.1 快速文本到视频生成模型 |
+
+---
+
+## 概述
+
+Veo 模型文生视频功能提供异步任务处理机制：
+
+1. 提交任务：发送文本提示词，创建视频生成任务
+2. 查询状态：通过任务 ID 查询生成进度和状态
+3. 获取结果：任务完成后获取生成的视频文件
+
+### 任务状态流转
+
+```
+queued → in_progress → completed
+                ↓
+            failed
+```
+
+- queued: 任务已提交，等待处理
+- in_progress: 任务正在处理中
+- completed: 任务成功完成，视频已生成
+- failed: 任务失败
+
+---
+
+## 接口列表
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /v1/video/generations | 提交视频生成任务（标准格式） |
+| GET | /v1/video/generations/\{task_id\} | 查询任务状态（标准格式） |
+| POST | /v1/videos | 提交视频生成任务 |
+| GET | /v1/videos/\{task_id\} | 查询任务状态 |
+| GET | /v1/videos/\{task_id\}/content | 获取视频内容（流式下载） |
+
+## 调用示例
+
+### 请求体
+
+```json
+{
+  "model": "veo-3.0-generate-001",
+  "prompt": "A cat playing piano in a beautiful garden",
+  "metadata": {
+    "aspectRatio": "16:9",
+    "durationSeconds": 8.0,
+    "negativePrompt": "blurry, low quality",
+    "personGeneration": "allow_all",
+    "resolution": "1080p",
+    "sampleCount": 1,
+    "storageUri": "gs://your-bucket/path"
+  }
+}
+```
+
+### 请求参数说明:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| model | string | 是 | 模型名称，如 veo-3.0-generate-001 |
+| prompt | string | 是 | 文本提示词，描述要生成的视频内容 |
+| metadata | object | 否 | 扩展参数对象 |
+
+### metadata 参数说明:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| aspectRatio | string | 否 | 视频宽高比，可选值："16:9"、"9:16" |
+| durationSeconds | number | 否 | 视频时长（秒），可选值：4、6、8 |
+| negativePrompt | string | 否 | 负面提示词，描述不希望在视频中出现的内容 |
+| personGeneration | string | 否 | 人物生成策略，可选值："allow_all"（文生视频）、"allow_adult"（图生视频） |
+| resolution | string | 否 | 视频分辨率，如 "1080p"、"720p" |
+
+### metadata 参数说明:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| sampleCount | number | 否 | 生成视频数量，默认 1 |
+| storageUri | string | 否 | Google Cloud Storage URI，用于存储生成的视频 |
+
+## 1. 提交视频生成任务
+
+### 完整请求：
+
+```bash
+curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" -H "Content-Type: application/json" -H "Authorization: Bearer API_KEY" -d @veoTest.json
+```
+
+### 接口地址: 
+
+```
+POST /v1/video/generations
+```
+
+### 请求头:
+
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| Content-Type | string | 是 | application/json |
+| Authorization | string | 是 | Bearer API_KEY |
+
+### 响应示例:
+
+```json
+{
+  "id": "TASK_ID",
+  "task_id": "TASK_ID",
+  "object": "video",
+  "model": "veo-3.0-generate-001",
+  "status": "",
+  "progress": 0,
+  "created_at": 1764616538
+}
+```
+
+### 响应字段说明:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| task_id | string | 任务 ID，用于后续查询任务状态 |
+| model | string | 生成视频的模型 |
+
+## 2. 查询任务状态
+
+### 完整标准格式接口
+
+```bash
+curl -X GET "https://computevault.unodetech.xyz/v1/video/generations/TASK_ID" -H "Authorization: Bearer API_KEY"
+```
+
+### 接口地址: 
+
+```
+GET /v1/video/generations/{task_id}
+```
+
+### 请求头:
+
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| Authorization | string | 是 | Bearer API_KEY |
+
+### 路径参数:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| task_id | string | 是 | 任务 ID |
+
+### 响应示例（处理中）:
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "error": null,
+    "format": "mp4",
+    "metadata": null,
+    "status": "processing",
+    "task_id": "TASK_ID",
+    "url": ""
+  }
+}
+```
+
+### 响应示例（成功）:
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "error": null,
+    "format": "mp4",
+    "metadata": null,
+    "status": "succeeded",
+    "task_id": "TASK_ID",
+    "url": "https://computevault.unodetech.xyz/v1/videos/TASK_ID/content"
+  }
+}
+```
+
+可在返回的url下载视频
+
+### 响应字段说明:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| code | string | 响应状态码，"success" 表示成功 |
+| data | object | 任务数据对象 |
+| data.task_id | string | 任务 ID |
+| data.status | string | 任务状态：queued、in_progress、succeeded、failed |
+| data.format | string | 视频格式，如 "mp4" |
+| data.url | string | 视频访问 URL（任务成功时） |
+| data.error | object | 错误信息（任务失败时） |
+| message | string | 错误消息 |
+
+## 重要提示
+
+**注意：** 由于 [Google 的负责任 AI 指南](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/responsible-ai-and-usage-guidelines)，某些通过 Gemini 通道的请求可能会返回成功响应，但视频输出会被阻止。在这种情况下，过滤详情将在 `metadata.rai_media_filtered_count` 和 `metadata.rai_media_filtered_reasons` 字段中可见，如下例所示：
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "bytes_base64_encoded": "",
+    "error": null,
+    "format": "mp4",
+    "metadata": {
+      "rai_media_filtered_count": 1,
+      "rai_media_filtered_reasons": ["Sorry, we can't create videos with real people's names or likenesses. Please remove the celebrity reference and try again."]
+    },
+    "status": "succeeded",
+    "task_id": "bW9kZWxzL3Zlby0zLjAtZmFzdC1nZW5lcmF0ZS0wMDEvb3BlcmF0aW9ucy9hd2IxZDhsNDVydGM",
+    "url": "Sorry, we can't create videos with real people's names or likenesses. Please remove the celebrity reference and try again."
+  }
+}
+```
+
+## 相关链接
+
+- [Google Veo 官方文档](https://deepmind.google/models/veo/)
+- [Vertex AI 文档](https://cloud.google.com/vertex-ai/docs)
+- [Gemini API 文档](https://ai.google.dev/api)

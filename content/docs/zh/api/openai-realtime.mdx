@@ -1,0 +1,1464 @@
+---
+title: OpenAI 实时对话接口
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# OpenAI 实时对话接口
+
+<Callout type="info" title="官方文档">
+- [OpenAI Realtime WebRTC](https://platform.openai.com/docs/guides/realtime-webrtc)
+- [OpenAI Realtime WebSocket](https://platform.openai.com/docs/guides/realtime-websocket)
+</Callout>
+## 📝 概述
+
+### 简介
+OpenAI Realtime API 提供两种连接方式：
+
+1. WebRTC - 适用于浏览器和移动客户端的实时音视频交互
+
+2. WebSocket - 适用于服务器到服务器的应用程序集成
+
+### 使用场景
+- 实时语音对话
+- 音视频会议
+- 实时翻译
+- 语音转写
+- 实时代码生成
+- 服务器端实时集成
+
+### 主要特性
+- 双向音频流传输
+- 文本和音频混合对话
+- 函数调用支持
+- 自动语音检测(VAD)
+- 音频转写功能
+- WebSocket 服务器端集成
+
+## 🔐 认证与安全
+
+### 认证方式
+1. 标准 API 密钥 (仅服务器端使用)
+2. 临时令牌 (客户端使用)
+
+### 临时令牌
+- 有效期: 1分钟
+- 使用限制: 单个连接
+- 获取方式: 通过服务器端 API 创建
+
+```http
+POST https://computevault.unodetech.xyz/v1/realtime/sessions
+Content-Type: application/json
+Authorization: Bearer $API_KEY
+
+{
+  "model": "gpt-4o-realtime-preview-2024-12-17",
+  "voice": "verse"
+}
+```
+
+### 安全建议
+- 永远不要在客户端暴露标准 API 密钥
+- 使用 HTTPS/WSS 进行通信
+- 实现适当的访问控制
+- 监控异常活动
+
+## 🔌 连接建立
+
+### WebRTC 连接
+- URL: `https://computevault.unodetech.xyz/v1/realtime`
+- 查询参数: `model`
+- 请求头: 
+  - `Authorization: Bearer EPHEMERAL_KEY`
+  - `Content-Type: application/sdp`
+
+### WebSocket 连接
+- URL: `wss://computevault.unodetech.xyz/v1/realtime`
+- 查询参数: `model`
+- 请求头:
+  - `Authorization: Bearer YOUR_API_KEY`
+  - `OpenAI-Beta: realtime=v1`
+
+### 连接流程
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    participant OpenAI
+    
+    alt WebRTC 连接
+        Client->>Server: 请求临时令牌
+        Server->>OpenAI: 创建会话
+        OpenAI-->>Server: 返回临时令牌
+        Server-->>Client: 返回临时令牌
+        
+        Client->>OpenAI: 创建 WebRTC offer
+        OpenAI-->>Client: 返回 answer
+        
+        Note over Client,OpenAI: 建立 WebRTC 连接
+        
+        Client->>OpenAI: 创建数据通道
+        OpenAI-->>Client: 确认数据通道
+    else WebSocket 连接
+        Server->>OpenAI: 建立 WebSocket 连接
+        OpenAI-->>Server: 确认连接
+        
+        Note over Server,OpenAI: 开始实时对话
+    end
+```
+
+### 数据通道
+- 名称: `oai-events`
+- 用途: 事件传输
+- 格式: JSON
+
+### 音频流
+- 输入: `addTrack()`
+- 输出: `ontrack` 事件
+
+## 💬 对话交互
+
+### 对话模式
+1. 纯文本对话
+2. 语音对话
+3. 混合对话
+
+### 会话管理
+- 创建会话
+- 更新会话
+- 结束会话
+- 会话配置
+
+### 事件类型
+- 文本事件
+- 音频事件
+- 函数调用
+- 状态更新
+- 错误事件
+
+## ⚙️ 配置选项
+
+### 音频配置
+- 输入格式
+  - `pcm16`
+  - `g711_ulaw`
+  - `g711_alaw`
+- 输出格式
+  - `pcm16`
+  - `g711_ulaw`
+  - `g711_alaw`
+- 语音类型
+  - `alloy`
+  - `echo`
+  - `shimmer`
+
+### 模型配置
+- 温度
+- 最大输出长度
+- 系统提示词
+- 工具配置
+
+### VAD 配置
+- 阈值
+- 静音时长
+- 前缀填充
+
+## 💡 请求示例
+
+### WebSocket 连接 ✅
+
+#### Node.js (ws模块)
+```javascript
+import WebSocket from "ws";
+
+const url = "wss://computevault.unodetech.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17";
+const ws = new WebSocket(url, {
+  headers: {
+    "Authorization": "Bearer " + process.env.API_KEY,
+    "OpenAI-Beta": "realtime=v1",
+  },
+});
+
+ws.on("open", function open() {
+  console.log("Connected to server.");
+});
+
+ws.on("message", function incoming(message) {
+  console.log(JSON.parse(message.toString()));
+});
+```
+
+#### Python (websocket-client)
+```python
+# 需要安装 websocket-client 库:
+# pip install websocket-client
+
+import os
+import json
+import websocket
+
+API_KEY = os.environ.get("API_KEY")
+
+url = "wss://computevault.unodetech.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17"
+headers = [
+    "Authorization: Bearer " + API_KEY,
+    "OpenAI-Beta: realtime=v1"
+]
+
+def on_open(ws):
+    print("Connected to server.")
+
+def on_message(ws, message):
+    data = json.loads(message)
+    print("Received event:", json.dumps(data, indent=2))
+
+ws = websocket.WebSocketApp(
+    url,
+    header=headers,
+    on_open=on_open,
+    on_message=on_message,
+)
+
+ws.run_forever()
+```
+
+#### 浏览器 (标准WebSocket)
+```javascript
+/*
+注意：在浏览器等客户端环境中，我们建议使用WebRTC。
+但在Deno和Cloudflare Workers等类浏览器环境中，
+也可以使用标准WebSocket接口。
+*/
+
+const ws = new WebSocket(
+  "wss://computevault.unodetech.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17",
+  [
+    "realtime",
+    // 认证
+    "openai-insecure-api-key." + API_KEY, 
+    // 可选
+    "openai-organization." + OPENAI_ORG_ID,
+    "openai-project." + OPENAI_PROJECT_ID,
+    // Beta协议，必需
+    "openai-beta.realtime-v1"
+  ]
+);
+
+ws.on("open", function open() {
+  console.log("Connected to server.");
+});
+
+ws.on("message", function incoming(message) {
+  console.log(message.data);
+});
+```
+
+#### 消息收发示例
+
+##### Node.js/浏览器
+```javascript
+// 接收服务器事件
+ws.on("message", function incoming(message) {
+  // 需要从JSON解析消息数据
+  const serverEvent = JSON.parse(message.data)
+  console.log(serverEvent);
+});
+
+// 发送事件，创建符合客户端事件格式的JSON数据结构
+const event = {
+  type: "response.create",
+  response: {
+    modalities: ["audio", "text"],
+    instructions: "Give me a haiku about code.",
+  }
+};
+ws.send(JSON.stringify(event));
+```
+
+##### Python
+```python
+# 发送客户端事件，将字典序列化为JSON
+def on_open(ws):
+    print("Connected to server.")
+    
+    event = {
+        "type": "response.create",
+        "response": {
+            "modalities": ["text"],
+            "instructions": "Please assist the user."
+        }
+    }
+    ws.send(json.dumps(event))
+
+# 接收消息需要从JSON解析消息负载
+def on_message(ws, message):
+    data = json.loads(message)
+    print("Received event:", json.dumps(data, indent=2))
+```
+#### WebSocket Python语音示例
+
+##### 示例文档
+
+这是一个Python版本的OpenAI Realtime WebSocket语音对话示例，支持实时语音输入和输出。
+
+###### 功能特性
+
+- 🎤 **实时语音录制**: 自动检测语音输入并发送到服务器
+- 🔊 **实时音频播放**: 播放AI的语音响应
+- 📝 **文本显示**: 同时显示AI的文本响应
+- 🎯 **自动语音检测**: 使用服务器端VAD（语音活动检测）
+- 🔄 **双向通信**: 支持连续对话
+
+###### 环境要求
+
+- Python 3.7+
+- 麦克风和扬声器
+- 稳定的网络连接
+
+###### 安装依赖
+
+```bash
+pip install -r requirements.txt
+```
+
+系统依赖:
+在Linux系统上，你可能需要安装额外的音频库：
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install portaudio19-dev python3-pyaudio
+
+# CentOS/RHEL
+sudo yum install portaudio-devel
+```
+
+###### 配置
+
+在 `openai_realtime_client.py` 文件中，确保以下配置正确：
+
+```python
+WEBSOCKET_URL = "wss://new-api.weroam.xyz/v1/realtime"
+API_KEY = "sk-QMA3eCob2EmDI2graXo4onUupApVnrk8wPXemJ7lSfK4QPa0"
+MODEL = "gpt-4o-realtime-preview-2024-12-17"
+```
+
+###### 使用方法
+
+1. **运行程序**:
+   ```bash
+   python openai_realtime_client.py
+   ```
+
+2. **开始对话**:
+   - 程序启动后会自动开始录音
+   - 对着麦克风说话
+   - AI会实时响应你的语音
+
+3. **停止程序**:
+   - 按 `Ctrl+C` 停止程序
+
+###### 技术细节
+
+音频配置:
+- **采样率**: 24kHz (OpenAI Realtime API要求)
+- **格式**: PCM16
+- **声道**: 单声道
+- **编码**: Base64
+
+WebSocket消息类型:
+- `session.update`: 会话配置
+- `input_audio_buffer.append`: 发送音频数据
+- `input_audio_buffer.commit`: 提交音频缓冲区
+- `response.audio.delta`: 接收音频响应
+- `response.text.delta`: 接收文本响应
+
+语音活动检测:
+使用服务器端VAD配置：
+- 阈值: 0.5
+- 前缀填充: 300ms
+- 静音持续时间: 500ms
+
+###### 故障排除
+
+常见问题:
+
+1. **音频设备问题**:
+   ```bash
+   # 检查音频设备
+   python -c "import pyaudio; p = pyaudio.PyAudio(); print([p.get_device_info_by_index(i) for i in range(p.get_device_count())])"
+   ```
+
+2. **权限问题**:
+   - 确保程序有麦克风访问权限
+   - Linux: 检查ALSA/PulseAudio配置
+
+3. **网络连接问题**:
+   - 检查WebSocket URL是否正确
+   - 确保API密钥有效
+   - 检查防火墙设置
+
+调试模式:
+
+启用详细日志：
+```python
+logging.basicConfig(level=logging.DEBUG)
+```
+
+###### 代码结构
+
+```
+├── openai_realtime_client.py  # 主程序文件
+├── requirements.txt           # Python依赖
+└── README.md                  # 说明文档
+```
+
+主要类和方法:
+
+- `OpenAIRealtimeClient`: 主客户端类
+  - `connect()`: 连接WebSocket
+  - `start_audio_streams()`: 启动音频流
+  - `start_recording()`: 开始录音
+  - `handle_response()`: 处理响应
+  - `start_conversation()`: 开始对话
+
+###### 注意事项
+
+1. **音频质量**: 确保在安静环境中使用以获得最佳效果
+2. **网络延迟**: 实时对话对网络延迟敏感
+3. **资源使用**: 长时间运行可能消耗较多CPU和内存
+4. **API限制**: 注意OpenAI API的使用限制和费用
+
+###### 许可证
+
+本项目仅供学习和测试使用。请遵守OpenAI的使用条款。
+
+
+##### 示例代码
+```python
+#!/usr/bin/env python3
+"""
+OpenAI Realtime WebSocket 语音示例
+支持实时语音对话，包括音频录制、发送和播放
+"""
+
+import asyncio
+import json
+import base64
+import websockets
+import pyaudio
+import wave
+import threading
+import time
+from typing import Optional
+import logging
+
+# 配置日志
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('websocket_debug.log', encoding='utf-8')
+    ]
+)
+logger = logging.getLogger(__name__)
+
+class OpenAIRealtimeClient:
+    def __init__(self, 
+                 websocket_url: str,
+                 api_key: str,
+                 model: str = "gpt-4o-realtime-preview-2024-12-17"):
+        self.websocket_url = websocket_url
+        self.api_key = api_key
+        self.model = model
+        self.websocket = None
+        self.is_recording = False
+        self.is_connected = False
+        
+        # 音频配置
+        self.audio_format = pyaudio.paInt16
+        self.channels = 1
+        self.rate = 24000  # OpenAI Realtime API 要求的采样率
+        self.chunk = 1024
+        self.audio = pyaudio.PyAudio()
+        
+        # 音频流
+        self.input_stream = None
+        self.output_stream = None
+        
+    async def connect(self):
+        """连接到WebSocket服务器"""
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "OpenAI-Beta": "realtime=v1"
+        }
+        
+        logger.info("=" * 80)
+        logger.info("🚀 开始WebSocket连接")
+        logger.info("=" * 80)
+        logger.info(f"连接URL: {self.websocket_url}")
+        logger.info(f"API密钥: {self.api_key[:10]}...")
+        logger.info(f"请求头: {json.dumps(headers, ensure_ascii=False, indent=2)}")
+        
+        try:
+            self.websocket = await websockets.connect(
+                self.websocket_url,
+                additional_headers=headers
+            )
+            self.is_connected = True
+            logger.info("✅ WebSocket连接成功")
+            
+            # 发送会话配置
+            await self.send_session_config()
+            
+        except Exception as e:
+            logger.error(f"❌ WebSocket连接失败: {e}")
+            logger.error(f"错误类型: {type(e).__name__}")
+            raise
+    
+    async def send_session_config(self):
+        """发送会话配置"""
+        config = {
+            "type": "session.update",
+            "session": {
+                "modalities": ["text", "audio"],
+                "instructions": "你是一个有用的AI助手，可以进行实时语音对话。",
+                "voice": "alloy",
+                "input_audio_format": "pcm16",
+                "output_audio_format": "pcm16",
+                "input_audio_transcription": {
+                    "model": "whisper-1"
+                },
+                "turn_detection": {
+                    "type": "server_vad",
+                    "threshold": 0.5,
+                    "prefix_padding_ms": 300,
+                    "silence_duration_ms": 500
+                },
+                "tools": [],
+                "tool_choice": "auto",
+                "temperature": 0.8,
+                "max_response_output_tokens": 4096
+            }
+        }
+        
+        config_json = json.dumps(config, ensure_ascii=False, indent=2)
+        logger.info("=" * 60)
+        logger.info("📤 发送会话配置:")
+        logger.info(f"消息类型: {config['type']}")
+        logger.info(f"配置内容:\n{config_json}")
+        logger.info("=" * 60)
+        
+        await self.websocket.send(json.dumps(config))
+        logger.info("✅ 会话配置已发送")
+    
+    def start_audio_streams(self):
+        """启动音频输入和输出流"""
+        try:
+            # 输入流（麦克风）
+            self.input_stream = self.audio.open(
+                format=self.audio_format,
+                channels=self.channels,
+                rate=self.rate,
+                input=True,
+                frames_per_buffer=self.chunk
+            )
+            
+            # 输出流（扬声器）
+            self.output_stream = self.audio.open(
+                format=self.audio_format,
+                channels=self.channels,
+                rate=self.rate,
+                output=True,
+                frames_per_buffer=self.chunk
+            )
+            
+            logger.info("音频流已启动")
+            
+        except Exception as e:
+            logger.error(f"启动音频流失败: {e}")
+            raise
+    
+    def stop_audio_streams(self):
+        """停止音频流"""
+        if self.input_stream:
+            self.input_stream.stop_stream()
+            self.input_stream.close()
+            self.input_stream = None
+            
+        if self.output_stream:
+            self.output_stream.stop_stream()
+            self.output_stream.close()
+            self.output_stream = None
+            
+        logger.info("音频流已停止")
+    
+    async def start_recording(self):
+        """开始录音并发送音频数据"""
+        self.is_recording = True
+        logger.info("开始录音...")
+        
+        try:
+            while self.is_recording and self.is_connected:
+                # 读取音频数据
+                audio_data = self.input_stream.read(self.chunk, exception_on_overflow=False)
+                
+                # 将音频数据编码为base64
+                audio_base64 = base64.b64encode(audio_data).decode('utf-8')
+                
+                # 发送音频数据
+                message = {
+                    "type": "input_audio_buffer.append",
+                    "audio": audio_base64
+                }
+                
+                # 记录音频数据发送（每10次记录一次，避免日志过多）
+                if hasattr(self, '_audio_count'):
+                    self._audio_count += 1
+                else:
+                    self._audio_count = 1
+                
+                if self._audio_count % 10 == 0:  # 每10次记录一次
+                    logger.debug(f"🎤 发送音频数据 #{self._audio_count}: 长度={len(audio_base64)} 字符")
+                
+                await self.websocket.send(json.dumps(message))
+                
+                # 短暂延迟以避免过度发送
+                await asyncio.sleep(0.01)
+                
+        except Exception as e:
+            logger.error(f"录音过程中出错: {e}")
+        finally:
+            logger.info("录音已停止")
+    
+    async def stop_recording(self):
+        """停止录音"""
+        self.is_recording = False
+        
+        # 发送录音结束信号
+        if self.websocket and self.is_connected:
+            message = {
+                "type": "input_audio_buffer.commit"
+            }
+            
+            logger.info("=" * 60)
+            logger.info("📤 发送录音结束信号:")
+            logger.info(f"消息类型: {message['type']}")
+            logger.info("=" * 60)
+            
+            await self.websocket.send(json.dumps(message))
+            logger.info("✅ 录音结束信号已发送")
+    
+    async def handle_response(self):
+        """处理WebSocket响应"""
+        try:
+            async for message in self.websocket:
+                data = json.loads(message)
+                message_type = data.get("type", "unknown")
+                
+                # 详细记录所有接收到的消息
+                logger.info("=" * 60)
+                logger.info("📥 收到WebSocket消息:")
+                logger.info(f"消息类型: {message_type}")
+                
+                # 根据消息类型进行不同的处理
+                if message_type == "response.audio.delta":
+                    # 处理音频响应
+                    audio_data = base64.b64decode(data.get("delta", ""))
+                    logger.info(f"🎵 音频数据: 长度={len(audio_data)} 字节")
+                    if audio_data and self.output_stream:
+                        self.output_stream.write(audio_data)
+                        logger.info("✅ 音频数据已播放")
+                
+                elif message_type == "response.text.delta":
+                    # 处理文本响应
+                    text = data.get("delta", "")
+                    logger.info(f"💬 文本增量: '{text}'")
+                    if text:
+                        print(f"AI: {text}", end="", flush=True)
+                
+                elif message_type == "response.text.done":
+                    # 文本响应完成
+                    logger.info("✅ 文本响应完成")
+                    print("\n")
+                
+                elif message_type == "response.audio.done":
+                    # 音频响应完成
+                    logger.info("✅ 音频响应完成")
+                
+                elif message_type == "error":
+                    # 处理错误
+                    error_info = data.get('error', {})
+                    logger.error("❌ 服务器错误:")
+                    logger.error(f"错误详情: {json.dumps(error_info, ensure_ascii=False, indent=2)}")
+                
+                elif message_type == "session.created":
+                    # 会话创建成功
+                    logger.info("✅ 会话已创建")
+                
+                elif message_type == "session.updated":
+                    # 会话更新成功
+                    logger.info("✅ 会话已更新")
+                
+                elif message_type == "conversation.item.created":
+                    # 对话项目创建
+                    logger.info("📝 对话项目已创建")
+                
+                elif message_type == "conversation.item.input_audio_buffer.speech_started":
+                    # 语音开始
+                    logger.info("🎤 语音开始检测")
+                
+                elif message_type == "conversation.item.input_audio_buffer.speech_stopped":
+                    # 语音结束
+                    logger.info("🔇 语音结束检测")
+                
+                elif message_type == "conversation.item.input_audio_buffer.committed":
+                    # 音频缓冲区已提交
+                    logger.info("📤 音频缓冲区已提交")
+                
+                else:
+                    # 其他未知消息类型
+                    logger.info(f"❓ 未知消息类型: {message_type}")
+                
+                # 记录完整的消息内容（除了音频数据，因为太长）
+                if message_type != "response.audio.delta":
+                    logger.info(f"完整消息内容:\n{json.dumps(data, ensure_ascii=False, indent=2)}")
+                
+                logger.info("=" * 60)
+                    
+        except websockets.exceptions.ConnectionClosed:
+            logger.info("WebSocket连接已关闭")
+            self.is_connected = False
+        except Exception as e:
+            logger.error(f"处理响应时出错: {e}")
+            self.is_connected = False
+    
+    async def start_conversation(self):
+        """开始对话"""
+        try:
+            # 启动音频流
+            self.start_audio_streams()
+            
+            # 创建任务
+            response_task = asyncio.create_task(self.handle_response())
+            recording_task = asyncio.create_task(self.start_recording())
+            
+            logger.info("对话已开始，按 Ctrl+C 停止")
+            
+            # 等待任务完成
+            await asyncio.gather(response_task, recording_task)
+            
+        except KeyboardInterrupt:
+            logger.info("收到停止信号")
+        except Exception as e:
+            logger.error(f"对话过程中出错: {e}")
+        finally:
+            await self.cleanup()
+    
+    async def cleanup(self):
+        """清理资源"""
+        self.is_recording = False
+        self.is_connected = False
+        
+        # 停止音频流
+        self.stop_audio_streams()
+        
+        # 关闭WebSocket连接
+        if self.websocket:
+            await self.websocket.close()
+            logger.info("WebSocket连接已关闭")
+        
+        # 终止PyAudio
+        self.audio.terminate()
+        logger.info("资源清理完成")
+    
+    async def run(self):
+        """运行客户端"""
+        try:
+            await self.connect()
+            await self.start_conversation()
+        except Exception as e:
+            logger.error(f"运行客户端时出错: {e}")
+        finally:
+            await self.cleanup()
+
+
+async def main():
+    """主函数"""
+    # 配置参数
+    WEBSOCKET_URL = "wss://new-api.weroam.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17"
+    API_KEY = "sk-EpnduEXFxjAt0AF55W08WBmzqZHlv9f4tmCDWd9TcJqBwVjV"
+    MODEL = "gpt-4o-realtime-preview-2024-12-17"
+    
+    # 创建客户端
+    client = OpenAIRealtimeClient(
+        websocket_url=WEBSOCKET_URL,
+        api_key=API_KEY,
+        model=MODEL
+    )
+    
+    # 运行客户端
+    await client.run()
+
+
+if __name__ == "__main__":
+    print("OpenAI Realtime WebSocket 语音示例")
+    print("=" * 50)
+    print("功能说明:")
+    print("- 实时语音对话")
+    print("- 自动语音识别")
+    print("- 文本和音频响应")
+    print("- 按 Ctrl+C 停止")
+    print("=" * 50)
+    
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n程序已停止")
+    except Exception as e:
+        print(f"程序出错: {e}")
+
+```
+
+## ⚠️ 错误处理
+
+### 常见错误
+1. 连接错误
+   - 网络问题
+   - 认证失败
+   - 配置错误
+2. 音频错误
+   - 设备权限
+   - 格式不支持
+   - 编解码问题
+3. 会话错误
+   - 令牌过期
+   - 会话超时
+   - 并发限制
+
+### 错误恢复
+1. 自动重连
+2. 会话恢复
+3. 错误重试
+4. 降级处理
+
+## 📝 事件参考
+
+### 通用请求头
+
+所有事件都需要包含以下请求头:
+
+| 请求头 | 类型 | 说明 | 示例值 |
+|--------|------|------|---------|
+| Authorization | 字符串 | 认证令牌 | Bearer $API_KEY |
+| OpenAI-Beta | 字符串 | API 版本 | realtime=v1 |
+
+### 客户端事件
+
+#### session.update
+
+更新会话的默认配置。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值/可选值 |
+|------|------|------|------|---------------|
+| event_id | 字符串 | 否 | 客户端生成的事件标识符 | event_123 |
+| type | 字符串 | 否 | 事件类型 | session.update |
+| modalities | 字符串数组 | 否 | 模型可以响应的模态类型 | ["text", "audio"] |
+| instructions | 字符串 | 否 | 预置到模型调用前的系统指令 | "Your knowledge cutoff is 2023-10..." |
+| voice | 字符串 | 否 | 模型使用的语音类型 | alloy、echo、shimmer |
+| input_audio_format | 字符串 | 否 | 输入音频格式 | pcm16、g711_ulaw、g711_alaw |
+| output_audio_format | 字符串 | 否 | 输出音频格式 | pcm16、g711_ulaw、g711_alaw |
+| input_audio_transcription.model | 字符串 | 否 | 用于转写的模型 | whisper-1 |
+| turn_detection.type | 字符串 | 否 | 语音检测类型 | server_vad |
+| turn_detection.threshold | 数字 | 否 | VAD 激活阈值(0.0-1.0) | 0.8 |
+| turn_detection.prefix_padding_ms | 整数 | 否 | 语音开始前包含的音频时长 | 500 |
+| turn_detection.silence_duration_ms | 整数 | 否 | 检测语音停止的静音持续时间 | 1000 |
+| tools | 数组 | 否 | 模型可用的工具列表 | [] |
+| tool_choice | 字符串 | 否 | 模型选择工具的方式 | auto/none/required |
+| temperature | 数字 | 否 | 模型采样温度 | 0.8 |
+| max_output_tokens | 字符串/整数 | 否 | 单次响应最大token数 | "inf"/4096 |
+
+#### input_audio_buffer.append
+
+向输入音频缓冲区追加音频数据。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 客户端生成的事件标识符 | event_456 |
+| type | 字符串 | 否 | 事件类型 | input_audio_buffer.append |
+| audio | 字符串 | 否 | Base64编码的音频数据 | Base64EncodedAudioData |
+
+#### input_audio_buffer.commit
+
+将缓冲区中的音频数据提交为用户消息。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 客户端生成的事件标识符 | event_789 |
+| type | 字符串 | 否 | 事件类型 | input_audio_buffer.commit |
+
+#### input_audio_buffer.clear
+
+清空输入音频缓冲区中的所有音频数据。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 客户端生成的事件标识符 | event_012 |
+| type | 字符串 | 否 | 事件类型 | input_audio_buffer.clear |
+
+#### conversation.item.create
+
+向对话中添加新的对话项。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 客户端生成的事件标识符 | event_345 |
+| type | 字符串 | 否 | 事件类型 | conversation.item.create |
+| previous_item_id | 字符串 | 否 | 新对话项将插入在此ID之后 | null |
+| item.id | 字符串 | 否 | 对话项的唯一标识符 | msg_001 |
+| item.type | 字符串 | 否 | 对话项类型 | message/function_call/function_call_output |
+| item.status | 字符串 | 否 | 对话项状态 | completed/in_progress/incomplete |
+| item.role | 字符串 | 否 | 消息发送者的角色 | user/assistant/system |
+| item.content | 数组 | 否 | 消息内容 | [text/audio/transcript] |
+| item.call_id | 字符串 | 否 | 函数调用的ID | call_001 |
+| item.name | 字符串 | 否 | 被调用的函数名称 | function_name |
+| item.arguments | 字符串 | 否 | 函数调用的参数 | \{"param": "value"\} |
+| item.output | 字符串 | 否 | 函数调用的输出结果 | \{"result": "value"\} |
+
+#### conversation.item.truncate
+
+截断助手消息中的音频内容。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 客户端生成的事件标识符 | event_678 |
+| type | 字符串 | 否 | 事件类型 | conversation.item.truncate |
+| item_id | 字符串 | 否 | 要截断的助手消息项的ID | msg_002 |
+| content_index | 整数 | 否 | 要截断的内容部分的索引 | 0 |
+| audio_end_ms | 整数 | 否 | 音频截断的结束时间点 | 1500 |
+
+#### conversation.item.delete
+
+从对话历史中删除指定的对话项。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 客户端生成的事件标识符 | event_901 |
+| type | 字符串 | 否 | 事件类型 | conversation.item.delete |
+| item_id | 字符串 | 否 | 要删除的对话项的ID | msg_003 |
+
+#### response.create
+
+触发响应生成。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 客户端生成的事件标识符 | event_234 |
+| type | 字符串 | 否 | 事件类型 | response.create |
+| response.modalities | 字符串数组 | 否 | 响应的模态类型 | ["text", "audio"] |
+| response.instructions | 字符串 | 否 | 给模型的指令 | "Please assist the user." |
+| response.voice | 字符串 | 否 | 模型使用的语音类型 | alloy/echo/shimmer |
+| response.output_audio_format | 字符串 | 否 | 输出音频格式 | pcm16 |
+| response.tools | 数组 | 否 | 模型可用的工具列表 | ["type", "name", "description"] |
+| response.tool_choice | 字符串 | 否 | 模型选择工具的方式 | auto |
+| response.temperature | 数字 | 否 | 采样温度 | 0.7 |
+| response.max_output_tokens | 整数/字符串 | 否 | 最大输出token数 | 150/"inf" |
+
+#### response.cancel
+
+取消正在进行中的响应生成。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 客户端生成的事件标识符 | event_567 |
+| type | 字符串 | 否 | 事件类型 | response.cancel |
+
+### 服务端事件
+
+#### error
+
+当发生错误时返回的事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串数组 | 否 | 服务端事件的唯一标识符 | ["event_890"] |
+| type | 字符串 | 否 | 事件类型 | error |
+| error.type | 字符串 | 否 | 错误类型 | invalid_request_error/server_error |
+| error.code | 字符串 | 否 | 错误代码 | invalid_event |
+| error.message | 字符串 | 否 | 人类可读的错误消息 | "The 'type' field is missing." |
+| error.param | 字符串 | 否 | 与错误相关的参数 | null |
+| error.event_id | 字符串 | 否 | 相关事件的ID | event_567 |
+
+#### conversation.item.input_audio_transcription.completed
+
+当启用输入音频转写功能并且转写成功时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_2122 |
+| type | 字符串 | 否 | 事件类型 | conversation.item.input_audio_transcription.completed |
+| item_id | 字符串 | 否 | 用户消息项的ID | msg_003 |
+| content_index | 整数 | 否 | 包含音频的内容部分的索引 | 0 |
+| transcript | 字符串 | 否 | 转写的文本内容 | "Hello, how are you?" |
+
+#### conversation.item.input_audio_transcription.failed
+
+当配置了输入音频转写功能,但用户消息的转写请求失败时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_2324 |
+| type | 字符串数组 | 否 | 事件类型 | ["conversation.item.input_audio_transcription.failed"] |
+| item_id | 字符串 | 否 | 用户消息项的ID | msg_003 |
+| content_index | 整数 | 否 | 包含音频的内容部分的索引 | 0 |
+| error.type | 字符串 | 否 | 错误类型 | transcription_error |
+| error.code | 字符串 | 否 | 错误代码 | audio_unintelligible |
+| error.message | 字符串 | 否 | 人类可读的错误消息 | "The audio could not be transcribed." |
+| error.param | 字符串 | 否 | 与错误相关的参数 | null |
+
+#### conversation.item.truncated
+
+当客户端截断了之前的助手音频消息项时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_2526 |
+| type | 字符串 | 否 | 事件类型 | conversation.item.truncated |
+| item_id | 字符串 | 否 | 被截断的助手消息项的ID | msg_004 |
+| content_index | 整数 | 否 | 被截断的内容部分的索引 | 0 |
+| audio_end_ms | 整数 | 否 | 音频被截断的时间点(毫秒) | 1500 |
+
+#### conversation.item.deleted
+
+当对话中的某个项目被删除时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_2728 |
+| type | 字符串 | 否 | 事件类型 | conversation.item.deleted |
+| item_id | 字符串 | 否 | 被删除的对话项的ID | msg_005 |
+
+#### input_audio_buffer.committed
+
+当音频缓冲区中的数据被提交时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_1121 |
+| type | 字符串 | 否 | 事件类型 | input_audio_buffer.committed |
+| previous_item_id | 字符串 | 否 | 新对话项将插入在此ID对应的对话项之后 | msg_001 |
+| item_id | 字符串 | 否 | 将要创建的用户消息项的ID | msg_002 |
+
+#### input_audio_buffer.cleared
+
+当客户端清空输入音频缓冲区时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_1314 |
+| type | 字符串 | 否 | 事件类型 | input_audio_buffer.cleared |
+
+#### input_audio_buffer.speech_started
+
+在服务器语音检测模式下，当检测到语音输入时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_1516 |
+| type | 字符串 | 否 | 事件类型 | input_audio_buffer.speech_started |
+| audio_start_ms | 整数 | 否 | 从会话开始到检测到语音的毫秒数 | 1000 |
+| item_id | 字符串 | 否 | 语音停止时将创建的用户消息项的ID | msg_003 |
+
+#### input_audio_buffer.speech_stopped
+
+在服务器语音检测模式下，当检测到语音输入停止时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_1718 |
+| type | 字符串 | 否 | 事件类型 | input_audio_buffer.speech_stopped |
+| audio_start_ms | 整数 | 否 | 从会话开始到检测到语音停止的毫秒数 | 2000 |
+| item_id | 字符串 | 否 | 将要创建的用户消息项的ID | msg_003 |
+
+#### response.created
+
+当创建新的响应时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_2930 |
+| type | 字符串 | 否 | 事件类型 | response.created |
+| response.id | 字符串 | 否 | 响应的唯一标识符 | resp_001 |
+| response.object | 字符串 | 否 | 对象类型 | realtime.response |
+| response.status | 字符串 | 否 | 响应的状态 | in_progress |
+| response.status_details | 对象 | 否 | 状态的附加详细信息 | null |
+| response.output | 字符串数组 | 否 | 响应生成的输出项列表 | ["[]"] |
+| response.usage | 对象 | 否 | 响应的使用统计信息 | null |
+
+#### response.done
+
+当响应完成流式传输时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_3132 |
+| type | 字符串 | 否 | 事件类型 | response.done |
+| response.id | 字符串 | 否 | 响应的唯一标识符 | resp_001 |
+| response.object | 字符串 | 否 | 对象类型 | realtime.response |
+| response.status | 字符串 | 否 | 响应的最终状态 | completed/cancelled/failed/incomplete |
+| response.status_details | 对象 | 否 | 状态的附加详细信息 | null |
+| response.output | 字符串数组 | 否 | 响应生成的输出项列表 | ["[...]"] |
+| response.usage.total_tokens | 整数 | 否 | 总token数 | 50 |
+| response.usage.input_tokens | 整数 | 否 | 输入token数 | 20 |
+| response.usage.output_tokens | 整数 | 否 | 输出token数 | 30 |
+
+#### response.output_item.added
+
+当响应生成过程中创建新的输出项时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_3334 |
+| type | 字符串 | 否 | 事件类型 | response.output_item.added |
+| response_id | 字符串 | 否 | 输出项所属的响应ID | resp_001 |
+| output_index | 字符串 | 否 | 输出项在响应中的索引 | 0 |
+| item.id | 字符串 | 否 | 输出项的唯一标识符 | msg_007 |
+| item.object | 字符串 | 否 | 对象类型 | realtime.item |
+| item.type | 字符串 | 否 | 输出项类型 | message/function_call/function_call_output |
+| item.status | 字符串 | 否 | 输出项状态 | in_progress/completed |
+| item.role | 字符串 | 否 | 与输出项关联的角色 | assistant |
+| item.content | 数组 | 否 | 输出项的内容 | ["type", "text", "audio", "transcript"] |
+
+#### response.output_item.done
+
+当输出项完成流式传输时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_3536 |
+| type | 字符串 | 否 | 事件类型 | response.output_item.done |
+| response_id | 字符串 | 否 | 输出项所属的响应ID | resp_001 |
+| output_index | 字符串 | 否 | 输出项在响应中的索引 | 0 |
+| item.id | 字符串 | 否 | 输出项的唯一标识符 | msg_007 |
+| item.object | 字符串 | 否 | 对象类型 | realtime.item |
+| item.type | 字符串 | 否 | 输出项类型 | message/function_call/function_call_output |
+| item.status | 字符串 | 否 | 输出项的最终状态 | completed/incomplete |
+| item.role | 字符串 | 否 | 与输出项关联的角色 | assistant |
+| item.content | 数组 | 否 | 输出项的内容 | ["type", "text", "audio", "transcript"] |
+
+#### response.content_part.added
+
+当响应生成过程中向助手消息项添加新的内容部分时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_3738 |
+| type | 字符串 | 否 | 事件类型 | response.content_part.added |
+| response_id | 字符串 | 否 | 响应的ID | resp_001 |
+| item_id | 字符串 | 否 | 添加内容部分的消息项ID | msg_007 |
+| output_index | 整数 | 否 | 输出项在响应中的索引 | 0 |
+| content_index | 整数 | 否 | 内容部分在消息项内容数组中的索引 | 0 |
+| part.type | 字符串 | 否 | 内容类型 | text/audio |
+| part.text | 字符串 | 否 | 文本内容 | "Hello" |
+| part.audio | 字符串 | 否 | Base64编码的音频数据 | "base64_encoded_audio_data" |
+| part.transcript | 字符串 | 否 | 音频的转写文本 | "Hello" |
+
+#### response.content_part.done
+
+当助手消息项中的内容部分完成流式传输时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_3940 |
+| type | 字符串 | 否 | 事件类型 | response.content_part.done |
+| response_id | 字符串 | 否 | 响应的ID | resp_001 |
+| item_id | 字符串 | 否 | 添加内容部分的消息项ID | msg_007 |
+| output_index | 整数 | 否 | 输出项在响应中的索引 | 0 |
+| content_index | 整数 | 否 | 内容部分在消息项内容数组中的索引 | 0 |
+| part.type | 字符串 | 否 | 内容类型 | text/audio |
+| part.text | 字符串 | 否 | 文本内容 | "Hello" |
+| part.audio | 字符串 | 否 | Base64编码的音频数据 | "base64_encoded_audio_data" |
+| part.transcript | 字符串 | 否 | 音频的转写文本 | "Hello" |
+
+#### response.text.delta
+
+当"text"类型内容部分的文本值更新时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_4142 |
+| type | 字符串 | 否 | 事件类型 | response.text.delta |
+| response_id | 字符串 | 否 | 响应的ID | resp_001 |
+| item_id | 字符串 | 否 | 消息项的ID | msg_007 |
+| output_index | 整数 | 否 | 输出项在响应中的索引 | 0 |
+| content_index | 整数 | 否 | 内容部分在消息项内容数组中的索引 | 0 |
+| delta | 字符串 | 否 | 文本增量更新内容 | "Sure, I can h" |
+
+#### response.text.done
+
+当"text"类型内容部分的文本流式传输完成时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_4344 |
+| type | 字符串 | 否 | 事件类型 | response.text.done |
+| response_id | 字符串 | 否 | 响应的ID | resp_001 |
+| item_id | 字符串 | 否 | 消息项的ID | msg_007 |
+| output_index | 整数 | 否 | 输出项在响应中的索引 | 0 |
+| content_index | 整数 | 否 | 内容部分在消息项内容数组中的索引 | 0 |
+| delta | 字符串 | 否 | 最终的完整文本内容 | "Sure, I can help with that." |
+
+#### response.audio_transcript.delta
+
+当模型生成的音频输出转写内容更新时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_4546 |
+| type | 字符串 | 否 | 事件类型 | response.audio_transcript.delta |
+| response_id | 字符串 | 否 | 响应的ID | resp_001 |
+| item_id | 字符串 | 否 | 消息项的ID | msg_008 |
+| output_index | 整数 | 否 | 输出项在响应中的索引 | 0 |
+| content_index | 整数 | 否 | 内容部分在消息项内容数组中的索引 | 0 |
+| delta | 字符串 | 否 | 转写文本的增量更新内容 | "Hello, how can I a" |
+
+#### response.audio_transcript.done
+
+当模型生成的音频输出转写完成流式传输时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_4748 |
+| type | 字符串 | 否 | 事件类型 | response.audio_transcript.done |
+| response_id | 字符串 | 否 | 响应的ID | resp_001 |
+| item_id | 字符串 | 否 | 消息项的ID | msg_008 |
+| output_index | 整数 | 否 | 输出项在响应中的索引 | 0 |
+| content_index | 整数 | 否 | 内容部分在消息项内容数组中的索引 | 0 |
+| transcript | 字符串 | 否 | 音频的最终完整转写文本 | "Hello, how can I assist you today?" |
+
+#### response.audio.delta
+
+当模型生成的音频内容更新时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_4950 |
+| type | 字符串 | 否 | 事件类型 | response.audio.delta |
+| response_id | 字符串 | 否 | 响应的ID | resp_001 |
+| item_id | 字符串 | 否 | 消息项的ID | msg_008 |
+| output_index | 整数 | 否 | 输出项在响应中的索引 | 0 |
+| content_index | 整数 | 否 | 内容部分在消息项内容数组中的索引 | 0 |
+| delta | 字符串 | 否 | Base64编码的音频数据增量 | "Base64EncodedAudioDelta" |
+
+#### response.audio.done
+
+当模型生成的音频完成时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_5152 |
+| type | 字符串 | 否 | 事件类型 | response.audio.done |
+| response_id | 字符串 | 否 | 响应的ID | resp_001 |
+| item_id | 字符串 | 否 | 消息项的ID | msg_008 |
+| output_index | 整数 | 否 | 输出项在响应中的索引 | 0 |
+| content_index | 整数 | 否 | 内容部分在消息项内容数组中的索引 | 0 |
+
+### 函数调用
+
+#### response.function_call_arguments.delta
+
+当模型生成的函数调用参数更新时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_5354 |
+| type | 字符串 | 否 | 事件类型 | response.function_call_arguments.delta |
+| response_id | 字符串 | 否 | 响应的ID | resp_002 |
+| item_id | 字符串 | 否 | 消息项的ID | fc_001 |
+| output_index | 整数 | 否 | 输出项在响应中的索引 | 0 |
+| call_id | 字符串 | 否 | 函数调用的ID | call_001 |
+| delta | 字符串 | 否 | JSON格式的函数调用参数增量 | "\{\"location\": \"San\"" |
+
+#### response.function_call_arguments.done
+
+当模型生成的函数调用参数完成流式传输时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_5556 |
+| type | 字符串 | 否 | 事件类型 | response.function_call_arguments.done |
+| response_id | 字符串 | 否 | 响应的ID | resp_002 |
+| item_id | 字符串 | 否 | 消息项的ID | fc_001 |
+| output_index | 整数 | 否 | 输出项在响应中的索引 | 0 |
+| call_id | 字符串 | 否 | 函数调用的ID | call_001 |
+| arguments | 字符串 | 否 | 最终的完整函数调用参数(JSON格式) | "\{\"location\": \"San Francisco\"\}" |
+
+### 其他状态更新
+
+#### rate_limits.updated
+
+在每个 "response.done" 事件之后触发,用于指示更新后的速率限制。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_5758 |
+| type | 字符串 | 否 | 事件类型 | rate_limits.updated |
+| rate_limits | 对象数组 | 否 | 速率限制信息列表 | [\{"name": "requests_per_min", "limit": 60, "remaining": 45, "reset_seconds": 35\}] |
+
+#### conversation.created
+
+当对话创建时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_9101 |
+| type | 字符串 | 否 | 事件类型 | conversation.created |
+| conversation | 对象 | 否 | 对话资源对象 | \{"id": "conv_001", "object": "realtime.conversation"\} |
+
+#### conversation.item.created
+
+当对话项创建时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_1920 |
+| type | 字符串 | 否 | 事件类型 | conversation.item.created |
+| previous_item_id | 字符串 | 否 | 前一个对话项的ID | msg_002 |
+| item | 对象 | 否 | 对话项对象 | \{"id": "msg_003", "object": "realtime.item", "type": "message", "status": "completed", "role": "user", "content": [\{"type": "text", "text": "Hello"\}]\} |
+
+#### session.created
+
+当会话创建时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_1234 |
+| type | 字符串 | 否 | 事件类型 | session.created |
+| session | 对象 | 否 | 会话对象 | \{"id": "sess_001", "object": "realtime.session", "model": "gpt-4", "modalities": ["text", "audio"]\} |
+
+#### session.updated
+
+当会话更新时返回此事件。
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 否 | 服务端事件的唯一标识符 | event_5678 |
+| type | 字符串 | 否 | 事件类型 | session.updated |
+| session | 对象 | 否 | 更新后的会话对象 | \{"id": "sess_001", "object": "realtime.session", "model": "gpt-4", "modalities": ["text", "audio"]\} |
+
+### 速率限制事件参数表
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| name | 字符串 | 是 | 限制名称 | requests_per_min |
+| limit | 整数 | 是 | 限制值 | 60 |
+| remaining | 整数 | 是 | 剩余可用量 | 45 |
+| reset_seconds | 整数 | 是 | 重置时间(秒) | 35 |
+
+### 函数调用参数表
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| type | 字符串 | 是 | 函数类型 | function |
+| name | 字符串 | 是 | 函数名称 | get_weather |
+| description | 字符串 | 否 | 函数描述 | Get the current weather |
+| parameters | 对象 | 是 | 函数参数定义 | \{"type": "object", "properties": \{...\}\} |
+
+### 音频格式参数表
+
+| 参数 | 类型 | 说明 | 可选值 |
+|------|------|------|--------|
+| sample_rate | 整数 | 采样率 | 8000, 16000, 24000, 44100, 48000 |
+| channels | 整数 | 声道数 | 1 (单声道), 2 (立体声) |
+| bits_per_sample | 整数 | 采样位数 | 16 (pcm16), 8 (g711) |
+| encoding | 字符串 | 编码方式 | pcm16, g711_ulaw, g711_alaw |
+
+### 语音检测参数表
+
+| 参数 | 类型 | 说明 | 默认值 | 范围 |
+|------|------|------|--------|------|
+| threshold | 浮点数 | VAD 激活阈值 | 0.5 | 0.0-1.0 |
+| prefix_padding_ms | 整数 | 语音前缀填充(毫秒) | 500 | 0-5000 |
+| silence_duration_ms | 整数 | 静音检测时长(毫秒) | 1000 | 100-10000 |
+
+### 工具选择参数表
+
+| 参数 | 类型 | 说明 | 可选值 |
+|------|------|------|--------|
+| tool_choice | 字符串 | 工具选择方式 | auto, none, required |
+| tools | 数组 | 可用工具列表 | [\{type, name, description, parameters\}] |
+
+### 模型配置参数表
+
+| 参数 | 类型 | 说明 | 范围/可选值 | 默认值 |
+|------|------|------|-------------|--------|
+| temperature | 浮点数 | 采样温度 | 0.0-2.0 | 1.0 |
+| max_output_tokens | 整数/字符串 | 最大输出长度 | 1-4096/"inf" | "inf" |
+| modalities | 字符串数组 | 响应模态 | ["text", "audio"] | ["text"] |
+| voice | 字符串 | 语音类型 | alloy, echo, shimmer | alloy |
+
+### 事件通用参数表
+
+| 参数 | 类型 | 必需 | 说明 | 示例值 |
+|------|------|------|------|--------|
+| event_id | 字符串 | 是 | 事件的唯一标识符 | event_123 |
+| type | 字符串 | 是 | 事件类型 | session.update |
+| timestamp | 整数 | 否 | 事件发生的时间戳(毫秒) | 1677649363000 |
+
+### 会话状态参数表
+
+| 参数 | 类型 | 说明 | 可选值 |
+|------|------|------|--------|
+| status | 字符串 | 会话状态 | active, ended, error |
+| error | 对象 | 错误信息 | \{"type": "error_type", "message": "error message"\} |
+| metadata | 对象 | 会话元数据 | \{"client_id": "web", "session_type": "chat"\} |
+
+### 对话项状态参数表
+
+| 参数 | 类型 | 说明 | 可选值 |
+|------|------|------|--------|
+| status | 字符串 | 对话项状态 | completed, in_progress, incomplete |
+| role | 字符串 | 发送者角色 | user, assistant, system |
+| type | 字符串 | 对话项类型 | message, function_call, function_call_output |
+
+### 内容类型参数表
+
+| 参数 | 类型 | 说明 | 可选值 |
+|------|------|------|--------|
+| type | 字符串 | 内容类型 | text, audio, transcript |
+| format | 字符串 | 内容格式 | plain, markdown, html |
+| encoding | 字符串 | 编码方式 | utf-8, base64 |
+
+### 响应状态参数表
+
+| 参数 | 类型 | 说明 | 可选值 |
+|------|------|------|--------|
+| status | 字符串 | 响应状态 | completed, cancelled, failed, incomplete |
+| status_details | 对象 | 状态详情 | \{"reason": "user_cancelled"\} |
+| usage | 对象 | 使用统计 | \{"total_tokens": 50, "input_tokens": 20, "output_tokens": 30\} |
+
+### 音频转写参数表
+
+| 参数 | 类型 | 说明 | 示例值 |
+|------|------|------|--------|
+| enabled | 布尔值 | 是否启用转写 | true |
+| model | 字符串 | 转写模型 | whisper-1 |
+| language | 字符串 | 转写语言 | en, zh, auto |
+| prompt | 字符串 | 转写提示词 | "Transcript of a conversation" |
+
+### 音频流参数表
+
+| 参数 | 类型 | 说明 | 可选值 |
+|------|------|------|--------|
+| chunk_size | 整数 | 音频块大小(字节) | 1024, 2048, 4096 |
+| latency | 字符串 | 延迟模式 | low, balanced, high |
+| compression | 字符串 | 压缩方式 | none, opus, mp3 |
+
+### WebRTC 配置参数表
+
+| 参数 | 类型 | 说明 | 默认值 |
+|------|------|------|--------|
+| ice_servers | 数组 | ICE 服务器列表 | [\{"urls": "stun:stun.l.google.com:19302"\}] |
+| audio_constraints | 对象 | 音频约束 | \{"echoCancellation": true\} |
+| connection_timeout | 整数 | 连接超时(毫秒) | 30000 |

@@ -4,13 +4,82 @@ title: Changelog
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-<Callout type="warn" title="Version Log Information · Data updated at 2026-5-12 19:21:58">
+<Callout type="warn" title="Version Log Information · Data updated at 2026-5-18 07:32:50">
 To view all historical versions, please visit the [GitHub Releases page](https://github.com/QuantumNous/new-api/releases). This page automatically fetches the latest update information from that page.
 </Callout>
 
+## v1.0.0-rc.6
+
+<Callout type="info" title="Latest Release · Published at 2026-05-13 22:29:13 (UTC+8)">
+
+### Highlights
+This release improves observability by recording upstream request IDs in logs and adds a compliance confirmation step for paid features. If your `logs` table is large, pre-apply the `upstream_request_id` column and index with online DDL before upgrading to avoid a potentially long migration.
+
+### New Features
+- Added upstream request ID tracking in request logs for easier upstream call tracing, while avoiding unintended response header overrides.
+- Added a compliance confirmation step before paid features can be used.
+
+### Bug Fixes
+- Fixed the channel combobox so focusing it no longer hides valid channel options (#4829).
+
+### Other
+- Upgrade notice: the `logs` table now includes a new `upstream_request_id` column and index; on large installations, run the appropriate online DDL below before upgrading to avoid a long or blocking automatic migration.
+
+MySQL / InnoDB:
+
+```sql
+-- 1. Add the column using online DDL.
+ALTER TABLE logs
+  ADD COLUMN upstream_request_id VARCHAR(128) NOT NULL DEFAULT '',
+  ALGORITHM=INPLACE, LOCK=NONE;
+
+-- 2. Add the index using online DDL.
+ALTER TABLE logs
+  ADD INDEX idx_logs_upstream_request_id (upstream_request_id),
+  ALGORITHM=INPLACE, LOCK=NONE;
+```
+
+PostgreSQL 11+:
+
+```sql
+-- 1. Add the column without rewriting the table on PG 11+.
+ALTER TABLE logs
+  ADD COLUMN IF NOT EXISTS upstream_request_id VARCHAR(128) NOT NULL DEFAULT '';
+
+-- 2. Add the index concurrently to avoid blocking reads and writes.
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_logs_upstream_request_id
+  ON logs (upstream_request_id);
+```
+
+---
+
+### What's Changed
+* chore(deps): bump axios from 1.15.0 to 1.15.2 in /web/classic by @dependabot[bot] in https://github.com/QuantumNous/new-api/pull/4634
+* chore(deps-dev): bump ip-address from 10.1.0 to 10.2.0 in /electron by @dependabot[bot] in https://github.com/QuantumNous/new-api/pull/4811
+* 修复渠道列表显示不全问题 by @feitianbubu in https://github.com/QuantumNous/new-api/pull/4829
+
+
+**Full Changelog**: https://github.com/QuantumNous/new-api/compare/v1.0.0-rc.5...v1.0.0-rc.6
+
+**Download Resources**
+
+<ul>
+<li><a href="https://github.com/QuantumNous/new-api/releases/download/v1.0.0-rc.6/checksums-linux.txt">checksums-linux.txt</a> (178 B)</li>
+<li><a href="https://github.com/QuantumNous/new-api/releases/download/v1.0.0-rc.6/checksums-windows.txt">checksums-windows.txt</a> (90 B)</li>
+<li><a href="https://github.com/QuantumNous/new-api/releases/download/v1.0.0-rc.6/new-api-arm64-v1.0.0-rc.6">new-api-arm64-v1.0.0-rc.6</a> (82.3 MB)</li>
+<li><a href="https://github.com/QuantumNous/new-api/releases/download/v1.0.0-rc.6/new-api-v1.0.0-rc.6">new-api-v1.0.0-rc.6</a> (84.6 MB)</li>
+<li><a href="https://github.com/QuantumNous/new-api/releases/download/v1.0.0-rc.6/new-api-v1.0.0-rc.6.exe">new-api-v1.0.0-rc.6.exe</a> (86.3 MB)</li>
+<li><a href="https://github.com/QuantumNous/new-api/archive/refs/tags/v1.0.0-rc.6.zip">Source code (zip)</a></li>
+<li><a href="https://github.com/QuantumNous/new-api/archive/refs/tags/v1.0.0-rc.6.tar.gz">Source code (tar.gz)</a></li>
+</ul>
+
+</Callout>
+
+---
+
 ## v1.0.0-rc.5
 
-<Callout type="info" title="Latest Release · Published at 2026-05-12 16:53:57 (UTC+8)">
+<Callout type="note" title="Release · Published at 2026-05-12 16:53:57 (UTC+8)">
 
 ### Highlights
 The default dashboard has been refreshed with built-in model performance metrics and a clearer health view. This release also adds DeepChat deeplink support and fixes several default UI, wallet, playground, and ratio-display regressions.
@@ -1290,58 +1359,6 @@ This release introduces a new clipboard magic string feature for quick channel c
 <ul>
 <li><a href="https://github.com/QuantumNous/new-api/archive/refs/tags/v0.12.0-alpha.1.zip">Source code (zip)</a></li>
 <li><a href="https://github.com/QuantumNous/new-api/archive/refs/tags/v0.12.0-alpha.1.tar.gz">Source code (tar.gz)</a></li>
-</ul>
-
-</Callout>
-
----
-
-## v0.11.9
-
-<Callout type="note" title="Release · Published at 2026-03-31 17:07:05 (UTC+8)">
-
-### Release Notes for v0.11.9
-
-#### New Features
-* Add slide-in animations and update translations for new UI elements
-* Prevent metadata from overriding model fields (#3461)
-* Record stream interruption reasons via StreamStatus
-* Expose i18n instance to the global window object for easier access
-
-#### Bug Fixes
-* Restore pre-3400 OpenRouter billing semantics (#3438)
-* Restore doubao coding plan deprecation and regex ignored models lost during conflict resolution
-* Preserve cache usage in openai-to-claude response conversion
-
-#### Improvements
-* Expose skip-retry option and show it in the rules list (#3440)
-* Harden Docker and release CI workflows to improve security
-
----
-
-### What's Changed
-* fix: restore pre-3400 OpenRouter billing semantics by @seefs001 in https://github.com/QuantumNous/new-api/pull/3438
-* refactor: expose skip-retry option and show it in rules list by @seefs001 in https://github.com/QuantumNous/new-api/pull/3440
-* feat: prevent metadata from overriding model fields by @feitianbubu in https://github.com/QuantumNous/new-api/pull/3461
-* chore(deps): bump golang.org/x/image from 0.23.0 to 0.38.0 by @dependabot[bot] in https://github.com/QuantumNous/new-api/pull/3507
-
-
-**Full Changelog**: https://github.com/QuantumNous/new-api/compare/v0.11.9-alpha.1...v0.11.9
-
-**Download Resources**
-
-<ul>
-<li><a href="https://github.com/QuantumNous/new-api/releases/download/v0.11.9/checksums-linux.txt">checksums-linux.txt</a> (170 B)</li>
-<li><a href="https://github.com/QuantumNous/new-api/releases/download/v0.11.9/checksums-macos.txt">checksums-macos.txt</a> (88 B)</li>
-<li><a href="https://github.com/QuantumNous/new-api/releases/download/v0.11.9/checksums-windows.txt">checksums-windows.txt</a> (86 B)</li>
-<li><a href="https://github.com/QuantumNous/new-api/releases/download/v0.11.9/New-API-App.0.11.9.exe">New-API-App.0.11.9.exe</a> (96.8 MB)</li>
-<li><a href="https://github.com/QuantumNous/new-api/releases/download/v0.11.9/New-API-App.Setup.0.11.9.exe">New-API-App.Setup.0.11.9.exe</a> (97.0 MB)</li>
-<li><a href="https://github.com/QuantumNous/new-api/releases/download/v0.11.9/new-api-arm64-v0.11.9">new-api-arm64-v0.11.9</a> (63.2 MB)</li>
-<li><a href="https://github.com/QuantumNous/new-api/releases/download/v0.11.9/new-api-macos-v0.11.9">new-api-macos-v0.11.9</a> (81.4 MB)</li>
-<li><a href="https://github.com/QuantumNous/new-api/releases/download/v0.11.9/new-api-v0.11.9">new-api-v0.11.9</a> (65.5 MB)</li>
-<li><a href="https://github.com/QuantumNous/new-api/releases/download/v0.11.9/new-api-v0.11.9.exe">new-api-v0.11.9.exe</a> (67.1 MB)</li>
-<li><a href="https://github.com/QuantumNous/new-api/archive/refs/tags/v0.11.9.zip">Source code (zip)</a></li>
-<li><a href="https://github.com/QuantumNous/new-api/archive/refs/tags/v0.11.9.tar.gz">Source code (tar.gz)</a></li>
 </ul>
 
 </Callout>

@@ -1,0 +1,369 @@
+---
+title: Wan 模型视频生视频接口文档
+---
+
+# Wan 模型视频生视频接口文档
+
+Wan/Alibaba Cloud 提供高质量视频到视频生成模型，本文档描述了使用 Wan/Alibaba Cloud 模型进行视频到视频生成的完整 API 接口规范。Wan 视频生视频模型使用输入视频中的角色和声音，结合提示词，生成保持角色一致性的新视频。
+
+---
+
+## 概述
+
+## 支持的模型
+
+目前支持的模型包括：
+
+| 模型 | 描述 |
+| --- | --- |
+| **wan2.6-r2v** | Wan 2.6 视频到视频生成模型 |
+
+Wan 模型视频生视频功能提供异步任务处理机制：
+
+1. 提交任务：发送参考视频和文本提示词，创建视频生成任务
+2. 查询状态：通过任务 ID 查询生成进度和状态
+3. 获取结果：任务完成后获取生成的视频文件
+
+### 任务状态流转
+
+```
+queued → in_progress → completed
+                ↓
+            failed
+```
+
+- queued: 任务已提交，等待处理
+- in_progress: 任务正在处理中
+- completed: 任务成功完成，视频已生成
+- failed: 任务失败
+
+### 功能特性
+
+- **基础功能**：可选择视频时长（5 秒或 10 秒）、指定视频分辨率（720P 或 1080P）、添加水印
+- **多镜头叙事**：可生成多镜头视频，在镜头切换时保持主体一致性
+
+---
+
+## 接口列表
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /v1/video/generations | 提交视频生成任务 |
+| GET | /v1/video/generations/\{task_id\} | 查询任务状态 |
+
+## 调用示例
+
+### 1. 单角色参考
+
+使用单个参考视频，引用角色的外观和声音，设置 `shot_type` 为 `multi`，生成多镜头视频。
+
+**请求体：**
+
+```json
+{
+  "prompt": "character1 drinks bubble tea while dancing spontaneously to the music.",
+  "model": "wan2.6-r2v",
+  "metadata": {
+    "input": {
+      "reference_video_urls": [
+        "https://example.com/reference-video.mp4"
+      ]
+    },
+    "parameters": {
+      "size": "1280*720",
+      "duration": 5,
+      "shot_type": "multi"
+    }
+  }
+}
+```
+
+### 2. 多角色参考
+
+基于角色和道具的参考视频，使用提示词定义它们之间的关系，设置 `shot_type` 为 `multi`，生成多镜头视频。可以在提示词中多次引用同一角色。
+
+**请求体：**
+
+```json
+{
+  "prompt": "character1 and character2 talk to each other in an office.",
+  "model": "wan2.6-r2v",
+  "metadata": {
+    "input": {
+      "reference_video_urls": [
+        "https://example.com/character1-video.mp4",
+        "https://example.com/character2-video.mp4"
+      ],
+      "negative_prompt": "white walls"
+    },
+    "parameters": {
+      "size": "1280*720",
+      "duration": 10,
+      "shot_type": "multi",
+      "watermark": true
+    }
+  }
+}
+```
+
+**完整请求：**
+
+```bash
+curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer API_KEY" \
+  -d '{
+    "prompt": "character1 and character2 talk to each other in an office.",
+    "model": "wan2.6-r2v",
+    "metadata": {
+      "input": {
+        "reference_video_urls": [
+          "https://example.com/character1-video.mp4",
+          "https://example.com/character2-video.mp4"
+        ],
+        "negative_prompt": "white walls"
+      },
+      "parameters": {
+        "size": "1280*720",
+        "duration": 10,
+        "shot_type": "multi",
+        "watermark": true
+      }
+    }
+  }'
+```
+
+### 请求参数说明:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| model | string | 是 | 模型名称，必须为 `wan2.6-r2v`（目前仅支持此模型） |
+| prompt | string | 是 | 文本提示词，描述要生成的视频内容。在多角色场景中，可以使用 character1、character2 等标识符引用不同的参考视频 |
+| metadata | object | 否 | metadata 对象，包含 input 和 parameters 子对象，用于指定官方 Wan 请求格式中的可选字段 |
+
+#### metadata.input 参数:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| reference_video_urls | array[string] | 是 | 参考视频 URL 数组。支持最多 3 个视频。<br /><br />**多视频使用说明**：如果使用多个视频，URL 数组中的顺序定义了角色顺序。第一个 URL 对应 `character1`，第二个对应 `character2`，以此类推。<br /><br />**视频要求**：<br />- 每个参考视频必须只包含一个角色。例如，character1 是一个小女孩，character2 是一个闹钟<br />- 格式：MP4 或 MOV<br />- 时长：2 到 30 秒<br />- 文件大小：视频不能超过 100 MB<br />- URL 支持 HTTP 或 HTTPS 协议 |
+| negative_prompt | string | 否 | 负面提示词，用于排除不希望出现在视频中的元素 |
+
+#### metadata.parameters 参数:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| size | string | 否 | 视频分辨率。默认值为 `"1920*1080"` (1080P)。可选值：<br /><br />**720P 层级**：<br />- `"1280*720"` (16:9)<br />- `"720*1280"` (9:16)<br />- `"960*960"` (1:1)<br />- `"1088*832"` (4:3)<br />- `"832*1088"` (3:4)<br /><br />**1080P 层级**：<br />- `"1920*1080"` (16:9，默认值)<br />- `"1080*1920"` (9:16)<br />- `"1440*1440"` (1:1)<br />- `"1632*1248"` (4:3)<br />- `"1248*1632"` (3:4) |
+| duration | integer | 否 | 视频时长（秒）。可选值：`5`、`10` |
+| shot_type | string | 否 | 指定生成视频的镜头类型。可选值：`"single"`（默认，输出单镜头视频）或 `"multi"`（输出多镜头视频，在镜头切换时保持主体一致性） |
+| watermark | boolean | 否 | 是否在视频中添加水印 |
+| seed | integer | 否 | 随机数种子。取值范围：[0, 2147483647]。如果不指定此参数，系统会自动生成随机种子。为提高结果的可重现性，可以设置固定的种子值。注意：由于模型生成具有概率性，使用相同的种子并不能保证每次结果完全相同。示例：`12345` |
+
+## 1. 提交视频生成任务
+
+### 接口地址: 
+
+```
+POST /v1/video/generations
+```
+
+### 请求头:
+
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| Content-Type | string | 是 | application/json |
+| Authorization | string | 是 | Bearer API_KEY |
+
+### 响应示例:
+
+```json
+{
+  "id": "...",
+  "object": "video",
+  "model": "wan2.6-r2v",
+  "status": "queued",
+  "progress": 0,
+  "created_at": 1766086029
+}
+```
+
+### 响应字段说明:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | string | 任务 ID，用于后续查询任务状态 |
+| object | string | 对象类型，固定为 "video" |
+| model | string | 生成视频的模型 |
+| status | string | 任务状态，初始为 "queued" |
+| progress | integer | 任务进度，0-100 |
+| created_at | integer | 任务创建时间戳 |
+
+## 2. 查询任务状态
+
+### 完整请求
+
+```bash
+curl -X GET "https://computevault.unodetech.xyz/v1/video/generations/TASK_ID" \
+  -H "Authorization: Bearer API_KEY"
+```
+
+### 接口地址: 
+
+```
+GET /v1/video/generations/{task_id}
+```
+
+### 请求头:
+
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| Authorization | string | 是 | Bearer API_KEY |
+
+### 路径参数:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| task_id | string | 是 | 任务 ID |
+
+### 响应示例（处理中）:
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "IN_PROGRESS",
+    "fail_reason": "",
+    "submit_time": 1766086029,
+    "start_time": 1766086038,
+    "finish_time": 0,
+    "progress": "30%",
+    "data": {
+      "output": {
+        "scheduled_time": "2025-12-19 03:27:09.887",
+        "submit_time": "2025-12-19 03:27:09.859",
+        "task_id": "...",
+        "task_status": "RUNNING"
+      },
+      "request_id": "..."
+    }
+  }
+}
+```
+
+### 响应示例（成功）:
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "SUCCESS",
+    "fail_reason": "<OUTPUT_URL>",
+    "submit_time": 1766086029,
+    "start_time": 1766086038,
+    "finish_time": 1766086419,
+    "progress": "100%",
+    "data": {
+      "output": {
+        "end_time": "2025-12-19 03:33:31.045",
+        "orig_prompt": "character1 and character2 talk to each other in an office.",
+        "scheduled_time": "2025-12-19 03:27:09.887",
+        "submit_time": "2025-12-19 03:27:09.859",
+        "task_id": "...",
+        "task_status": "SUCCEEDED",
+        "video_url": "<OUTPUT_URL>"
+      },
+      "request_id": "...",
+      "usage": {
+        "SR": 720,
+        "duration": 15,
+        "input_video_duration": 5,
+        "output_video_duration": 10,
+        "size": "1280*720",
+        "video_count": 1,
+        "video_ratio": "1280*720"
+      }
+    }
+  }
+}
+```
+
+可在返回的 `data.data.output.video_url` 字段获取视频 URL。
+
+### 响应示例（失败）:
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "FAILURE",
+    "fail_reason": "task failed, code: InvalidParameter , message: The size is not match xxxxxx",
+    "submit_time": 1766086029,
+    "start_time": 1766086038,
+    "finish_time": 1766086419,
+    "progress": "100%",
+    "data": {
+      "output": {
+        "code": "InvalidParameter",
+        "end_time": "2025-12-19 03:33:31.045",
+        "message": "The size is not match xxxxxx",
+        "scheduled_time": "2025-12-19 03:27:09.887",
+        "submit_time": "2025-12-19 03:27:09.859",
+        "task_id": "...",
+        "task_status": "FAILED"
+      },
+      "request_id": "..."
+    }
+  }
+}
+```
+
+### 响应字段说明:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| code | string | 响应状态码，"success" 表示成功 |
+| message | string | 响应消息 |
+| data | object | 任务数据对象 |
+| data.task_id | string | 任务 ID |
+| data.status | string | 任务状态：IN_PROGRESS、SUCCESS、FAILURE |
+| data.progress | string | 任务进度百分比 |
+| data.data.output.video_url | string | 视频访问 URL（任务成功时）。链接有效期为 24 小时 |
+| data.data.output.task_status | string | 任务状态：RUNNING、SUCCEEDED、FAILED |
+| data.data.output.orig_prompt | string | 原始输入提示词 |
+| data.data.usage | object | 使用情况统计（任务成功时） |
+| data.data.usage.input_video_duration | integer | 输入参考视频的总时长（秒） |
+| data.data.usage.output_video_duration | integer | 输出视频的时长（秒），与 `parameters.duration` 的值相同 |
+| data.data.usage.duration | float | 视频总时长（秒），用于计费。计算公式：duration = input_video_duration + output_video_duration |
+| data.data.usage.SR | integer | 生成视频的分辨率，如 720 |
+| data.data.usage.video_ratio | string | 生成视频的分辨率，格式为 "width*height"，如 "1280*720" |
+| data.data.usage.video_count | integer | 生成的视频数量，固定为 1 |
+
+## 重要提示
+
+1. **数据保留**：任务 ID 和视频 URL 保留 24 小时，过期后无法查询或下载。
+
+2. **内容审核**：输入提示词和输出视频都会经过内容审核。包含禁止内容的请求将返回 "IPInfringementSuspect" 或 "DataInspectionFailed" 错误。
+
+3. **网络访问配置**：视频链接存储在对象存储服务（OSS）中。如果您的业务系统因安全策略无法访问外部 OSS 链接，请将相关 OSS 域名添加到网络访问白名单。
+
+4. **计费说明**：
+   - 按秒计费，基于**输入视频 + 输出视频**的组合时长
+   - 仅当 API 调用返回 `task_status` 为 `SUCCEEDED` 且视频成功生成时才会计费
+   - 失败的模型调用或处理错误不会产生任何费用或消耗免费配额
+   - **输入视频计费时长**：每个参考视频的截断时长之和，输入的总计费时长不能超过 **5 秒**
+   - **输出视频计费时长**：模型成功生成的视频时长（秒）
+
+5. **参考视频数量**：支持 1-3 个参考视频。单角色场景使用 1 个视频，多角色场景使用多个视频。
+
+## 相关链接
+
+- [Alibaba Cloud Reference-to-Video API 官方文档](https://www.alibabacloud.com/help/en/model-studio/wan-video-to-video-api-reference)
+

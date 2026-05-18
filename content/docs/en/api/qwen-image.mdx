@@ -1,0 +1,263 @@
+---
+title: Qwen Image Format (Image)
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Qwen Image Format (Image)
+
+<Callout type="info" title="Official Documentation">
+[Alibaba Cloud Models Usage (Image and Video Generation)](https://www.alibabacloud.com/help/en/model-studio)
+</Callout>
+## 📝 Introduction
+
+Given a text prompt, the model will generate new images. Qwen/Alibaba Cloud provides powerful image generation and editing models that can create images based on natural language descriptions or edit existing images.
+
+## 🤖 Supported Models
+
+Currently supported models include:
+
+| Model | Description |
+| --- | --- |
+| **qwen-image-plus** | Qwen image generation model that supports generating high-quality images based on text prompts |
+| **wan2.5-t2i-preview** | Wan 2.5 text-to-image preview model |
+| **qwen-image-edit-plus** | Qwen image editing model that supports editing images based on input images and text prompts |
+| **qwen-image-edit** | Qwen image editing model |
+| **wan2.5-i2i-preview** | Wan 2.5 image-to-image preview model |
+
+## 💡 Request Examples
+
+### Create Image ✅
+
+```bash
+# Basic image generation
+curl "https://computevault.unodetech.xyz/v1/images/generations" \
+  -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer $API_KEY" \
+  -X POST \
+  -d '{
+    "model": "qwen-image-plus",
+    "prompt": "Give me an image of a cat",
+    "n": 1,
+    "size": "1328*1328"
+  }'
+```
+
+**Response Example:**
+
+```json
+{
+  "created": 1234567890,
+  "data": [
+    {
+      "url": "https://example.com/image.png",
+      "b64_json": "..."
+    }
+  ]
+}
+```
+
+### Edit Image ✅
+
+```bash
+# Image editing (using multipart form)
+curl -X POST "https://computevault.unodetech.xyz/v1/images/edits" \
+  -H "Authorization: Bearer $API_KEY" \
+  -F "image=@hand-statue.png" \
+  -F "model=qwen-image-edit" \
+  -F "prompt=The broken remains of the hand-shaped statue, with all parts above the wrist missing. These broken pieces are jutting out of the water surrounding the statue."
+```
+
+**Response Example:**
+
+```json
+{
+  "created": 1234567890,
+  "data": [
+    {
+      "url": "https://example.com/edited-image.png",
+      "b64_json": "..."
+    }
+  ]
+}
+```
+
+## 📮 Request
+
+### Endpoint
+
+#### Create Image
+```
+POST /v1/images/generations
+```
+
+Create an image based on a text prompt. Supports `qwen-image-plus` and `wan2.5-t2i-preview` models.
+
+#### Edit Image
+```
+POST /v1/images/edits
+```
+
+Edit or generate new images based on input images and text prompts. Supports `qwen-image-edit-plus`, `qwen-image-edit`, and `wan2.5-i2i-preview` models. Image data is provided via multipart form request.
+
+### Authentication Method
+
+Include the API key in the request header:
+
+```
+Authorization: Bearer $API_KEY
+```
+
+Where `$API_KEY` is your API key.
+
+### Request Body Parameters
+
+#### Text-to-Image Generation (`/v1/images/generations`)
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| `model` | string | Yes | Model name, e.g., "qwen-image-plus" or "wan2.5-t2i-preview" |
+| `prompt` | string | Yes | Text description of the desired image |
+| `n` | integer | No | Number of images to generate, fixed at 1 |
+| `size` | string | No | The resolution of the output image, in the format of width*height. The default resolution is 1328*1328. Available options and their corresponding aspect ratios:<br />- `"1664*928"` (16:9)<br />- `"1472*1140"` (4:3)<br />- `"1328*1328"` (1:1, default)<br />- `"1140*1472"` (3:4)<br />- `"928*1664"` (9:16) |
+| `response_format` | string | No | Response format, "url" or "b64_json" |
+
+##### `prompt`
+- Type: String
+- Required: Yes
+- Description: Text description of the desired image.
+- Tips:
+  - Use specific and detailed descriptions
+  - Include key visual elements
+  - Specify the desired artistic style
+  - Describe composition and perspective
+
+#### Image Editing (`/v1/images/edits`)
+
+Image editing uses multipart form request format.
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| `model` | string | Yes | Model name, e.g., "qwen-image-edit-plus", "qwen-image-edit", or "wan2.5-i2i-preview" |
+| `image` | file | Yes | Input image file to be edited |
+| `prompt` | string | Yes | Text prompt describing how to modify the input image |
+
+##### `image`
+- Type: File (multipart form)
+- Required: Yes
+- Description: Input image file to be edited.
+
+##### `prompt`
+- Type: String
+- Required: Yes
+- Description: Text prompt describing how you want to modify the input image.
+- Tips:
+  - Clearly describe elements to add, remove, or replace
+  - Use specific and detailed descriptions
+  - Describe the desired modification effect
+
+## 📥 Response
+
+### Success Response
+
+#### Text-to-Image Generation Response
+
+```json
+{
+  "created": 1234567890,
+  "data": [
+    {
+      "url": "https://example.com/image.png",
+      "b64_json": "..."
+    }
+  ]
+}
+```
+
+**Response Field Descriptions:**
+
+| Field | Type | Description |
+|------|------|------|
+| `created` | integer | Creation timestamp |
+| `data` | array | Array of generated images |
+| `data[].url` | string | Image URL (if `response_format` is "url") |
+| `data[].b64_json` | string | Base64-encoded image data (if `response_format` is "b64_json") |
+
+#### Image Editing Response
+
+```json
+{
+  "created": 1234567890,
+  "data": [
+    {
+      "url": "https://example.com/edited-image.png",
+      "b64_json": "..."
+    }
+  ]
+}
+```
+
+The response format is the same as text-to-image generation.
+
+### Error Response
+
+If the request fails, an error response will be returned:
+
+```json
+{
+  "error": {
+    "message": "Error description",
+    "type": "invalid_request_error",
+    "code": "error_code"
+  }
+}
+```
+
+## 🌟 Best Practices
+
+### Prompt Writing Suggestions
+
+1. Use clear and specific descriptions
+2. Specify important visual details
+3. Describe the desired artistic style and atmosphere
+4. Pay attention to composition and perspective descriptions
+5. Can include details such as color, lighting, mood, etc.
+
+### Parameter Selection Suggestions
+
+1. Model Selection
+    - `qwen-image-plus`: Qwen image generation model, suitable for quickly generating high-quality images
+    - `wan2.5-t2i-preview`: Wan 2.5 text-to-image preview model
+    - `qwen-image-edit-plus`: Qwen image editing model that supports editing images based on input images and text prompts
+    - `qwen-image-edit`: Qwen image editing model
+    - `wan2.5-i2i-preview`: Wan 2.5 image-to-image preview model
+
+2. Prompt Optimization
+    - Use detailed and descriptive text
+    - Include specific visual elements and style requirements
+    - Avoid vague or overly brief descriptions
+    - When editing images, clearly describe how you want to modify the input image (add, remove, replace elements, etc.)
+
+3. Image Editing Notes
+    - Ensure the input image format is correct
+    - Use multipart form format to upload images
+    - Provide clear editing instructions
+
+### Common Issues
+
+1. Image Generation Failure
+    - Check if the prompt complies with content policies
+    - Verify API key permissions
+    - Confirm the request format is correct
+    - Check if the model name is correct
+
+2. Results Don't Match Expectations
+    - Optimize prompt descriptions to be more specific and detailed
+    - Add more visual details and style descriptions
+    - Try different description approaches
+
+3. Image Editing Failure
+    - Confirm the image file format is correct
+    - Check if multipart form format is used
+    - Verify the prompt clearly describes the editing requirements
+

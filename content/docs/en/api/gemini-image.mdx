@@ -1,0 +1,384 @@
+---
+title: Google Gemini Image Format (Image)
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Google Gemini Image Format (Image)
+
+<Callout type="info" title="Official Documentation">
+[Google Gemini Generating content API](https://ai.google.dev/api/generate-content)
+</Callout>
+## 📝 Introduction
+
+Given a text prompt, the model will generate new images. Google Gemini provides powerful image generation models that can create images based on natural language descriptions.
+
+## 🤖 Supported Models
+
+Currently supported models include:
+
+| Model | Description |
+| --- | --- |
+| **gemini-2.5-flash-image** | Google Gemini image generation model that supports generating high-quality images based on text prompts |
+| **gemini-3-pro-image-preview** | Google Gemini image generation and editing model that supports generating images based on text prompts, as well as editing images based on input images and text prompts |
+
+## 💡 Request Examples
+
+### Create Image ✅
+
+```bash
+# Basic image generation
+curl "https://computevault.unodetech.xyz/v1beta/models/gemini-2.5-flash-image:generateContent?key=$API_KEY" \
+  -H 'Content-Type: application/json' \
+  -X POST \
+  -d '{
+    "contents": [{
+      "parts": [{"text": "Give me an image of a cat"}]
+    }]
+  }'
+```
+
+**Response Example:**
+
+```json
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Here is an image for you: "
+          },
+          {
+            "inlineData": {
+              "mimeType": "image/png",
+              "data": "..."
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 9,
+    "candidatesTokenCount": 1298,
+    "totalTokenCount": 1307,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 9
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1290
+      }
+    ]
+  },
+  "modelVersion": "gemini-2.5-flash-image",
+  "responseId": "..."
+}
+```
+
+### Edit Image ✅
+
+```bash
+# Image editing
+curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-image-preview:generateContent?key=$API_KEY" \
+  -H 'Content-Type: application/json' \
+  -X POST \
+  -d '{
+    "contents": [{
+      "parts": [
+        {"text": "put the chips in the given image on a beach."},
+        {
+          "inline_data": {
+            "mime_type": "image/jpeg",
+            "data": "$IMG_BASE64"
+          }
+        }
+      ]
+    }],
+    "generationConfig": {
+      "responseModalities": ["TEXT", "IMAGE"],
+      "imageConfig": {
+        "aspectRatio": "1:1",
+        "imageSize": "2K"
+      }
+    }
+  }'
+```
+
+**Response Example:**
+
+```json
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Here is the edited image for you: "
+          },
+          {
+            "inlineData": {
+              "mimeType": "image/png",
+              "data": "..."
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 15,
+    "candidatesTokenCount": 1350,
+    "totalTokenCount": 1365,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 15
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1200
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1350
+      }
+    ]
+  },
+  "modelVersion": "gemini-3-pro-image-preview",
+  "responseId": "..."
+}
+```
+
+## 📮 Request
+
+### Endpoint
+
+#### Create Image
+```
+POST /v1beta/models/gemini-2.5-flash-image:generateContent
+```
+
+Create an image based on a text prompt.
+
+#### Edit Image
+```
+POST /v1beta/models/gemini-3-pro-image-preview:generateContent
+```
+
+Edit or generate new images based on input images and text prompts. Supports gemini-2.5-flash-image and gemini-3-pro-image-preview models.
+
+### Authentication Method
+
+Include the API key in the request URL parameters:
+
+```
+?key=$API_KEY
+```
+
+Where `$API_KEY` is your API key.
+
+### Request Body Parameters
+
+#### `contents`
+- Type: Array
+- Required: Yes
+- Description: Array containing the content for the generation request.
+
+**Content Object Properties:**
+
+| Property | Type | Required | Description |
+|------|------|------|------|
+| `parts` | Array | Yes | Ordered content parts that constitute a single message |
+
+**Part Object Properties:**
+
+| Property | Type | Required | Description |
+|------|------|------|------|
+| `text` | String | Yes (for create image) | Text description of the desired image |
+| `inline_data` | Object | Yes (for edit image) | Input image data (for image editing) |
+
+##### `text` (in parts)
+- Type: String
+- Required: Yes (required for create image, also required for edit image)
+- Description: Text description of the desired image.
+- Tips:
+  - Use specific and detailed descriptions
+  - Include key visual elements
+  - Specify the desired artistic style
+  - Describe composition and perspective
+  - When editing images, describe how you want to modify the input image
+
+##### `inline_data` (in parts, for image editing)
+- Type: Object
+- Required: Yes (for edit image)
+- Description: Input image data to be edited.
+
+**InlineData Object Properties (in request):**
+
+| Property | Type | Required | Description |
+|------|------|------|------|
+| `mime_type` | String | Yes | MIME type of the image (e.g., "image/jpeg", "image/png") |
+| `data` | String | Yes | Base64-encoded image data |
+
+#### `generationConfig` (Optional)
+- Type: Object
+- Required: No
+- Description: Configuration parameters for controlling generation behavior.
+
+**GenerationConfig Object Properties:**
+
+| Property | Type | Required | Description |
+|------|------|------|------|
+| `responseModalities` | Array | No | Specifies the modality types that should be included in the response, such as ["TEXT", "IMAGE"] |
+| `imageConfig` | Object | No | Image generation configuration parameters |
+
+**ImageConfig Object Properties:**
+
+| Property | Type | Required | Description |
+|------|------|------|------|
+| `aspectRatio` | String | No | Aspect ratio of the image, such as "1:1", "16:9", etc. |
+| `imageSize` | String | No | Image size, such as "2K", "4K", etc. |
+
+## 📥 Response
+
+### Success Response
+
+#### `candidates`
+- Type: Array
+- Description: List of candidate responses from the model
+
+**Candidate Object Properties:**
+
+| Property | Type | Description |
+|------|------|------|
+| `content` | Object | Generated content returned by the model |
+| `finishReason` | Enum | Reason why the model stopped generating |
+| `index` | Integer | Index of the candidate in the response candidate list |
+
+**Content Object Properties:**
+
+| Property | Type | Description |
+|------|------|------|
+| `parts` | Array | Generated content parts, which may include text and images |
+| `role` | String | Producer of the content, usually "model" |
+
+**Part Object Properties:**
+
+| Property | Type | Description |
+|------|------|------|
+| `text` | String | Text content (optional, may include descriptive text) |
+| `inlineData` | Object | Generated image data (optional) |
+
+**InlineData Object Properties:**
+
+| Property | Type | Description |
+|------|------|------|
+| `mimeType` | String | MIME type of the image (e.g., "image/png") |
+| `data` | String | Base64-encoded image data |
+
+**FinishReason Enum Values:**
+
+- `STOP`: Natural stopping point of the model
+- `MAX_TOKENS`: Maximum token count specified in the request has been reached
+- `SAFETY`: The system has flagged the response candidate content for safety reasons
+- `IMAGE_SAFETY`: Token generation has stopped because the generated image violates safety regulations
+- `OTHER`: Unknown reason
+
+#### `usageMetadata`
+- Type: Object
+- Description: Metadata about token usage for the generation request
+
+**UsageMetadata Object Properties:**
+
+| Property | Type | Description |
+|------|------|------|
+| `promptTokenCount` | Integer | Number of tokens in the prompt |
+| `candidatesTokenCount` | Integer | Total number of tokens in all generated candidate responses |
+| `totalTokenCount` | Integer | Total number of tokens for the generation request |
+| `promptTokensDetails` | Array | List of modalities processed in the request input |
+| `candidatesTokensDetails` | Array | List of modalities returned in the response |
+
+**candidatesTokensDetails Object Properties:**
+
+| Property | Type | Description |
+|------|------|------|
+| `modality` | Enum | Modality associated with this token count (TEXT, IMAGE, etc.) |
+| `tokenCount` | Integer | Number of tokens |
+
+#### `modelVersion`
+- Type: String
+- Description: Model version used to generate the response
+
+#### `responseId`
+- Type: String
+- Description: ID used to identify each response
+
+#### `promptFeedback` (Optional)
+- Type: Object
+- Description: Prompt feedback related to content filters
+
+### Image Object Example
+
+```json
+{
+  "inlineData": {
+    "mimeType": "image/png",
+    "data": "..."
+  }
+}
+```
+
+## 🌟 Best Practices
+
+### Prompt Writing Suggestions
+
+1. Use clear and specific descriptions
+2. Specify important visual details
+3. Describe the desired artistic style and atmosphere
+4. Pay attention to composition and perspective descriptions
+5. Can include details such as color, lighting, mood, etc.
+
+### Parameter Selection Suggestions
+
+1. Model Selection
+    - gemini-2.5-flash-image: Suitable for quickly generating high-quality images
+    - gemini-3-pro-image-preview: Supports image generation and editing, suitable for scenarios requiring editing based on existing images
+
+2. Prompt Optimization
+    - Use detailed and descriptive text
+    - Include specific visual elements and style requirements
+    - Avoid vague or overly brief descriptions
+    - When editing images, clearly describe how you want to modify the input image (add, remove, replace elements, etc.)
+
+3. Safety Settings
+    - Adjust safety thresholds according to application scenarios
+
+### Common Issues
+
+1. Image Generation Failure
+    - Check if the prompt complies with content policies
+    - Verify API key permissions
+    - Confirm the request format is correct
+
+2. Results Don't Match Expectations
+    - Optimize prompt descriptions to be more specific and detailed
+    - Add more visual details and style descriptions
+    - Try different description approaches
+
+3. Safety Filter Issues
+    - Modify the prompt to avoid triggering safety filters
+

@@ -1,0 +1,384 @@
+---
+title: Google Gemini 图像格式（Image）
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Google Gemini 图像格式（Image）
+
+<Callout type="info" title="官方文档">
+[Google Gemini Generating content API](https://ai.google.dev/api/generate-content)
+</Callout>
+## 📝 简介
+
+给定文本提示，模型将生成新的图片。Google Gemini 提供强大的图像生成模型，可以根据自然语言描述创建图像。
+
+## 🤖 支持的模型
+
+目前支持的模型包括：
+
+| 模型 | 描述 |
+| --- | --- |
+| **gemini-2.5-flash-image** | Google Gemini 图像生成模型，支持根据文本提示生成高质量图像 |
+| **gemini-3-pro-image-preview** | Google Gemini 图像生成和编辑模型，支持根据文本提示生成图像，以及基于输入图像和文本提示进行图像编辑 |
+
+## 💡 请求示例
+
+### 创建图片 ✅
+
+```bash
+# 基础图片生成
+curl "https://computevault.unodetech.xyz/v1beta/models/gemini-2.5-flash-image:generateContent?key=$API_KEY" \
+  -H 'Content-Type: application/json' \
+  -X POST \
+  -d '{
+    "contents": [{
+      "parts": [{"text": "给我一个猫的图片"}]
+    }]
+  }'
+```
+
+**响应示例:**
+
+```json
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Here is an image for you: "
+          },
+          {
+            "inlineData": {
+              "mimeType": "image/png",
+              "data": "..."
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 9,
+    "candidatesTokenCount": 1298,
+    "totalTokenCount": 1307,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 9
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1290
+      }
+    ]
+  },
+  "modelVersion": "gemini-2.5-flash-image",
+  "responseId": "..."
+}
+```
+
+### 编辑图片 ✅
+
+```bash
+# 图片编辑
+curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-image-preview:generateContent?key=$API_KEY" \
+  -H 'Content-Type: application/json' \
+  -X POST \
+  -d '{
+    "contents": [{
+      "parts": [
+        {"text": "put the chips in the given image on a beach."},
+        {
+          "inline_data": {
+            "mime_type": "image/jpeg",
+            "data": "$IMG_BASE64"
+          }
+        }
+      ]
+    }],
+    "generationConfig": {
+      "responseModalities": ["TEXT", "IMAGE"],
+      "imageConfig": {
+        "aspectRatio": "1:1",
+        "imageSize": "2K"
+      }
+    }
+  }'
+```
+
+**响应示例:**
+
+```json
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Here is the edited image for you: "
+          },
+          {
+            "inlineData": {
+              "mimeType": "image/png",
+              "data": "..."
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 15,
+    "candidatesTokenCount": 1350,
+    "totalTokenCount": 1365,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 15
+      },
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1200
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "IMAGE",
+        "tokenCount": 1350
+      }
+    ]
+  },
+  "modelVersion": "gemini-3-pro-image-preview",
+  "responseId": "..."
+}
+```
+
+## 📮 请求
+
+### 端点
+
+#### 创建图片
+```
+POST /v1beta/models/gemini-2.5-flash-image:generateContent
+```
+
+根据文本提示创建图片。
+
+#### 编辑图片
+```
+POST /v1beta/models/gemini-3-pro-image-preview:generateContent
+```
+
+基于输入图像和文本提示编辑或生成新图片。支持 gemini-2.5-flash-image 和 gemini-3-pro-image-preview 模型。
+
+### 鉴权方法
+
+在请求URL参数中包含API密钥：
+
+```
+?key=$API_KEY
+```
+
+其中 `$API_KEY` 是您的 API 密钥。
+
+### 请求体参数
+
+#### `contents`
+- 类型：数组
+- 必需：是
+- 说明：包含生成请求的内容数组。
+
+**Content 对象属性：**
+
+| 属性 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `parts` | 数组 | 是 | 有序的内容部分，构成单个消息 |
+
+**Part 对象属性：**
+
+| 属性 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `text` | 字符串 | 是（创建图片时） | 期望生成或编辑图片的文本描述 |
+| `inline_data` | 对象 | 是（编辑图片时） | 输入图像数据（用于图片编辑） |
+
+##### `text` (在 parts 中)
+- 类型：字符串
+- 必需：是（创建图片时必需，编辑图片时也必需）
+- 说明：期望生成或编辑图片的文本描述。
+- 提示：
+  - 使用具体和详细的描述
+  - 包含关键的视觉元素
+  - 指定期望的艺术风格
+  - 描述构图和视角
+  - 编辑图片时，描述希望如何修改输入图像
+
+##### `inline_data` (在 parts 中，用于图片编辑)
+- 类型：对象
+- 必需：是（编辑图片时）
+- 说明：要编辑的输入图像数据。
+
+**InlineData 对象属性（请求中）：**
+
+| 属性 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `mime_type` | 字符串 | 是 | 图像的MIME类型（如 "image/jpeg"、"image/png"） |
+| `data` | 字符串 | 是 | base64编码的图像数据 |
+
+#### `generationConfig` (可选)
+- 类型：对象
+- 必需：否
+- 说明：用于控制生成行为的配置参数。
+
+**GenerationConfig 对象属性：**
+
+| 属性 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `responseModalities` | 数组 | 否 | 指定响应中应包含的模态类型，如 ["TEXT", "IMAGE"] |
+| `imageConfig` | 对象 | 否 | 图像生成配置参数 |
+
+**ImageConfig 对象属性：**
+
+| 属性 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `aspectRatio` | 字符串 | 否 | 图像的宽高比，如 "1:1"、"16:9" 等 |
+| `imageSize` | 字符串 | 否 | 图像尺寸，如 "2K"、"4K" 等 |
+
+## 📥 响应
+
+### 成功响应
+
+#### `candidates`
+- 类型：数组
+- 说明：模型的候选回答列表
+
+**Candidate 对象属性：**
+
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| `content` | 对象 | 模型返回的生成内容 |
+| `finishReason` | 枚举 | 模型停止生成的原因 |
+| `index` | 整数 | 响应候选列表中候选项的索引 |
+
+**Content 对象属性：**
+
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| `parts` | 数组 | 生成的内容部分，可能包含文本和图像 |
+| `role` | 字符串 | 内容的生产者，通常为 "model" |
+
+**Part 对象属性：**
+
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| `text` | 字符串 | 文本内容（可选，可能包含描述性文本） |
+| `inlineData` | 对象 | 生成的图像数据（可选） |
+
+**InlineData 对象属性：**
+
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| `mimeType` | 字符串 | 图像的MIME类型（如 "image/png"） |
+| `data` | 字符串 | base64编码的图像数据 |
+
+**FinishReason 枚举值：**
+
+- `STOP`: 模型的自然停止点
+- `MAX_TOKENS`: 已达到请求中指定的词元数量上限
+- `SAFETY`: 出于安全考虑，系统已标记回答候选内容
+- `IMAGE_SAFETY`: 由于生成的图片违反了安全规定，因此词元生成已停止
+- `OTHER`: 原因未知
+
+#### `usageMetadata`
+- 类型：对象
+- 说明：有关生成请求令牌用量的元数据
+
+**UsageMetadata 对象属性：**
+
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| `promptTokenCount` | 整数 | 提示中的词元数 |
+| `candidatesTokenCount` | 整数 | 所有生成的候选回答中的词元总数 |
+| `totalTokenCount` | 整数 | 生成请求的总令牌数 |
+| `promptTokensDetails` | 数组 | 在请求输入中处理的模态列表 |
+| `candidatesTokensDetails` | 数组 | 响应中返回的模态列表 |
+
+**candidatesTokensDetails 对象属性：**
+
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| `modality` | 枚举 | 与此令牌数关联的模态（TEXT、IMAGE等） |
+| `tokenCount` | 整数 | 令牌数量 |
+
+#### `modelVersion`
+- 类型：字符串
+- 说明：用于生成回答的模型版本
+
+#### `responseId`
+- 类型：字符串
+- 说明：用于标识每个响应的ID
+
+#### `promptFeedback` (可选)
+- 类型：对象
+- 说明：与内容过滤器相关的提示反馈
+
+### 图片对象示例
+
+```json
+{
+  "inlineData": {
+    "mimeType": "image/png",
+    "data": "..."
+  }
+}
+```
+
+## 🌟 最佳实践
+
+### Prompt 编写建议
+
+1. 使用清晰具体的描述
+2. 指定重要的视觉细节
+3. 描述期望的艺术风格和氛围
+4. 注意构图和视角的说明
+5. 可以包含颜色、光线、情绪等细节
+
+### 参数选择建议
+
+1. 模型选择
+    - gemini-2.5-flash-image：适合快速生成高质量图像
+    - gemini-3-pro-image-preview：支持图像生成和编辑，适合需要基于现有图像进行编辑的场景
+
+2. Prompt 优化
+    - 使用详细和描述性的文本
+    - 包含具体的视觉元素和风格要求
+    - 避免模糊或过于简短的描述
+    - 编辑图片时，明确描述希望如何修改输入图像（添加、移除、替换元素等）
+
+3. 安全设置
+    - 根据应用场景调整安全阈值
+
+### 常见问题
+
+1. 图片生成失败
+    - 检查 prompt 是否符合内容政策
+    - 验证 API 密钥权限
+    - 确认请求格式正确
+
+2. 结果与预期不符
+    - 优化 prompt 描述，使其更加具体和详细
+    - 添加更多视觉细节和风格描述
+    - 尝试不同的描述方式
+
+3. 安全过滤问题
+    - 修改 prompt 以避免触发安全过滤器
+

@@ -1,0 +1,277 @@
+---
+title: OpenAI Image Format (Image)
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# OpenAI Image Format (Image)
+
+<Callout type="info" title="Official Documentation">
+[OpenAI Images](https://platform.openai.com/docs/api-reference/images)
+</Callout>
+## 📝 Introduction
+
+Given a text prompt and/or input image, the model will generate new images. OpenAI provides multiple powerful image generation models that can create, edit, and modify images based on natural language descriptions.
+
+## 🤖 Supported Models
+
+Currently supported models include:
+
+| Model | Description |
+| --- | --- |
+| **gpt-image-2** | GPT-Image-1 image generation and editing model, supporting multi-image editing capabilities, able to create new composite images based on multiple input images |
+| **gpt-image-2** | GPT-Image-2 image generation and editing model, supporting multi-image editing capabilities, able to create new composite images based on multiple input images |
+
+## 💡 Request Examples
+
+### Create Image ✅
+
+```bash
+# Basic image generation
+curl https://computevault.unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A cute little sea otter",
+    "n": 1,
+    "size": "1024x1024"
+  }'
+
+# High-quality image generation
+curl https://computevault.unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A cute little sea otter",
+    "quality": "high",
+    "size": "1024x1024"
+  }'
+
+# Transparent background with WebP output
+curl https://computevault.unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A cute little sea otter",
+    "background": "transparent",
+    "output_format": "webp"
+  }'
+```
+
+**Response Example:**
+
+```json
+{
+  "created": 1589478378,
+  "data": [
+    {
+      "b64_json": "...",
+      "revised_prompt": "A cute little sea otter playing in the water, with round eyes and fluffy fur"
+    }
+  ],
+  "background": "opaque",
+  "output_format": "png",
+  "quality": "high",
+  "size": "1024x1024",
+  "usage": {
+    "total_tokens": 100,
+    "input_tokens": 50,
+    "output_tokens": 50,
+    "input_tokens_details": {
+      "text_tokens": 10,
+      "image_tokens": 40
+    }
+  }
+}
+```
+
+### Edit Image ✅
+
+```bash
+# gpt-image-2 image editing
+curl https://computevault.unodetech.xyz/v1/images/edits \
+  -H "Authorization: Bearer $API_KEY" \
+  -F image="@otter.png" \
+  -F mask="@mask.png" \
+  -F model="gpt-image-2" \
+  -F prompt="A cute little sea otter wearing a beret" \
+  -F size="1024x1024"
+
+# gpt-image-2 multi-image editing example
+curl https://computevault.unodetech.xyz/v1/images/edits \
+  -H "Authorization: Bearer $API_KEY" \
+  -F "model=gpt-image-2" \
+  -F "image[]=@body-lotion.png" \
+  -F "image[]=@bath-bomb.png" \
+  -F "image[]=@incense-kit.png" \
+  -F "image[]=@soap.png" \
+  -F "prompt=Create an elegant gift basket containing these four items" \
+  -F "quality=high"
+```
+
+**Response Example:**
+
+```json
+{
+  "created": 1713833628,
+  "data": [
+    {
+      "b64_json": "..."
+    }
+  ],
+  "usage": {
+    "total_tokens": 100,
+    "input_tokens": 50,
+    "output_tokens": 50,
+    "input_tokens_details": {
+      "text_tokens": 10,
+      "image_tokens": 40
+    }
+  }
+}
+```
+
+## 📮 Request
+
+### Endpoints
+
+#### Create Image
+```
+POST /v1/images/generations
+```
+
+Create images based on text prompts.
+
+#### Edit Image
+```
+POST /v1/images/edits
+```
+
+Create edited or extended images based on one or more original images and prompts.
+
+### Authentication Method
+
+Include the following in the request header for API key authentication:
+
+```
+Authorization: Bearer $API_KEY
+```
+
+Where `$API_KEY` is your API key.
+
+### Request Body Parameters
+
+#### Create Image (`/v1/images/generations`)
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| `prompt` | string | Yes | Text description of the desired image. Maximum 32000 characters. |
+| `model` | string | No | Model to use for image generation. Default: `gpt-image-2`. |
+| `n` | integer | No | Number of images to generate (1–10). Default: `1`. |
+| `size` | string | No | Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` also accepts arbitrary `WIDTHxHEIGHT` strings. Default: `auto`. |
+| `quality` | string | No | Quality of the generated image. Options: `high`, `medium`, `low`, `auto`. Default: `auto`. |
+| `background` | string | No | Background of the generated image. Options: `transparent`, `opaque`, `auto`. Transparent requires `output_format` of `png` or `webp`. Default: `auto`. |
+| `output_format` | string | No | File format of the returned image. Options: `png`, `jpeg`, `webp`. Default: `png`. |
+| `output_compression` | integer | No | Compression level (0–100) for `jpeg` and `webp` output. Default: `100`. |
+| `moderation` | string | No | Content-moderation strictness for generated images. Options: `low`, `auto`. Default: `auto`. |
+| `stream` | boolean | No | Generate the image in streaming mode. Default: `false`. |
+| `partial_images` | integer | No | Number of partial images to emit during streaming (0–3). Only valid when `stream` is `true`. |
+| `user` | string | No | Unique identifier for the end user to help OpenAI monitor and detect abuse. |
+
+GPT Image models always return base64-encoded images; the `response_format` parameter is not supported.
+
+#### Edit Image (`/v1/images/edits`)
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| `image` | file or file[] | Yes | Image(s) to edit. Each must be a PNG, WEBP, or JPG file, less than 25MB. Up to 16 images can be provided as an array. |
+| `prompt` | string | Yes | Text description of the desired edit. Maximum 32000 characters. |
+| `mask` | file | No | PNG image whose transparent areas (alpha = 0) indicate the positions to edit. Must be less than 4MB and the same size as the image. |
+| `model` | string | No | Model to use for image generation. Default: `gpt-image-2`. |
+| `n` | integer | No | Number of images to generate (1–10). Default: `1`. |
+| `size` | string | No | Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` also accepts arbitrary `WIDTHxHEIGHT` strings. Default: `auto`. |
+| `quality` | string | No | Quality of the generated image. Options: `high`, `medium`, `low`, `auto`. Default: `auto`. |
+| `background` | string | No | Background of the generated image. Options: `transparent`, `opaque`, `auto`. Transparent requires `output_format` of `png` or `webp`. Default: `auto`. |
+| `output_format` | string | No | File format of the returned image. Options: `png`, `jpeg`, `webp`. Default: `png`. |
+| `output_compression` | integer | No | Compression level (0–100) for `jpeg` and `webp` output. Default: `100`. |
+| `input_fidelity` | string | No | Controls how closely the output adheres to the input image(s). Options: `high`, `low`. |
+| `moderation` | string | No | Content-moderation strictness for generated images. Options: `low`, `auto`. Default: `auto`. |
+| `stream` | boolean | No | Generate the image in streaming mode. Default: `false`. |
+| `partial_images` | integer | No | Number of partial images to emit during streaming (0–3). Only valid when `stream` is `true`. |
+| `user` | string | No | Unique identifier for the end user to help OpenAI monitor and detect abuse. |
+
+## 📥 Response
+
+### Successful Response
+
+Both endpoints return a response containing a list of image objects.
+
+| Field | Type | Description |
+|------|------|------|
+| `created` | integer | Unix timestamp (in seconds) of when the image was created |
+| `data` | array | List of generated image objects |
+| `background` | string | The actual background setting used (`transparent` or `opaque`) |
+| `output_format` | string | The actual output format used (`png`, `webp`, or `jpeg`) |
+| `quality` | string | The actual quality level used (`low`, `medium`, or `high`) |
+| `size` | string | The actual dimensions of the generated image |
+| `usage` | object | Token usage for the API call |
+
+#### `usage` Fields
+
+| Field | Type | Description |
+|------|------|------|
+| `total_tokens` | integer | Total tokens used |
+| `input_tokens` | integer | Tokens used for input |
+| `output_tokens` | integer | Tokens used for output |
+| `input_tokens_details` | object | Detailed breakdown of input tokens: `text_tokens` and `image_tokens` |
+
+### Image Object
+
+Each object in the `data` array contains:
+
+| Field | Type | Description |
+|------|------|------|
+| `b64_json` | string | Base64-encoded image data. Returned by default for GPT Image models. |
+| `revised_prompt` | string | The modified prompt used for generation, if the prompt was revised |
+
+Example image object:
+```json
+{
+  "b64_json": "...",
+  "revised_prompt": "A cute little sea otter playing in the water, with round eyes and fluffy fur"
+}
+```
+
+## 🌟 Best Practices
+
+### Prompt Writing Tips
+
+1. Use clear and specific descriptions
+2. Specify important visual details
+3. Describe expected artistic style and atmosphere
+4. Pay attention to composition and perspective instructions
+
+### Parameter Selection Tips
+
+1. Size Selection
+    - 1024x1024: General scene best choice
+    - 1536x1024/1024x1536: Suitable for horizontal/vertical scenes
+
+2. Quality
+    - quality=high: For images requiring fine details
+    - quality=auto: Let the model choose the optimal quality
+
+### Common Questions
+
+1. Image generation failed
+    - Check if the prompt complies with content policies
+    - Confirm file format and size limits
+    - Verify API key permissions
+
+2. Results do not match expectations
+    - Optimize prompt description
+    - Adjust quality and style parameters
+    - Consider using image editing or variation features 

@@ -1,0 +1,310 @@
+---
+title: Wan Model Text-to-Video API Documentation
+---
+
+# Wan Model Text-to-Video API Documentation
+
+Wan/Alibaba Cloud provides high-quality text-to-video generation models. This document describes the complete API interface specification for using Wan/Alibaba Cloud models for text-to-video generation.
+
+---
+
+## Supported Models
+
+Currently supported models include:
+
+| Model | Description |
+| --- | --- |
+| **wan2.5-t2v-preview** | Wan 2.5 text-to-video generation model (preview) |
+| **wan2.6-t2v** | Wan 2.6 text-to-video generation model |
+
+---
+
+## Overview
+
+The Wan model text-to-video feature provides an asynchronous task processing mechanism:
+
+1. Submit Task: Send a text prompt to create a video generation task
+2. Query Status: Query generation progress and status through task ID
+3. Get Results: Retrieve the generated video file after task completion
+
+### Task Status Flow
+
+```
+queued → in_progress → completed
+                ↓
+            failed
+```
+
+- queued: Task has been submitted and is waiting to be processed
+- in_progress: Task is being processed
+- completed: Task completed successfully, video has been generated
+- failed: Task failed
+
+---
+
+## API List
+
+| Method | Path | Description |
+|------|------|------|
+| POST | /v1/video/generations | Submit video generation task |
+| GET | /v1/video/generations/\{task_id\} | Query task status |
+
+## Usage Examples
+
+### Request Body
+
+```json
+{
+  "prompt": "A large hand-shaped marble statue with vines growing on it, on a platform in the middle of a shallow pool of water.",
+  "model": "wan2.5-t2v-preview",
+  "metadata": {
+    "input": {
+      "negative_prompt": "trees, animals, outdoors"
+    },
+    "parameters": {
+      "size": "1280*720"
+    }
+  }
+}
+```
+
+**Complete Request:**
+
+```bash
+curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer API_KEY" \
+  -d '{
+    "prompt": "A large hand-shaped marble statue with vines growing on it, on a platform in the middle of a shallow pool of water.",
+    "model": "wan2.5-t2v-preview",
+    "metadata": {
+      "input": {
+        "negative_prompt": "trees, animals, outdoors"
+      },
+      "parameters": {
+        "size": "1920*1080"
+      }
+    }
+  }'
+```
+
+### Request Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| model | string | Yes | Model name, e.g., wan2.5-t2v-preview |
+| prompt | string | Yes | Text prompt describing the video content to be generated |
+| metadata | object | No | Metadata object containing `input` and `parameters` sub-objects for specifying optional fields from the official Wan request format |
+
+#### metadata.input Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| negative_prompt | string | No | Negative prompt text to exclude certain elements from the video |
+| audio_url | string | No | URL of custom audio file for audio-visual synchronization. When provided, the `parameters.audio` parameter is ignored. **Supported models: wan2.5, wan2.6** |
+
+#### metadata.parameters Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| prompt_extend | boolean | No | Enable intelligent prompt rewriting |
+| watermark | boolean | No | Add watermark to the video |
+| seed | integer | No | Random seed for generation reproducibility. Same seed can produce similar results |
+| size | string | No | Video resolution. **Note: 480P is not available for wan2.6**. Options by resolution tier:<br /><br />**480P tier** (**wan2.5 only**):<br />- `"832*480"` (16:9)<br />- `"480*832"` (9:16)<br />- `"624*624"` (1:1)<br /><br />**720P tier**:<br />- `"1280*720"` (16:9)<br />- `"720*1280"` (9:16)<br />- `"960*960"` (1:1)<br />- `"1088*832"` (4:3)<br />- `"832*1088"` (3:4)<br /><br />**1080P tier**:<br />- `"1920*1080"` (16:9)<br />- `"1080*1920"` (9:16)<br />- `"1440*1440"` (1:1)<br />- `"1632*1248"` (4:3)<br />- `"1248*1632"` (3:4) |
+| duration | integer | No | Video duration in seconds. Options: `5`, `10`, `15` (**15 seconds: wan2.6 only**) |
+| audio | boolean | No | Enable automatic dubbing/background audio generation. When `input.audio_url` is not provided, setting to `true` will automatically generate matching background audio or music. **Supported models: wan2.5, wan2.6**. Note: wan2.2 and earlier versions output only silent videos |
+| shot_type | string | No | Specifies the shot type of the generated video, i.e., whether the video consists of a single continuous shot or multiple switched shots. Options: `"single"` (default, outputs a single-shot video) or `"multi"` (outputs a multi-shot video). **wan2.6 only**. Note: This parameter takes effect only when `prompt_extend` is set to `true`. Parameter priority: `shot_type > prompt` |
+
+**Audio Parameter Notes:**
+
+Audio behavior is controlled by `input.audio_url` and `parameters.audio` parameters. Priority: `audio_url > audio`. Three modes are supported:
+
+1. **Generate silent video**: Do not pass `audio_url`, and set `audio` to `false`
+2. **Automatically generate audio**: Do not pass `audio_url`, and set `audio` to `true` (the model automatically generates matching background audio or music based on the prompt and video content)
+3. **Use custom audio**: Pass `audio_url` (the `audio` parameter is ignored, and the video content attempts to align with the audio content, such as lip movements and rhythm)
+
+## 1. Submit Video Generation Task
+
+### Endpoint:
+
+```
+POST /v1/video/generations
+```
+
+### Request Headers:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| Content-Type | string | Yes | application/json |
+| Authorization | string | Yes | Bearer API_KEY |
+
+### Response Example:
+
+```json
+{
+  "id": "...",
+  "object": "video",
+  "model": "wan2.5-t2v-preview",
+  "status": "queued",
+  "progress": 0,
+  "created_at": 1765328779
+}
+```
+
+### Response Field Descriptions:
+
+| Field | Type | Description |
+|------|------|------|
+| id | string | Task ID for subsequent task status queries |
+| object | string | Object type, fixed as "video" |
+| model | string | Model used to generate the video |
+| status | string | Task status, initially "queued" |
+| progress | integer | Task progress, 0-100 |
+| created_at | integer | Task creation timestamp |
+
+## 2. Query Task Status
+
+### Complete Request
+
+```bash
+curl -X GET "https://computevault.unodetech.xyz/v1/video/generations/TASK_ID" \
+  -H "Authorization: Bearer API_KEY"
+```
+
+### Endpoint:
+
+```
+GET /v1/video/generations/{task_id}
+```
+
+### Request Headers:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| Authorization | string | Yes | Bearer API_KEY |
+
+### Path Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| task_id | string | Yes | Task ID |
+
+### Response Example (Processing):
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "IN_PROGRESS",
+    "fail_reason": "",
+    "submit_time": 1765328779,
+    "start_time": 1765328794,
+    "finish_time": 0,
+    "progress": "30%",
+    "data": {
+      "output": {
+        "scheduled_time": "2025-12-10 09:06:19.749",
+        "submit_time": "2025-12-10 09:06:19.731",
+        "task_id": "...",
+        "task_status": "RUNNING"
+      },
+      "request_id": "..."
+    }
+  }
+}
+```
+
+### Response Example (Success):
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "SUCCESS",
+    "fail_reason": "<OUTPUT_URL>",
+    "submit_time": 1765328779,
+    "start_time": 1765328794,
+    "finish_time": 1765328947,
+    "progress": "100%",
+    "data": {
+      "output": {
+        "actual_prompt": "<EDITED_PROMPT>",
+        "end_time": "2025-12-10 09:08:53.863",
+        "orig_prompt": "A large hand-shaped marble statue with vines growing on it, on a platform in the middle of a shallow pool of water.",
+        "scheduled_time": "2025-12-10 09:06:19.749",
+        "submit_time": "2025-12-10 09:06:19.731",
+        "task_id": "...",
+        "task_status": "SUCCEEDED",
+        "video_url": "<OUTPUT_URL>"
+      },
+      "request_id": "...",
+      "usage": {
+        "video_count": 1,
+        "video_duration": 5,
+        "video_ratio": "1920*1080"
+      }
+    }
+  }
+}
+```
+
+You can retrieve the video URL from the `data.data.output.video_url` field.
+
+### Response Example (Failed):
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "FAILURE",
+    "fail_reason": "task failed, code: InvalidParameter , message: image_url must provided",
+    "submit_time": 1765407269,
+    "start_time": 1765407278,
+    "finish_time": 1765407294,
+    "progress": "100%",
+    "data": {
+      "output": {
+        "code": "InvalidParameter",
+        "end_time": "2025-12-11 06:54:49.934",
+        "message": "image_url must provided",
+        "scheduled_time": "2025-12-11 06:54:29.557",
+        "submit_time": "2025-12-11 06:54:29.529",
+        "task_id": "...",
+        "task_status": "FAILED"
+      },
+      "request_id": "..."
+    }
+  }
+}
+```
+
+### Response Field Descriptions:
+
+| Field | Type | Description |
+|------|------|------|
+| code | string | Response status code, "success" indicates success |
+| message | string | Response message |
+| data | object | Task data object |
+| data.task_id | string | Task ID |
+| data.status | string | Task status: IN_PROGRESS, SUCCESS, FAILURE |
+| data.progress | string | Task progress percentage |
+| data.data.output.video_url | string | Video access URL (when task succeeds) |
+| data.data.output.task_status | string | Task status: RUNNING, SUCCEEDED, FAILED |
+| data.data.usage | object | Usage statistics (when task succeeds) |
+| data.data.usage.video_count | integer | Number of videos generated |
+| data.data.usage.video_duration | integer | Video duration (seconds) |
+| data.data.usage.video_ratio | string | Video resolution |
+
+## Related Links
+
+- [Alibaba Cloud Text-to-Video API Official Documentation](https://www.alibabacloud.com/help/en/model-studio/text-to-video-api-reference)
+

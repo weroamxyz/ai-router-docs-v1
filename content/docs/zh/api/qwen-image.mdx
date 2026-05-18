@@ -1,0 +1,263 @@
+---
+title: Qwen 图像格式（Image）
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Qwen 图像格式（Image）
+
+<Callout type="info" title="官方文档">
+[Alibaba Cloud Models Usage (Image and Video Generation)](https://www.alibabacloud.com/help/en/model-studio)
+</Callout>
+## 📝 简介
+
+给定文本提示，模型将生成新的图片。Qwen/Alibaba Cloud 提供强大的图像生成和编辑模型，可以根据自然语言描述创建图像或编辑现有图像。
+
+## 🤖 支持的模型
+
+目前支持的模型包括：
+
+| 模型 | 描述 |
+| --- | --- |
+| **qwen-image-plus** | Qwen 图像生成模型，支持根据文本提示生成高质量图像 |
+| **wan2.5-t2i-preview** | Wan 2.5 文本到图像预览模型 |
+| **qwen-image-edit-plus** | Qwen 图像编辑模型，支持基于输入图像和文本提示进行图像编辑 |
+| **qwen-image-edit** | Qwen 图像编辑模型 |
+| **wan2.5-i2i-preview** | Wan 2.5 图像到图像预览模型 |
+
+## 💡 请求示例
+
+### 创建图片 ✅
+
+```bash
+# 基础图片生成
+curl "https://computevault.unodetech.xyz/v1/images/generations" \
+  -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer $API_KEY" \
+  -X POST \
+  -d '{
+    "model": "qwen-image-plus",
+    "prompt": "给我一个猫的图片",
+    "n": 1,
+    "size": "1328*1328"
+  }'
+```
+
+**响应示例:**
+
+```json
+{
+  "created": 1234567890,
+  "data": [
+    {
+      "url": "https://example.com/image.png",
+      "b64_json": "..."
+    }
+  ]
+}
+```
+
+### 编辑图片 ✅
+
+```bash
+# 图片编辑（使用 multipart form）
+curl -X POST "https://computevault.unodetech.xyz/v1/images/edits" \
+  -H "Authorization: Bearer $API_KEY" \
+  -F "image=@hand-statue.png" \
+  -F "model=qwen-image-edit" \
+  -F "prompt=The broken remains of the hand-shaped statue, with all parts above the wrist missing. These broken pieces are jutting out of the water surrounding the statue."
+```
+
+**响应示例:**
+
+```json
+{
+  "created": 1234567890,
+  "data": [
+    {
+      "url": "https://example.com/edited-image.png",
+      "b64_json": "..."
+    }
+  ]
+}
+```
+
+## 📮 请求
+
+### 端点
+
+#### 创建图片
+```
+POST /v1/images/generations
+```
+
+根据文本提示创建图片。支持 `qwen-image-plus` 和 `wan2.5-t2i-preview` 模型。
+
+#### 编辑图片
+```
+POST /v1/images/edits
+```
+
+基于输入图像和文本提示编辑或生成新图片。支持 `qwen-image-edit-plus`、`qwen-image-edit` 和 `wan2.5-i2i-preview` 模型。图像数据通过 multipart form 请求提供。
+
+### 鉴权方法
+
+在请求头中包含 API 密钥：
+
+```
+Authorization: Bearer $API_KEY
+```
+
+其中 `$API_KEY` 是您的 API 密钥。
+
+### 请求体参数
+
+#### 文本到图像生成（`/v1/images/generations`）
+
+| 参数 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `model` | 字符串 | 是 | 模型名称，如 "qwen-image-plus" 或 "wan2.5-t2i-preview" |
+| `prompt` | 字符串 | 是 | 期望生成图片的文本描述 |
+| `n` | 整数 | 否 | 生成图片数量，固定为 1 |
+| `size` | 字符串 | 否 | 图片分辨率，格式为 width*height。默认值为 1328*1328。可选值及其对应的宽高比：<br />- `"1664*928"` (16:9)<br />- `"1472*1140"` (4:3)<br />- `"1328*1328"` (1:1，默认)<br />- `"1140*1472"` (3:4)<br />- `"928*1664"` (9:16) |
+| `response_format` | 字符串 | 否 | 响应格式，"url" 或 "b64_json" |
+
+##### `prompt`
+- 类型：字符串
+- 必需：是
+- 说明：期望生成图片的文本描述。
+- 提示：
+  - 使用具体和详细的描述
+  - 包含关键的视觉元素
+  - 指定期望的艺术风格
+  - 描述构图和视角
+
+#### 图像编辑（`/v1/images/edits`）
+
+图像编辑使用 multipart form 请求格式。
+
+| 参数 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `model` | 字符串 | 是 | 模型名称，如 "qwen-image-edit-plus"、"qwen-image-edit" 或 "wan2.5-i2i-preview" |
+| `image` | 文件 | 是 | 要编辑的输入图像文件 |
+| `prompt` | 字符串 | 是 | 描述如何修改输入图像的文本提示 |
+
+##### `image`
+- 类型：文件（multipart form）
+- 必需：是
+- 说明：要编辑的输入图像文件。
+
+##### `prompt`
+- 类型：字符串
+- 必需：是
+- 说明：描述希望如何修改输入图像的文本提示。
+- 提示：
+  - 明确描述要添加、移除或替换的元素
+  - 使用具体和详细的描述
+  - 描述期望的修改效果
+
+## 📥 响应
+
+### 成功响应
+
+#### 文本到图像生成响应
+
+```json
+{
+  "created": 1234567890,
+  "data": [
+    {
+      "url": "https://example.com/image.png",
+      "b64_json": "..."
+    }
+  ]
+}
+```
+
+**响应字段说明：**
+
+| 字段 | 类型 | 描述 |
+|------|------|------|
+| `created` | 整数 | 创建时间戳 |
+| `data` | 数组 | 生成的图片数组 |
+| `data[].url` | 字符串 | 图片 URL（如果 `response_format` 为 "url"） |
+| `data[].b64_json` | 字符串 | Base64 编码的图片数据（如果 `response_format` 为 "b64_json"） |
+
+#### 图像编辑响应
+
+```json
+{
+  "created": 1234567890,
+  "data": [
+    {
+      "url": "https://example.com/edited-image.png",
+      "b64_json": "..."
+    }
+  ]
+}
+```
+
+响应格式与文本到图像生成相同。
+
+### 错误响应
+
+如果请求失败，将返回错误响应：
+
+```json
+{
+  "error": {
+    "message": "错误描述",
+    "type": "invalid_request_error",
+    "code": "error_code"
+  }
+}
+```
+
+## 🌟 最佳实践
+
+### Prompt 编写建议
+
+1. 使用清晰具体的描述
+2. 指定重要的视觉细节
+3. 描述期望的艺术风格和氛围
+4. 注意构图和视角的说明
+5. 可以包含颜色、光线、情绪等细节
+
+### 参数选择建议
+
+1. 模型选择
+    - `qwen-image-plus`：Qwen 图像生成模型，适合快速生成高质量图像
+    - `wan2.5-t2i-preview`：Wan 2.5 文本到图像预览模型
+    - `qwen-image-edit-plus`：Qwen 图像编辑模型，支持基于输入图像和文本提示进行图像编辑
+    - `qwen-image-edit`：Qwen 图像编辑模型
+    - `wan2.5-i2i-preview`：Wan 2.5 图像到图像预览模型
+
+2. Prompt 优化
+    - 使用详细和描述性的文本
+    - 包含具体的视觉元素和风格要求
+    - 避免模糊或过于简短的描述
+    - 编辑图片时，明确描述希望如何修改输入图像（添加、移除、替换元素等）
+
+3. 图像编辑注意事项
+    - 确保输入图像格式正确
+    - 使用 multipart form 格式上传图像
+    - 提供清晰的编辑指令
+
+### 常见问题
+
+1. 图片生成失败
+    - 检查 prompt 是否符合内容政策
+    - 验证 API 密钥权限
+    - 确认请求格式正确
+    - 检查模型名称是否正确
+
+2. 结果与预期不符
+    - 优化 prompt 描述，使其更加具体和详细
+    - 添加更多视觉细节和风格描述
+    - 尝试不同的描述方式
+
+3. 图像编辑失败
+    - 确认图像文件格式正确
+    - 检查是否使用 multipart form 格式
+    - 验证 prompt 是否清晰描述了编辑需求
+

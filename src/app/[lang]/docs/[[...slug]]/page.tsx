@@ -10,7 +10,6 @@ import { getMDXComponents } from '@/mdx-components';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { Feedback } from '@/components/feedback';
-import { LLMCopyButton, ViewOptions } from '@/components/page-actions';
 import { onRateAction } from '@/lib/github';
 
 // GitHub repository info for source links
@@ -43,17 +42,6 @@ export default async function Page(props: {
       <DocsDescription className="mb-2">
         {page.data.description}
       </DocsDescription>
-      <div className="mb-6 flex flex-row flex-wrap items-center gap-2 border-b pb-6">
-        <LLMCopyButton
-          markdownUrl={`/${lang}/llms.mdx/${page.slugs.join('/')}`}
-          lang={lang}
-        />
-        <ViewOptions
-          markdownUrl={`/${lang}/llms.mdx/${page.slugs.join('/')}`}
-          githubUrl={`https://github.com/${owner}/${repo}/blob/${branch}/content/docs/${page.path}`}
-          lang={lang}
-        />
-      </div>
       <DocsBody>
         <MDX
           components={getMDXComponents({

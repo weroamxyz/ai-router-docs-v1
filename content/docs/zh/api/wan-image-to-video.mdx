@@ -1,0 +1,444 @@
+---
+title: Wan 模型图生视频接口文档
+---
+
+# Wan 模型图生视频接口文档
+
+Wan/Alibaba Cloud 提供高质量图像到视频生成模型，本文档描述了使用 Wan/Alibaba Cloud 模型进行图像到视频生成的完整 API 接口规范。所有视频生成调用都使用相同的 `/v1/video/generations` 端点，根据用例使用不同的参数。
+
+---
+
+## 支持的模型
+
+目前支持的模型包括：
+
+| 模型 | 描述 |
+| --- | --- |
+| **wan2.5-i2v-preview** | Wan 2.5 图像到视频生成模型（预览版） |
+| **wan2.6-i2v** | Wan 2.6 图像到视频生成模型 |
+| **wan2.1-kf2v-plus** | Wan 2.1 首末帧到视频生成模型 |
+
+---
+
+## 概述
+
+Wan 模型图生视频功能提供异步任务处理机制：
+
+1. 提交任务：发送图像和文本提示词，创建视频生成任务
+2. 查询状态：通过任务 ID 查询生成进度和状态
+3. 获取结果：任务完成后获取生成的视频文件
+
+### 任务状态流转
+
+```
+queued → in_progress → completed
+                ↓
+            failed
+```
+
+- queued: 任务已提交，等待处理
+- in_progress: 任务正在处理中
+- completed: 任务成功完成，视频已生成
+- failed: 任务失败
+
+---
+
+## 接口列表
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /v1/video/generations | 提交视频生成任务 |
+| GET | /v1/video/generations/\{task_id\} | 查询任务状态 |
+
+## 调用示例
+
+### 1. 基础图生视频（首帧）
+
+最简单的图生视频形式使用单个图像作为第一帧。首帧通过请求的 `input_reference` 字段指定。可以是 URL 或 base64 编码的数据。
+
+**注意：** 与 Veo 不同，base64 数据必须以 data URI 格式呈现，即编码数据前缀为 MIME 类型：`data:{MIME_TYPE};base64,{base64_data}`，而不是简单地发送 base64 数据。请参阅官方文档了解示例和更多详细信息。
+
+**请求体：**
+
+```json
+{
+  "prompt": "The natural light above gains a red tint, and the water in the shallow pool surrounding the hand statue begins to overflow, flooding the surrounding area.",
+  "model": "wan2.5-i2v-preview",
+  "input_reference": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+  "metadata": {
+    "input": {
+      "negative_prompt": "blurry, low quality, distorted"
+    },
+    "parameters": {
+      "resolution": "1080P",
+      "duration": 5,
+      "audio": true,
+      "watermark": false,
+      "prompt_extend": false
+    }
+  }
+}
+```
+
+或者使用 URL：
+
+```json
+{
+  "prompt": "The natural light above gains a red tint, and the water in the shallow pool surrounding the hand statue begins to overflow, flooding the surrounding area.",
+  "model": "wan2.5-i2v-preview",
+  "input_reference": "https://example.com/first-frame.png",
+  "metadata": {
+    "input": {
+      "negative_prompt": "blurry, low quality, distorted"
+    },
+    "parameters": {
+      "resolution": "1080P",
+      "duration": 5,
+      "audio": true,
+      "watermark": false,
+      "prompt_extend": false
+    }
+  }
+}
+```
+
+**完整请求（base64）：**
+
+```bash
+curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer API_KEY" \
+  -d '{
+    "prompt": "The natural light above gains a red tint, and the water in the shallow pool surrounding the hand statue begins to overflow, flooding the surrounding area.",
+    "model": "wan2.5-i2v-preview",
+    "input_reference": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+    "metadata": {
+      "input": {
+        "negative_prompt": "blurry, low quality, distorted"
+      },
+      "parameters": {
+        "resolution": "1080P",
+        "duration": 5,
+        "audio": true,
+        "watermark": false,
+        "prompt_extend": false
+      }
+    }
+  }'
+```
+
+**完整请求（URL）：**
+
+```bash
+curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer API_KEY" \
+  -d '{
+    "prompt": "The natural light above gains a red tint, and the water in the shallow pool surrounding the hand statue begins to overflow, flooding the surrounding area.",
+    "model": "wan2.5-i2v-preview",
+    "input_reference": "https://example.com/first-frame.png",
+    "metadata": {
+      "input": {
+        "negative_prompt": "blurry, low quality, distorted"
+      },
+      "parameters": {
+        "resolution": "1080P",
+        "duration": 5,
+        "audio": true,
+        "watermark": false,
+        "prompt_extend": false
+      }
+    }
+  }'
+```
+
+### 2. 首帧和末帧
+
+此功能目前仅支持 `wan2.1-kf2v-plus` 模型。首帧和末帧分别通过 `metadata.input.first_frame_url` 和 `metadata.input.last_frame_url` 字段指定。
+
+**注意：** 与仅首帧的图生视频用例不同，这些字段仅接受 URL，不接受 base64 编码的数据。
+
+**限制：** 首末帧模式下，分辨率固定为 `720P`，时长固定为 `5` 秒，`audio` 和 `shot_type` 参数不可用。
+
+**请求体：**
+
+```json
+{
+  "prompt": "The hand-shaped statue cracks and collapses, with pieces from above the wrist falling into the water.",
+  "model": "wan2.1-kf2v-plus",
+  "metadata": {
+    "input": {
+      "first_frame_url": "https://example.com/first-frame.png",
+      "last_frame_url": "https://example.com/last-frame.png",
+      "negative_prompt": "blurry, low quality, distorted"
+    },
+    "parameters": {
+      "watermark": false,
+      "prompt_extend": false,
+      "seed": 12345
+    }
+  }
+}
+```
+
+**完整请求：**
+
+```bash
+curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer API_KEY" \
+  -d '{
+    "prompt": "The hand-shaped statue cracks and collapses, with pieces from above the wrist falling into the water.",
+    "model": "wan2.1-kf2v-plus",
+    "metadata": {
+      "input": {
+        "first_frame_url": "https://example.com/first-frame.png",
+        "last_frame_url": "https://example.com/last-frame.png",
+        "negative_prompt": "blurry, low quality, distorted"
+      },
+      "parameters": {
+        "watermark": false,
+        "prompt_extend": false,
+        "seed": 12345
+      }
+    }
+  }'
+```
+
+### 请求参数说明:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| model | string | 是 | 模型名称，如 wan2.5-i2v-preview 或 wan2.1-kf2v-plus |
+| prompt | string | 是 | 文本提示词，描述要生成的视频内容 |
+| input_reference | string | 是（首帧模式） | 第一帧的 URL 或 base64 编码数据（data URI 格式） |
+| metadata | object | 否 | metadata 对象，包含 input 和 parameters 子对象，用于指定官方 Wan 请求格式中的可选字段 |
+
+#### metadata.input 参数:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| img_url | string | 否 | 第一帧图像的 URL。注意：在首帧模式下，也可以通过顶层的 `input_reference` 字段提供。对于首末帧模式（wan2.1-kf2v-plus），请使用 `first_frame_url` 和 `last_frame_url` |
+| first_frame_url | string | 是（首末帧模式） | 第一帧图像的 URL。**支持模型：wan2.1-kf2v-plus**（仅首末帧模式，仅接受 URL，不接受 base64 编码数据） |
+| last_frame_url | string | 是（首末帧模式） | 最后一帧图像的 URL。**支持模型：wan2.1-kf2v-plus**（仅首末帧模式，仅接受 URL，不接受 base64 编码数据） |
+| negative_prompt | string | 否 | 负面提示词，用于排除不希望出现在视频中的元素 |
+| audio_url | string | 否 | 自定义音频文件的 URL，用于音画同步。当提供此参数时，`parameters.audio` 参数将被忽略。**支持模型：wan2.5-i2v-preview, wan2.6-i2v**。**首末帧模式（wan2.1-kf2v-plus）不支持此参数** |
+
+#### metadata.parameters 参数:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| resolution | string | 否 | 视频分辨率。可选值：`"480P"`（**仅 wan2.5**）、`"720P"`、`"1080P"`。注意：输出视频的宽高比由输入的首帧图像决定，会有小幅调整以满足技术要求（宽度和高度必须能被 16 整除）。**首末帧模式（wan2.1-kf2v-plus）固定为 720P** |
+| prompt_extend | boolean | 否 | 是否启用智能提示词改写功能 |
+| duration | integer | 否 | 视频时长（秒）。可选值：`5`、`10`、`15`（**仅 wan2.6**）。**首末帧模式（wan2.1-kf2v-plus）固定为 5 秒** |
+| audio | boolean | 否 | 是否启用自动配音/背景音乐生成。当 `input.audio_url` 未提供时，设置为 `true` 将自动生成匹配的背景音频或音乐。**支持模型：wan2.5-i2v-preview, wan2.6-i2v**。注意：wan2.2 及更早版本仅输出无声视频。**首末帧模式（wan2.1-kf2v-plus）不支持此参数** |
+| watermark | boolean | 否 | 是否在视频中添加水印 |
+| seed | integer | 否 | 随机种子，用于控制生成结果的随机性，相同种子可产生相似结果 |
+| shot_type | string | 否 | 指定生成视频的镜头类型，即视频是单个连续镜头还是多个切换镜头。可选值：`"single"`（默认，输出单镜头视频）或 `"multi"`（输出多镜头视频）。**支持模型：wan2.6-i2v**。注意：此参数仅在 `prompt_extend` 设置为 `true` 时生效。参数优先级：`shot_type > prompt`。**首末帧模式（wan2.1-kf2v-plus）不支持此参数** |
+
+**音频参数说明：**
+
+音频行为由 `input.audio_url` 和 `parameters.audio` 参数控制，优先级：`audio_url > audio`。支持三种模式：
+
+1. **生成无声视频**：不传递 `audio_url`，且设置 `audio` 为 `false`
+2. **自动生成音频**：不传递 `audio_url`，且设置 `audio` 为 `true`（模型会根据提示词和视频内容自动生成匹配的背景音频或音乐）
+3. **使用自定义音频**：传递 `audio_url`（此时 `audio` 参数将被忽略，视频内容会尝试与音频内容对齐，如口型动作和节奏）
+
+## 1. 提交视频生成任务
+
+### 接口地址: 
+
+```
+POST /v1/video/generations
+```
+
+### 请求头:
+
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| Content-Type | string | 是 | application/json |
+| Authorization | string | 是 | Bearer API_KEY |
+
+### 响应示例:
+
+```json
+{
+  "id": "...",
+  "object": "video",
+  "model": "wan2.5-i2v-preview",
+  "status": "queued",
+  "progress": 0,
+  "created_at": 1765328779
+}
+```
+
+### 响应字段说明:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | string | 任务 ID，用于后续查询任务状态 |
+| object | string | 对象类型，固定为 "video" |
+| model | string | 生成视频的模型 |
+| status | string | 任务状态，初始为 "queued" |
+| progress | integer | 任务进度，0-100 |
+| created_at | integer | 任务创建时间戳 |
+
+## 2. 查询任务状态
+
+### 完整请求
+
+```bash
+curl -X GET "https://computevault.unodetech.xyz/v1/video/generations/TASK_ID" \
+  -H "Authorization: Bearer API_KEY"
+```
+
+### 接口地址: 
+
+```
+GET /v1/video/generations/{task_id}
+```
+
+### 请求头:
+
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| Authorization | string | 是 | Bearer API_KEY |
+
+### 路径参数:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| task_id | string | 是 | 任务 ID |
+
+### 响应示例（处理中）:
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "IN_PROGRESS",
+    "fail_reason": "",
+    "submit_time": 1765328779,
+    "start_time": 1765328794,
+    "finish_time": 0,
+    "progress": "30%",
+    "data": {
+      "output": {
+        "scheduled_time": "2025-12-10 09:06:19.749",
+        "submit_time": "2025-12-10 09:06:19.731",
+        "task_id": "...",
+        "task_status": "RUNNING"
+      },
+      "request_id": "..."
+    }
+  }
+}
+```
+
+### 响应示例（成功）:
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "SUCCESS",
+    "fail_reason": "<OUTPUT_URL>",
+    "submit_time": 1765328779,
+    "start_time": 1765328794,
+    "finish_time": 1765328947,
+    "progress": "100%",
+    "data": {
+      "output": {
+        "actual_prompt": "<EDITED_PROMPT>",
+        "end_time": "2025-12-10 09:08:53.863",
+        "orig_prompt": "The natural light above gains a red tint, and the water in the shallow pool surrounding the hand statue begins to overflow, flooding the surrounding area.",
+        "scheduled_time": "2025-12-10 09:06:19.749",
+        "submit_time": "2025-12-10 09:06:19.731",
+        "task_id": "...",
+        "task_status": "SUCCEEDED",
+        "video_url": "<OUTPUT_URL>"
+      },
+      "request_id": "...",
+      "usage": {
+        "video_count": 1,
+        "video_duration": 5,
+        "video_ratio": "1920*1080"
+      }
+    }
+  }
+}
+```
+
+可在返回的 `data.data.output.video_url` 字段获取视频 URL。
+
+### 响应示例（失败）:
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "FAILURE",
+    "fail_reason": "task failed, code: InvalidParameter , message: image_url must provided",
+    "submit_time": 1765407269,
+    "start_time": 1765407278,
+    "finish_time": 1765407294,
+    "progress": "100%",
+    "data": {
+      "output": {
+        "code": "InvalidParameter",
+        "end_time": "2025-12-11 06:54:49.934",
+        "message": "image_url must provided",
+        "scheduled_time": "2025-12-11 06:54:29.557",
+        "submit_time": "2025-12-11 06:54:29.529",
+        "task_id": "...",
+        "task_status": "FAILED"
+      },
+      "request_id": "..."
+    }
+  }
+}
+```
+
+### 响应字段说明:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| code | string | 响应状态码，"success" 表示成功 |
+| message | string | 响应消息 |
+| data | object | 任务数据对象 |
+| data.task_id | string | 任务 ID |
+| data.status | string | 任务状态：IN_PROGRESS、SUCCESS、FAILURE |
+| data.progress | string | 任务进度百分比 |
+| data.data.output.video_url | string | 视频访问 URL（任务成功时） |
+| data.data.output.task_status | string | 任务状态：RUNNING、SUCCEEDED、FAILED |
+| data.data.usage | object | 使用情况统计（任务成功时） |
+| data.data.usage.video_count | integer | 生成的视频数量 |
+| data.data.usage.video_duration | integer | 视频时长（秒） |
+| data.data.usage.video_ratio | string | 视频分辨率 |
+
+## 重要提示
+
+1. **Base64 数据格式**：对于首帧模式，base64 数据必须使用 data URI 格式：`data:{MIME_TYPE};base64,{base64_data}`，而不是纯 base64 字符串。
+
+2. **首末帧模式限制**：`wan2.1-kf2v-plus` 模型的首帧和末帧字段仅接受 URL，不接受 base64 编码数据。
+
+3. **模型选择**：
+   - `wan2.5-i2v-preview`：支持首帧模式的图生视频
+   - `wan2.1-kf2v-plus`：支持首帧和末帧模式的图生视频
+
+4. **Metadata**：请求的 `metadata` 字段可用于写入官方请求格式中存在的任何字段。例如，如果您需要在请求中指定官方格式的 `parameters.resolution`，请使用 `metadata.parameters.resolution`。有关可选请求参数及其允许值的详细信息，请参阅官方文档。
+
+## 相关链接
+
+- [Alibaba Cloud Image-to-Video API 官方文档](https://www.alibabacloud.com/help/en/model-studio/image-to-video-api-reference)
+- [Alibaba Cloud First-and-Last-Frame-to-Video API 官方文档](https://www.alibabacloud.com/help/en/model-studio/image-to-video-by-first-and-last-frame-api-reference)
+

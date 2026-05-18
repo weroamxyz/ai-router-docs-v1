@@ -1,10 +1,10 @@
 ---
 title: LunaTranslator - Open Source GalGame Translator
-description: LunaTranslator Tutorial — An open-source GalGame / visual novel translator that supports HOOK, OCR, and AI translation engines. Integrates with New API to improve translation quality.
+description: LunaTranslator Tutorial — An open-source GalGame / visual novel translator that supports HOOK, OCR, and AI translation engines. Integrates with ComputeVault to improve translation quality.
 ---
 
 <Callout type="info" title="Chat Settings Options">
-  In the New API
+  In the ComputeVault
   console's System Settings -> Chat Settings, you can add the following shortcut option for one-click population into
   LunaTranslator from the Token Management page:
 </Callout>
@@ -45,11 +45,11 @@ Download and install from [LunaTranslator Documentation - Download & Launch & Up
 
 ## Integrating NewAPI into LunaTranslator
 
-LunaTranslator supports integration with locally deployed New API. Please use your own deployed New API, or ensure that the service provider has legitimate upstream authorization and compliance obligations for their New API service. Do not connect API addresses or keys from unknown sources to production environments.
+LunaTranslator supports integration with locally deployed ComputeVault. Please use your own deployed ComputeVault, or ensure that the service provider has legitimate upstream authorization and compliance obligations for their ComputeVault service. Do not connect API addresses or keys from unknown sources to production environments.
 
 ### One-Click Configuration
 
-1.  In the New API console's `System Settings` -> `Chat Settings`, add the following shortcut option:
+1.  In the ComputeVault console's `System Settings` -> `Chat Settings`, add the following shortcut option:
 
     ```json
     { "LunaTranslator": "lunatranslator://llmapi/base64?data={cheryConfig}" }

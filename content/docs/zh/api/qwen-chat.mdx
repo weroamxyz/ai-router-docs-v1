@@ -1,0 +1,262 @@
+---
+title: Qwen 对话格式（Text Generation）
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Qwen 对话格式（Text Generation）
+
+<Callout type="info" title="官方文档">
+[Qwen Text Generation API](https://www.alibabacloud.com/help/en/model-studio/text-generation)
+</Callout>
+## 📝 简介
+
+给定一组包含对话的消息列表，模型将返回一个响应。Qwen 是阿里巴巴通义实验室开发的大规模语言模型，支持多语言对话、文本生成、代码生成等功能。
+
+## 🤖 支持的模型
+
+目前支持的模型包括：
+
+| 模型 | 描述 |
+| --- | --- |
+| **qwen-turbo** | Qwen Turbo 对话模型 |
+| **qwen-plus** | Qwen Plus 对话模型 |
+| **qwen-max** | Qwen Max 对话模型 |
+
+## 💡 请求示例
+
+### 基础文本对话 ✅
+
+```bash
+curl --location "https://computevault.unodetech.xyz/api/v1/services/aigc/text-generation/generation" \
+  --header "Authorization: Bearer $API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "model": "qwen-plus",
+    "input": {
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a helpful assistant."
+        },
+        {
+          "role": "user",
+          "content": "Who are you?"
+        }
+      ]
+    }
+  }'
+```
+
+**响应示例:**
+
+```json
+{
+  "output": {
+    "text": "",
+    "finish_reason": "",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "message": {
+          "content": "Hello! I'm Qwen, a large-scale language model independently developed by the Tongyi Lab under Alibaba Group. I can answer questions, create text such as stories, official documents, emails, scripts, perform logical reasoning, coding, and more. I can also express opinions and play games. I support 100 languages, including but not limited to Chinese, English, German, French, Spanish, etc., meeting international usage needs. If you have any questions or need assistance, feel free to let me know anytime!",
+          "role": "assistant"
+        }
+      }
+    ]
+  },
+  "usage": {
+    "input_tokens": 23,
+    "output_tokens": 106,
+    "total_tokens": 129
+  },
+  "code": "",
+  "message": "",
+  "request_id": ""
+}
+```
+
+## 📮 请求
+
+### 端点
+
+```
+POST /api/v1/services/aigc/text-generation/generation
+```
+
+创建给定聊天对话的模型响应。
+
+### 鉴权方法
+
+在请求头中包含以下内容进行 API 密钥认证：
+
+```
+Authorization: Bearer $API_KEY
+```
+
+其中 `$API_KEY` 是您的 API 密钥。
+
+### 请求体参数
+
+#### `model`
+
+- 类型：字符串
+- 必需：是
+
+要使用的模型 ID。例如：`qwen-plus`、`qwen-turbo` 等。
+
+#### `input`
+
+- 类型：对象
+- 必需：是
+
+包含输入消息的对象。
+
+**input 属性：**
+
+| 属性 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `messages` | 数组 | 是 | 包含对话的消息列表。 |
+
+#### `input.messages`
+
+- 类型：数组
+- 必需：是
+
+到目前为止包含对话的消息列表。
+
+**消息类型：**
+
+| 消息类型 | 描述 |
+|---------|------|
+| **System message** | 系统消息，用于设置助手的行为和角色。 |
+| **User message** | 由终端用户发送的消息，包含提示或额外的上下文信息。 |
+| **Assistant message** | 模型响应用户消息发送的消息。 |
+
+**System message 属性：**
+
+| 属性 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `role` | 字符串 | 是 | 消息作者的角色，此处为 `system`。 |
+| `content` | 字符串 | 是 | 系统消息的内容。 |
+
+**User message 属性：**
+
+| 属性 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `role` | 字符串 | 是 | 消息作者的角色，此处为 `user`。 |
+| `content` | 字符串 | 是 | 用户消息的内容。 |
+
+**Assistant message 属性：**
+
+| 属性 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `role` | 字符串 | 是 | 消息作者的角色，此处为 `assistant`。 |
+| `content` | 字符串 | 否 | 助手消息的内容。 |
+
+#### `parameters`
+
+- 类型：对象
+- 必需：否
+
+生成参数配置。
+
+**parameters 属性：**
+
+| 属性 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `result_format` | 字符串 | 否 | 响应格式。可选值：`message`、`text`。默认为 `message`。 |
+| `temperature` | 数字 | 否 | 采样温度，控制输出的随机性。范围通常在 0 到 2 之间。 |
+| `top_p` | 数字 | 否 | 核采样参数，控制采样的概率质量。 |
+| `max_tokens` | 整数 | 否 | 生成的最大标记数。 |
+| `stop` | 字符串或数组 | 否 | 停止序列，当模型生成这些序列时停止生成。 |
+
+## 📥 响应
+
+### 文本生成对象
+
+返回一个文本生成对象。
+
+#### `output`
+
+- 类型：对象
+- 说明：输出对象，包含生成的文本和选择项。
+
+**output 属性：**
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `text` | 字符串 | 生成的文本内容。 |
+| `finish_reason` | 字符串 | 生成完成的原因。 |
+| `choices` | 数组 | 生成的选择项列表。 |
+
+#### `output.choices`
+
+- 类型：数组
+- 说明：包含生成的回复选项列表。
+
+**choice 属性：**
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `finish_reason` | 字符串 | 模型停止生成标记的原因。可能的值：`stop`（自然停止）、`length`（达到最大长度）等。 |
+| `message` | 对象 | 模型生成的消息。 |
+| `message.role` | 字符串 | 消息作者的角色，通常为 `assistant`。 |
+| `message.content` | 字符串 | 消息的内容。 |
+
+#### `usage`
+
+- 类型：对象
+- 说明：补全请求的使用统计信息。
+
+**usage 属性：**
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `input_tokens` | 整数 | 输入中的标记数。 |
+| `output_tokens` | 整数 | 生成的补全中的标记数。 |
+| `total_tokens` | 整数 | 请求中使用的标记总数（输入 + 输出）。 |
+
+#### `code`
+
+- 类型：字符串
+- 说明：响应代码，通常为空字符串表示成功。
+
+#### `message`
+
+- 类型：字符串
+- 说明：响应消息，通常为空字符串表示成功。
+
+#### `request_id`
+
+- 类型：字符串
+- 说明：请求的唯一标识符。
+
+#### 文本生成对象响应示例
+
+```json
+{
+  "output": {
+    "text": "",
+    "finish_reason": "",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "message": {
+          "content": "你好！我是 Qwen，由阿里巴巴集团通义实验室独立开发的大规模语言模型。我可以回答问题、创作文本（如故事、公文、邮件、剧本等）、进行逻辑推理、编写代码等，还能表达观点、玩游戏。我支持 100 多种语言，包括但不限于中文、英语、德语、法语、西班牙语等，满足国际化使用需求。如果您有任何问题或需要帮助，随时告诉我！",
+          "role": "assistant"
+        }
+      }
+    ]
+  },
+  "usage": {
+    "input_tokens": 23,
+    "output_tokens": 106,
+    "total_tokens": 129
+  },
+  "code": "",
+  "message": "",
+  "request_id": ""
+}
+```
+

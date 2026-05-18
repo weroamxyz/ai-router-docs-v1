@@ -15,9 +15,7 @@ import {
   Download,
   HelpCircle,
   Sparkles,
-  FileCode,
   BookOpen,
-  Puzzle,
   type LucideIcon,
 } from 'lucide-react';
 import { getLocalePath } from '@/lib/i18n';
@@ -42,7 +40,7 @@ const i18nText: Record<
     skills: { text: 'Skills', desc: '' },
     start: {
       text: 'Getting Started',
-      desc: 'Learn how to deploy and configure New API.',
+      desc: 'Learn how to deploy and configure ComputeVault.',
     },
     install: {
       text: 'Installation',
@@ -62,7 +60,7 @@ const i18nText: Record<
     title: { text: '文档', desc: '' },
     apiDocs: { text: 'Apifox 操练场', desc: '' },
     skills: { text: 'Skills', desc: '' },
-    start: { text: '快速开始', desc: '学习如何部署和配置 New API。' },
+    start: { text: '快速开始', desc: '学习如何部署和配置算力仓。' },
     install: { text: '部署安装', desc: '多种部署方式和安装指南。' },
     support: { text: '帮助支持', desc: '常见问题和社区支持。' },
     api: { text: 'API 参考', desc: '完整的 API 文档和参考指南。' },
@@ -72,7 +70,7 @@ const i18nText: Record<
     title: { text: 'ドキュメント', desc: '' },
     apiDocs: { text: 'Apifox プレイグラウンド', desc: '' },
     skills: { text: 'Skills', desc: '' },
-    start: { text: 'はじめに', desc: 'New API のデプロイと設定方法を学ぶ。' },
+    start: { text: 'はじめに', desc: 'ComputeVault のデプロイと設定方法を学ぶ。' },
     install: {
       text: 'インストール',
       desc: '様々なデプロイ方法とインストールガイド。',
@@ -152,21 +150,6 @@ export default async function Layout({
               icon: <Icon />,
             })),
           },
-          {
-            type: 'main',
-            on: 'menu',
-            text: texts.skills.text,
-            url: `${docsUrl}/skills`,
-            icon: <Puzzle />,
-          },
-          {
-            type: 'main',
-            on: 'menu',
-            text: texts.apiDocs.text,
-            url: 'https://apifox.newapi.ai/',
-            icon: <FileCode />,
-            external: true,
-          },
           // Desktop navigation
           {
             type: 'custom',
@@ -217,23 +200,22 @@ export default async function Layout({
             type: 'custom',
             on: 'nav',
             children: (
-              <Link
-                href={`${docsUrl}/skills`}
-                className="inline-flex items-center gap-1.5 text-sm text-fd-muted-foreground transition-colors hover:text-fd-foreground"
-              >
+              <span className="inline-flex items-center gap-1.5 text-sm text-fd-muted-foreground cursor-default select-none">
                 {texts.skills.text}
                 <span className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
                   New
                 </span>
-              </Link>
+              </span>
             ),
           },
           {
-            type: 'main',
+            type: 'custom',
             on: 'nav',
-            text: texts.apiDocs.text,
-            url: 'https://apifox.newapi.ai/',
-            external: true,
+            children: (
+              <span className="text-sm text-fd-muted-foreground cursor-default select-none">
+                {texts.apiDocs.text}
+              </span>
+            ),
           },
           ...linkItems,
         ]}

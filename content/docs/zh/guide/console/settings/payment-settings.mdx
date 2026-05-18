@@ -1,12 +1,8 @@
-﻿---
+---
 title: 支付设置
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-
-<Callout type="warn">
-  支付能力适用于合法授权场景下的内部结算、企业客户账务或合规服务收费。部署方应确保相关服务、收费、上游授权和运营方式符合所在地法律法规、上游服务条款、平台规则和支付风控要求。
-</Callout>
+# 支付设置
 
 这里可以配置充值功能相关的设置
 
@@ -52,11 +48,11 @@ import { Callout } from 'fumadocs-ui/components/callout';
     "min_topup": "50"
   },
   {
-    "name": "自定义1",
-    "color": "black",
-    "type": "custom1",
+    "name":      "自定义1",
+    "color":     "black",
+    "type":      "custom1",
     "min_topup": "50"
-  }
+   }
 ]
 ```
 
@@ -67,7 +63,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 - type: 通道标识，用于后端路由与下单。
   - `stripe` → 走 Stripe 网关。
   - 其他（如 `alipay`、`wxpay`、`custom1` 等）→ 走易支付风格网关，并将该值作为渠道参数透传。
-  - 详细逻辑见后端控制器 `controller/topup.go`（参考: [controller/topup.go](https://github.com/QuantumNous/new-api/blob/main/controller/topup.go)）。
+  - 详细逻辑见后端控制器 `controller/topup.go`（参考: [controller/topup.go]）。
 - min_topup: 最低充值金额（单位与页面货币一致）。当输入金额小于该值时，页面会提示"此支付方式最低充值金额为 X"，并限制发起支付；后端也会进行校验。
 - 排序: 按数组顺序从左到右渲染。
 
@@ -98,5 +94,4 @@ import { Callout } from 'fumadocs-ui/components/callout';
 - 键：充值金额（字符串格式）
 - 值：折扣率（0-1之间的小数，如 0.95 表示 95% 价格，即 5% 折扣）
 - 系统会根据配置自动计算实付金额和节省金额
-- 折扣功能的使用应符合授权范围、上游服务条款、平台规则和所在地法律法规要求
-- 详细实现逻辑见后端控制器 [controller/topup.go](https://github.com/QuantumNous/new-api/blob/main/controller/topup.go)
+- 详细实现逻辑见后端控制器 [controller/topup.go]

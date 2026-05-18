@@ -44,7 +44,7 @@ function Header() {
             target="_blank"
             rel="noreferrer noopener"
           >
-            New API
+            算力仓
           </a>
         </p>
       </div>
@@ -247,7 +247,7 @@ function Input(props: ComponentProps<'textarea'>) {
 
 const roleName: Record<string, string> = {
   user: 'you',
-  assistant: 'New API Docs',
+  assistant: '算力仓 Docs',
 };
 
 function Message({

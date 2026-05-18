@@ -1,0 +1,262 @@
+---
+title: Qwen Chat Format (Text Generation)
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Qwen Chat Format (Text Generation)
+
+<Callout type="info" title="Official Documentation">
+[Qwen Text Generation API](https://www.alibabacloud.com/help/en/model-studio/text-generation)
+</Callout>
+## 📝 Introduction
+
+Given a list of messages comprising a conversation, the model will return a response. Qwen is a large-scale language model independently developed by the Tongyi Lab under Alibaba Group, supporting multilingual conversations, text generation, code generation, and more.
+
+## 🤖 Supported Models
+
+Currently supported models include:
+
+| Model | Description |
+| --- | --- |
+| **qwen-turbo** | Qwen Turbo chat model |
+| **qwen-plus** | Qwen Plus chat model |
+| **qwen-max** | Qwen Max chat model |
+
+## 💡 Request Examples
+
+### Basic Text Chat ✅
+
+```bash
+curl --location "https://computevault.unodetech.xyz/api/v1/services/aigc/text-generation/generation" \
+  --header "Authorization: Bearer $API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "model": "qwen-plus",
+    "input": {
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a helpful assistant."
+        },
+        {
+          "role": "user",
+          "content": "Who are you?"
+        }
+      ]
+    }
+  }'
+```
+
+**Response Example:**
+
+```json
+{
+  "output": {
+    "text": "",
+    "finish_reason": "",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "message": {
+          "content": "Hello! I'm Qwen, a large-scale language model independently developed by the Tongyi Lab under Alibaba Group. I can answer questions, create text such as stories, official documents, emails, scripts, perform logical reasoning, coding, and more. I can also express opinions and play games. I support 100 languages, including but not limited to Chinese, English, German, French, Spanish, etc., meeting international usage needs. If you have any questions or need assistance, feel free to let me know anytime!",
+          "role": "assistant"
+        }
+      }
+    ]
+  },
+  "usage": {
+    "input_tokens": 23,
+    "output_tokens": 106,
+    "total_tokens": 129
+  },
+  "code": "",
+  "message": "",
+  "request_id": ""
+}
+```
+
+## 📮 Request
+
+### Endpoint
+
+```
+POST /api/v1/services/aigc/text-generation/generation
+```
+
+Create a model response for a given chat conversation.
+
+### Authentication Method
+
+Include the following in the request headers for API key authentication:
+
+```
+Authorization: Bearer $API_KEY
+```
+
+Where `$API_KEY` is your API key.
+
+### Request Body Parameters
+
+#### `model`
+
+- Type: String
+- Required: Yes
+
+The ID of the model to use. For example: `qwen-plus`, `qwen-turbo`, etc.
+
+#### `input`
+
+- Type: Object
+- Required: Yes
+
+An object containing input messages.
+
+**input Properties:**
+
+| Property | Type | Required | Description |
+|------|------|------|------|
+| `messages` | Array | Yes | A list of messages comprising the conversation. |
+
+#### `input.messages`
+
+- Type: Array
+- Required: Yes
+
+The list of messages comprising the conversation so far.
+
+**Message Types:**
+
+| Message Type | Description |
+|---------|------|
+| **System message** | System message used to set the assistant's behavior and role. |
+| **User message** | Messages sent by the terminal user, containing prompts or additional context information. |
+| **Assistant message** | Messages sent by the model in response to user messages. |
+
+**System message Properties:**
+
+| Property | Type | Required | Description |
+|------|------|------|------|
+| `role` | String | Yes | The role of the message author, here "system". |
+| `content` | String | Yes | The content of the system message. |
+
+**User message Properties:**
+
+| Property | Type | Required | Description |
+|------|------|------|------|
+| `role` | String | Yes | The role of the message author, here "user". |
+| `content` | String | Yes | The content of the user message. |
+
+**Assistant message Properties:**
+
+| Property | Type | Required | Description |
+|------|------|------|------|
+| `role` | String | Yes | The role of the message author, here "assistant". |
+| `content` | String | No | The content of the assistant message. |
+
+#### `parameters`
+
+- Type: Object
+- Required: No
+
+Configuration for generation parameters.
+
+**parameters Properties:**
+
+| Property | Type | Required | Description |
+|------|------|------|------|
+| `result_format` | String | No | Response format. Optional values: `message`, `text`. Default is `message`. |
+| `temperature` | Number | No | Sampling temperature, controlling the randomness of the output. Typically ranges from 0 to 2. |
+| `top_p` | Number | No | Nucleus sampling parameter, controlling the probability mass for sampling. |
+| `max_tokens` | Integer | No | Maximum number of tokens to generate. |
+| `stop` | String or Array | No | Stop sequences, when the model generates these sequences, it stops generating. |
+
+## 📥 Response
+
+### Text Generation Object
+
+Returns a text generation object.
+
+#### `output`
+
+- Type: Object
+- Description: Output object containing the generated text and choices.
+
+**output Properties:**
+
+| Property | Type | Description |
+|------|------|------|
+| `text` | String | The generated text content. |
+| `finish_reason` | String | The reason for completion. |
+| `choices` | Array | A list of generated choices. |
+
+#### `output.choices`
+
+- Type: Array
+- Description: A list of generated response options.
+
+**choice Properties:**
+
+| Property | Type | Description |
+|------|------|------|
+| `finish_reason` | String | The reason the model stopped generating tokens. Possible values: `stop` (natural stop), `length` (reached maximum length), etc. |
+| `message` | Object | The message generated by the model. |
+| `message.role` | String | The role of the message author, usually "assistant". |
+| `message.content` | String | The content of the message. |
+
+#### `usage`
+
+- Type: Object
+- Description: Usage statistics for the completion request.
+
+**usage Properties:**
+
+| Property | Type | Description |
+|------|------|------|
+| `input_tokens` | Integer | The number of tokens in the input. |
+| `output_tokens` | Integer | The number of tokens in the generated completion. |
+| `total_tokens` | Integer | The total number of tokens used in the request (input + output). |
+
+#### `code`
+
+- Type: String
+- Description: Response code, usually an empty string indicating success.
+
+#### `message`
+
+- Type: String
+- Description: Response message, usually an empty string indicating success.
+
+#### `request_id`
+
+- Type: String
+- Description: The unique identifier for the request.
+
+#### Text Generation Object Response Example
+
+```json
+{
+  "output": {
+    "text": "",
+    "finish_reason": "",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "message": {
+          "content": "Hello! I'm Qwen, a large-scale language model independently developed by the Tongyi Lab under Alibaba Group. I can answer questions, create text such as stories, official documents, emails, scripts, perform logical reasoning, coding, and more. I can also express opinions and play games. I support 100 languages, including but not limited to Chinese, English, German, French, Spanish, etc., meeting international usage needs. If you have any questions or need assistance, feel free to let me know anytime!",
+          "role": "assistant"
+        }
+      }
+    ]
+  },
+  "usage": {
+    "input_tokens": 23,
+    "output_tokens": 106,
+    "total_tokens": 129
+  },
+  "code": "",
+  "message": "",
+  "request_id": ""
+}
+```
+

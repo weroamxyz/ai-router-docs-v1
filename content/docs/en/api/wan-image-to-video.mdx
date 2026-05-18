@@ -1,0 +1,444 @@
+---
+title: Wan Model Image-to-Video API Documentation
+---
+
+# Wan Model Image-to-Video API Documentation
+
+Wan/Alibaba Cloud provides high-quality image-to-video generation models. This document describes the complete API interface specification for using Wan/Alibaba Cloud models for image-to-video generation. All video generation calls use the same `/v1/video/generations` endpoint, with different parameters depending on the use case.
+
+---
+
+## Supported Models
+
+Currently supported models include:
+
+| Model | Description |
+| --- | --- |
+| **wan2.5-i2v-preview** | Wan 2.5 image-to-video generation model (preview) |
+| **wan2.6-i2v** | Wan 2.6 image-to-video generation model |
+| **wan2.1-kf2v-plus** | Wan 2.1 first-last frame to video generation model |
+
+---
+
+## Overview
+
+The Wan model image-to-video feature provides an asynchronous task processing mechanism:
+
+1. Submit Task: Send an image and text prompt to create a video generation task
+2. Query Status: Query generation progress and status through task ID
+3. Get Results: Retrieve the generated video file after task completion
+
+### Task Status Flow
+
+```
+queued → in_progress → completed
+                ↓
+            failed
+```
+
+- queued: Task has been submitted and is waiting to be processed
+- in_progress: Task is being processed
+- completed: Task completed successfully, video has been generated
+- failed: Task failed
+
+---
+
+## API List
+
+| Method | Path | Description |
+|------|------|------|
+| POST | /v1/video/generations | Submit video generation task |
+| GET | /v1/video/generations/\{task_id\} | Query task status |
+
+## Usage Examples
+
+### 1. Basic Image-to-Video (First Frame)
+
+The simplest form of image-to-video generation uses a single image as the first frame. The first frame is specified via the `input_reference` field of the request. It can be either a URL or base64-encoded data.
+
+**Note:** Unlike Veo, the base64 data must be presented in data URI format, in which the encoded data is prefixed with the MIME type: `data:{MIME_TYPE};base64,{base64_data}`, as opposed to simply sending the base64 data. See official documentation for examples and further detail.
+
+**Request Body:**
+
+```json
+{
+  "prompt": "The natural light above gains a red tint, and the water in the shallow pool surrounding the hand statue begins to overflow, flooding the surrounding area.",
+  "model": "wan2.5-i2v-preview",
+  "input_reference": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+  "metadata": {
+    "input": {
+      "negative_prompt": "blurry, low quality, distorted"
+    },
+    "parameters": {
+      "resolution": "1080P",
+      "duration": 5,
+      "audio": true,
+      "watermark": false,
+      "prompt_extend": false
+    }
+  }
+}
+```
+
+Or using a URL:
+
+```json
+{
+  "prompt": "The natural light above gains a red tint, and the water in the shallow pool surrounding the hand statue begins to overflow, flooding the surrounding area.",
+  "model": "wan2.5-i2v-preview",
+  "input_reference": "https://example.com/first-frame.png",
+  "metadata": {
+    "input": {
+      "negative_prompt": "blurry, low quality, distorted"
+    },
+    "parameters": {
+      "resolution": "1080P",
+      "duration": 5,
+      "audio": true,
+      "watermark": false,
+      "prompt_extend": false
+    }
+  }
+}
+```
+
+**Complete Request (base64):**
+
+```bash
+curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer API_KEY" \
+  -d '{
+    "prompt": "The natural light above gains a red tint, and the water in the shallow pool surrounding the hand statue begins to overflow, flooding the surrounding area.",
+    "model": "wan2.5-i2v-preview",
+    "input_reference": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+    "metadata": {
+      "input": {
+        "negative_prompt": "blurry, low quality, distorted"
+      },
+      "parameters": {
+        "resolution": "1080P",
+        "duration": 5,
+        "audio": true,
+        "watermark": false,
+        "prompt_extend": false
+      }
+    }
+  }'
+```
+
+**Complete Request (URL):**
+
+```bash
+curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer API_KEY" \
+  -d '{
+    "prompt": "The natural light above gains a red tint, and the water in the shallow pool surrounding the hand statue begins to overflow, flooding the surrounding area.",
+    "model": "wan2.5-i2v-preview",
+    "input_reference": "https://example.com/first-frame.png",
+    "metadata": {
+      "input": {
+        "negative_prompt": "blurry, low quality, distorted"
+      },
+      "parameters": {
+        "resolution": "1080P",
+        "duration": 5,
+        "audio": true,
+        "watermark": false,
+        "prompt_extend": false
+      }
+    }
+  }'
+```
+
+### 2. First and Last Frames
+
+This feature currently only supports the `wan2.1-kf2v-plus` model. The first and last frames are specified via the `metadata.input.first_frame_url` and `metadata.input.last_frame_url` fields.
+
+**Note:** Unlike the first-frame only image-to-video generation use case, these fields only accept URLs, not base64-encoded data.
+
+**Limitations:** In first-and-last-frame mode, resolution is fixed at `720P`, duration is fixed at `5` seconds, and `audio` and `shot_type` parameters are not available.
+
+**Request Body:**
+
+```json
+{
+  "prompt": "The hand-shaped statue cracks and collapses, with pieces from above the wrist falling into the water.",
+  "model": "wan2.1-kf2v-plus",
+  "metadata": {
+    "input": {
+      "first_frame_url": "https://example.com/first-frame.png",
+      "last_frame_url": "https://example.com/last-frame.png",
+      "negative_prompt": "blurry, low quality, distorted"
+    },
+    "parameters": {
+      "watermark": false,
+      "prompt_extend": false,
+      "seed": 12345
+    }
+  }
+}
+```
+
+**Complete Request:**
+
+```bash
+curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer API_KEY" \
+  -d '{
+    "prompt": "The hand-shaped statue cracks and collapses, with pieces from above the wrist falling into the water.",
+    "model": "wan2.1-kf2v-plus",
+    "metadata": {
+      "input": {
+        "first_frame_url": "https://example.com/first-frame.png",
+        "last_frame_url": "https://example.com/last-frame.png",
+        "negative_prompt": "blurry, low quality, distorted"
+      },
+      "parameters": {
+        "watermark": false,
+        "prompt_extend": false,
+        "seed": 12345
+      }
+    }
+  }'
+```
+
+### Request Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| model | string | Yes | Model name, e.g., wan2.5-i2v-preview or wan2.1-kf2v-plus |
+| prompt | string | Yes | Text prompt describing the video content to be generated |
+| input_reference | string | Yes (first frame mode) | URL or base64-encoded data (data URI format) for the first frame |
+| metadata | object | No | Metadata object containing `input` and `parameters` sub-objects for specifying optional fields from the official Wan request format |
+
+#### metadata.input Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| img_url | string | No | URL for the first frame image. Note: In first-frame mode, this can also be provided via the top-level `input_reference` field. For first-and-last-frame mode (wan2.1-kf2v-plus), use `first_frame_url` and `last_frame_url` instead |
+| first_frame_url | string | Yes (first and last frame mode) | URL for the first frame image. **Supported model: wan2.1-kf2v-plus** (first-and-last-frame mode only, accepts URLs only, not base64-encoded data) |
+| last_frame_url | string | Yes (first and last frame mode) | URL for the last frame image. **Supported model: wan2.1-kf2v-plus** (first-and-last-frame mode only, accepts URLs only, not base64-encoded data) |
+| negative_prompt | string | No | Negative prompt text to exclude certain elements from the video |
+| audio_url | string | No | URL of custom audio file for audio-visual synchronization. When provided, the `parameters.audio` parameter is ignored. **Supported models: wan2.5-i2v-preview, wan2.6-i2v**. **First-and-last-frame mode (wan2.1-kf2v-plus) does not support this parameter** |
+
+#### metadata.parameters Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| resolution | string | No | Video resolution. Options: `"480P"` (**wan2.5 only**), `"720P"`, `"1080P"`. Note: The aspect ratio of the output video is determined by the input first frame image, with minor adjustments to meet technical requirements (width and height must be divisible by 16). **First-and-last-frame mode (wan2.1-kf2v-plus) is fixed at 720P** |
+| prompt_extend | boolean | No | Enable intelligent prompt rewriting |
+| duration | integer | No | Video duration in seconds. Options: `5`, `10`, `15` (**wan2.6 only**). **First-and-last-frame mode (wan2.1-kf2v-plus) is fixed at 5 seconds** |
+| audio | boolean | No | Enable automatic dubbing/background audio generation. When `input.audio_url` is not provided, setting to `true` will automatically generate matching background audio or music. **Supported models: wan2.5-i2v-preview, wan2.6-i2v**. Note: wan2.2 and earlier versions output only silent videos. **First-and-last-frame mode (wan2.1-kf2v-plus) does not support this parameter** |
+| watermark | boolean | No | Add watermark to the video |
+| seed | integer | No | Random seed for generation reproducibility. Same seed can produce similar results |
+| shot_type | string | No | Specifies the shot type of the generated video, i.e., whether the video consists of a single continuous shot or multiple switched shots. Options: `"single"` (default, outputs a single-shot video) or `"multi"` (outputs a multi-shot video). **Supported model: wan2.6-i2v**. Note: This parameter takes effect only when `prompt_extend` is set to `true`. Parameter priority: `shot_type > prompt`. **First-and-last-frame mode (wan2.1-kf2v-plus) does not support this parameter** |
+
+**Audio Parameter Notes:**
+
+Audio behavior is controlled by `input.audio_url` and `parameters.audio` parameters. Priority: `audio_url > audio`. Three modes are supported:
+
+1. **Generate silent video**: Do not pass `audio_url`, and set `audio` to `false`
+2. **Automatically generate audio**: Do not pass `audio_url`, and set `audio` to `true` (the model automatically generates matching background audio or music based on the prompt and video content)
+3. **Use custom audio**: Pass `audio_url` (the `audio` parameter is ignored, and the video content attempts to align with the audio content, such as lip movements and rhythm)
+
+## 1. Submit Video Generation Task
+
+### Endpoint:
+
+```
+POST /v1/video/generations
+```
+
+### Request Headers:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| Content-Type | string | Yes | application/json |
+| Authorization | string | Yes | Bearer API_KEY |
+
+### Response Example:
+
+```json
+{
+  "id": "...",
+  "object": "video",
+  "model": "wan2.5-i2v-preview",
+  "status": "queued",
+  "progress": 0,
+  "created_at": 1765328779
+}
+```
+
+### Response Field Descriptions:
+
+| Field | Type | Description |
+|------|------|------|
+| id | string | Task ID for subsequent task status queries |
+| object | string | Object type, fixed as "video" |
+| model | string | Model used to generate the video |
+| status | string | Task status, initially "queued" |
+| progress | integer | Task progress, 0-100 |
+| created_at | integer | Task creation timestamp |
+
+## 2. Query Task Status
+
+### Complete Request
+
+```bash
+curl -X GET "https://computevault.unodetech.xyz/v1/video/generations/TASK_ID" \
+  -H "Authorization: Bearer API_KEY"
+```
+
+### Endpoint:
+
+```
+GET /v1/video/generations/{task_id}
+```
+
+### Request Headers:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| Authorization | string | Yes | Bearer API_KEY |
+
+### Path Parameters:
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| task_id | string | Yes | Task ID |
+
+### Response Example (Processing):
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "IN_PROGRESS",
+    "fail_reason": "",
+    "submit_time": 1765328779,
+    "start_time": 1765328794,
+    "finish_time": 0,
+    "progress": "30%",
+    "data": {
+      "output": {
+        "scheduled_time": "2025-12-10 09:06:19.749",
+        "submit_time": "2025-12-10 09:06:19.731",
+        "task_id": "...",
+        "task_status": "RUNNING"
+      },
+      "request_id": "..."
+    }
+  }
+}
+```
+
+### Response Example (Success):
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "SUCCESS",
+    "fail_reason": "<OUTPUT_URL>",
+    "submit_time": 1765328779,
+    "start_time": 1765328794,
+    "finish_time": 1765328947,
+    "progress": "100%",
+    "data": {
+      "output": {
+        "actual_prompt": "<EDITED_PROMPT>",
+        "end_time": "2025-12-10 09:08:53.863",
+        "orig_prompt": "The natural light above gains a red tint, and the water in the shallow pool surrounding the hand statue begins to overflow, flooding the surrounding area.",
+        "scheduled_time": "2025-12-10 09:06:19.749",
+        "submit_time": "2025-12-10 09:06:19.731",
+        "task_id": "...",
+        "task_status": "SUCCEEDED",
+        "video_url": "<OUTPUT_URL>"
+      },
+      "request_id": "...",
+      "usage": {
+        "video_count": 1,
+        "video_duration": 5,
+        "video_ratio": "1920*1080"
+      }
+    }
+  }
+}
+```
+
+You can retrieve the video URL from the `data.data.output.video_url` field.
+
+### Response Example (Failed):
+
+```json
+{
+  "code": "success",
+  "message": "",
+  "data": {
+    "task_id": "...",
+    "action": "textGenerate",
+    "status": "FAILURE",
+    "fail_reason": "task failed, code: InvalidParameter , message: image_url must provided",
+    "submit_time": 1765407269,
+    "start_time": 1765407278,
+    "finish_time": 1765407294,
+    "progress": "100%",
+    "data": {
+      "output": {
+        "code": "InvalidParameter",
+        "end_time": "2025-12-11 06:54:49.934",
+        "message": "image_url must provided",
+        "scheduled_time": "2025-12-11 06:54:29.557",
+        "submit_time": "2025-12-11 06:54:29.529",
+        "task_id": "...",
+        "task_status": "FAILED"
+      },
+      "request_id": "..."
+    }
+  }
+}
+```
+
+### Response Field Descriptions:
+
+| Field | Type | Description |
+|------|------|------|
+| code | string | Response status code, "success" indicates success |
+| message | string | Response message |
+| data | object | Task data object |
+| data.task_id | string | Task ID |
+| data.status | string | Task status: IN_PROGRESS, SUCCESS, FAILURE |
+| data.progress | string | Task progress percentage |
+| data.data.output.video_url | string | Video access URL (when task succeeds) |
+| data.data.output.task_status | string | Task status: RUNNING, SUCCEEDED, FAILED |
+| data.data.usage | object | Usage statistics (when task succeeds) |
+| data.data.usage.video_count | integer | Number of videos generated |
+| data.data.usage.video_duration | integer | Video duration (seconds) |
+| data.data.usage.video_ratio | string | Video resolution |
+
+## Important Notes
+
+1. **Base64 Data Format**: For first frame mode, base64 data must use data URI format: `data:{MIME_TYPE};base64,{base64_data}`, not plain base64 strings.
+
+2. **First and Last Frame Mode Limitations**: The first and last frame fields for the `wan2.1-kf2v-plus` model only accept URLs, not base64-encoded data.
+
+3. **Model Selection**:
+   - `wan2.5-i2v-preview`: Supports first frame mode image-to-video
+   - `wan2.1-kf2v-plus`: Supports first and last frame mode image-to-video
+
+4. **Metadata**: The request's `metadata` field can be used to write any field that exists in the official request format. For example, if you need to specify the official format's `parameters.resolution` in the request, use `metadata.parameters.resolution`. See official documentation for details about optional request parameters and their allowed values.
+
+## Related Links
+
+- [Alibaba Cloud Image-to-Video API Official Documentation](https://www.alibabacloud.com/help/en/model-studio/image-to-video-api-reference)
+- [Alibaba Cloud First-and-Last-Frame-to-Video API Official Documentation](https://www.alibabacloud.com/help/en/model-studio/image-to-video-by-first-and-last-frame-api-reference)
+

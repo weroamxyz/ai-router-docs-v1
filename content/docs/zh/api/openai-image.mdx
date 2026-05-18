@@ -1,0 +1,277 @@
+---
+title: OpenAI 图像格式（Image）
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# OpenAI 图像格式（Image）
+
+<Callout type="info" title="官方文档">
+[OpenAI Images](https://platform.openai.com/docs/api-reference/images)
+</Callout>
+## 📝 简介
+
+给定文本提示和/或输入图片，模型将生成新的图片。OpenAI 提供多种强大的图像生成模型，可以根据自然语言描述创建、编辑和修改图像。
+
+## 🤖 支持的模型
+
+目前支持的模型包括：
+
+| 模型 | 描述 |
+| --- | --- |
+| **gpt-image-2** | GPT-Image-1 图像生成和编辑模型，支持多图片编辑功能，能够基于多个输入图像创建新的组合图像 |
+| **gpt-image-2** | GPT-Image-2 图像生成和编辑模型，支持多图片编辑功能，能够基于多个输入图像创建新的组合图像 |
+
+## 💡 请求示例
+
+### 创建图片 ✅
+
+```bash
+# 基础图片生成
+curl https://computevault.unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "一只可爱的小海獭",
+    "n": 1,
+    "size": "1024x1024"
+  }'
+
+# 高质量图片生成
+curl https://computevault.unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "一只可爱的小海獭",
+    "quality": "high",
+    "size": "1024x1024"
+  }'
+
+# 透明背景与 WebP 输出
+curl https://computevault.unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "一只可爱的小海獭",
+    "background": "transparent",
+    "output_format": "webp"
+  }'
+```
+
+**响应示例:**
+
+```json
+{
+  "created": 1589478378,
+  "data": [
+    {
+      "b64_json": "...",
+      "revised_prompt": "一只可爱的小海獭在水中嬉戏,它有着圆圆的眼睛和毛茸茸的皮毛"
+    }
+  ],
+  "background": "opaque",
+  "output_format": "png",
+  "quality": "high",
+  "size": "1024x1024",
+  "usage": {
+    "total_tokens": 100,
+    "input_tokens": 50,
+    "output_tokens": 50,
+    "input_tokens_details": {
+      "text_tokens": 10,
+      "image_tokens": 40
+    }
+  }
+}
+```
+
+### 编辑图片 ✅
+
+```bash
+# gpt-image-2 图片编辑
+curl https://computevault.unodetech.xyz/v1/images/edits \
+  -H "Authorization: Bearer $API_KEY" \
+  -F image="@otter.png" \
+  -F mask="@mask.png" \
+  -F model="gpt-image-2" \
+  -F prompt="一只戴着贝雷帽的可爱小海獭" \
+  -F size="1024x1024"
+
+# gpt-image-2 多图片编辑示例
+curl https://computevault.unodetech.xyz/v1/images/edits \
+  -H "Authorization: Bearer $API_KEY" \
+  -F "model=gpt-image-2" \
+  -F "image[]=@body-lotion.png" \
+  -F "image[]=@bath-bomb.png" \
+  -F "image[]=@incense-kit.png" \
+  -F "image[]=@soap.png" \
+  -F "prompt=创建一个包含这四个物品的精美礼品篮" \
+  -F "quality=high"
+```
+
+**响应示例:**
+
+```json
+{
+  "created": 1713833628,
+  "data": [
+    {
+      "b64_json": "..."
+    }
+  ],
+  "usage": {
+    "total_tokens": 100,
+    "input_tokens": 50,
+    "output_tokens": 50,
+    "input_tokens_details": {
+      "text_tokens": 10,
+      "image_tokens": 40
+    }
+  }
+}
+```
+
+## 📮 请求
+
+### 端点
+
+#### 创建图片
+```
+POST /v1/images/generations
+```
+
+根据文本提示创建图片。
+
+#### 编辑图片
+```
+POST /v1/images/edits
+```
+
+根据一个或多个原始图片和提示创建编辑或扩展的图片。
+
+### 鉴权方法
+
+在请求头中包含以下内容进行 API 密钥认证：
+
+```
+Authorization: Bearer $API_KEY
+```
+
+其中 `$OPENAI_API_KEY` 是您的 API 密钥。
+
+### 请求体参数
+
+#### 创建图片 (`/v1/images/generations`)
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `prompt` | 字符串 | 是 | 期望生成图片的文本描述。最大长度为 32000 字符。 |
+| `model` | 字符串 | 否 | 用于图像生成的模型。默认值：`gpt-image-2`。 |
+| `n` | 整数 | 否 | 要生成的图片数量（1–10）。默认值：`1`。 |
+| `size` | 字符串 | 否 | 生成图片的尺寸。标准可选值：`1024x1024`、`1536x1024`（横版）、`1024x1536`（竖版）、`auto`。`gpt-image-2` 还支持任意 `宽度x高度` 字符串。默认值：`auto`。 |
+| `quality` | 字符串 | 否 | 生成图片的质量。可选值：`high`、`medium`、`low`、`auto`。默认值：`auto`。 |
+| `background` | 字符串 | 否 | 生成图片的背景。可选值：`transparent`、`opaque`、`auto`。透明背景要求 `output_format` 为 `png` 或 `webp`。默认值：`auto`。 |
+| `output_format` | 字符串 | 否 | 返回图片的文件格式。可选值：`png`、`jpeg`、`webp`。默认值：`png`。 |
+| `output_compression` | 整数 | 否 | `jpeg` 与 `webp` 输出的压缩级别（0–100）。默认值：`100`。 |
+| `moderation` | 字符串 | 否 | 生成图片的内容审核强度。可选值：`low`、`auto`。默认值：`auto`。 |
+| `stream` | 布尔值 | 否 | 以流式模式生成图片。默认值：`false`。 |
+| `partial_images` | 整数 | 否 | 流式响应中发送的部分图片数量（0–3）。仅在 `stream` 为 `true` 时有效。 |
+| `user` | 字符串 | 否 | 代表最终用户的唯一标识符，可帮助 OpenAI 监控和检测滥用行为。 |
+
+GPT Image 模型始终返回 base64 编码的图片，不支持 `response_format` 参数。
+
+#### 编辑图片 (`/v1/images/edits`)
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `image` | 文件或文件数组 | 是 | 要编辑的图片。每个图片应为 PNG、WEBP 或 JPG 文件，小于 25MB。最多可提供 16 张图片作为数组。 |
+| `prompt` | 字符串 | 是 | 期望编辑的文本描述。最大长度为 32000 字符。 |
+| `mask` | 文件 | 否 | 额外的 PNG 图片，其完全透明区域（alpha 为零）指示应该编辑的位置。必须小于 4MB 且与 image 尺寸相同。 |
+| `model` | 字符串 | 否 | 用于图像生成的模型。默认值：`gpt-image-2`。 |
+| `n` | 整数 | 否 | 要生成的图片数量（1–10）。默认值：`1`。 |
+| `size` | 字符串 | 否 | 生成图片的尺寸。标准可选值：`1024x1024`、`1536x1024`（横版）、`1024x1536`（竖版）、`auto`。`gpt-image-2` 还支持任意 `宽度x高度` 字符串。默认值：`auto`。 |
+| `quality` | 字符串 | 否 | 生成图片的质量。可选值：`high`、`medium`、`low`、`auto`。默认值：`auto`。 |
+| `background` | 字符串 | 否 | 生成图片的背景。可选值：`transparent`、`opaque`、`auto`。透明背景要求 `output_format` 为 `png` 或 `webp`。默认值：`auto`。 |
+| `output_format` | 字符串 | 否 | 返回图片的文件格式。可选值：`png`、`jpeg`、`webp`。默认值：`png`。 |
+| `output_compression` | 整数 | 否 | `jpeg` 与 `webp` 输出的压缩级别（0–100）。默认值：`100`。 |
+| `input_fidelity` | 字符串 | 否 | 控制输出与输入图片的契合程度。可选值：`high`、`low`。 |
+| `moderation` | 字符串 | 否 | 生成图片的内容审核强度。可选值：`low`、`auto`。默认值：`auto`。 |
+| `stream` | 布尔值 | 否 | 以流式模式生成图片。默认值：`false`。 |
+| `partial_images` | 整数 | 否 | 流式响应中发送的部分图片数量（0–3）。仅在 `stream` 为 `true` 时有效。 |
+| `user` | 字符串 | 否 | 代表最终用户的唯一标识符，可帮助 OpenAI 监控和检测滥用行为。 |
+
+## 📥 响应
+
+### 成功响应
+
+两个端点都返回包含图片对象列表的响应。
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `created` | 整数 | 图片创建的 Unix 时间戳（秒） |
+| `data` | 数组 | 生成的图片对象列表 |
+| `background` | 字符串 | 实际使用的背景设置（`transparent` 或 `opaque`） |
+| `output_format` | 字符串 | 实际使用的输出格式（`png`、`webp` 或 `jpeg`） |
+| `quality` | 字符串 | 实际使用的质量级别（`low`、`medium` 或 `high`） |
+| `size` | 字符串 | 生成图片的实际尺寸 |
+| `usage` | 对象 | API 调用的令牌使用情况 |
+
+#### `usage` 字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `total_tokens` | 整数 | 使用的总令牌数 |
+| `input_tokens` | 整数 | 输入使用的令牌数 |
+| `output_tokens` | 整数 | 输出使用的令牌数 |
+| `input_tokens_details` | 对象 | 输入令牌的详细分类：`text_tokens` 和 `image_tokens` |
+
+### 图片对象
+
+`data` 数组中的每个对象包含：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `b64_json` | 字符串 | base64 编码的图片数据。GPT Image 模型默认返回此字段。 |
+| `revised_prompt` | 字符串 | 如果提示有任何修改，则包含用于生成图片的修改后的提示 |
+
+示例图片对象:
+```json
+{
+  "b64_json": "...",
+  "revised_prompt": "一只可爱的小海獭在水中嬉戏,它有着圆圆的眼睛和毛茸茸的皮毛"
+}
+```
+
+## 🌟 最佳实践
+
+### Prompt 编写建议
+
+1. 使用清晰具体的描述
+2. 指定重要的视觉细节
+3. 描述期望的艺术风格和氛围
+4. 注意构图和视角的说明
+
+### 参数选择建议
+
+1. 尺寸选择
+    - 1024x1024：通用场景的最佳选择
+    - 1536x1024/1024x1536：适合横版/竖版场景
+
+2. 质量选择
+    - quality=high：用于需要精细细节的图像
+    - quality=auto：让模型自动选择最优质量
+
+### 常见问题
+
+1. 图片生成失败
+    - 检查 prompt 是否符合内容政策
+    - 确认文件格式和大小限制
+    - 验证 API 密钥权限
+
+2. 结果与预期不符
+    - 优化 prompt 描述
+    - 调整质量和风格参数
+    - 考虑使用图片编辑或变体功能 

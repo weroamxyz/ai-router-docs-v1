@@ -1,7 +1,31 @@
 {
   "title": "API Reference",
-  "description": "New API Complete API Documentation",
+  "description": "ComputeVault API Documentation",
   "icon": "Code",
   "root": true,
-  "pages": ["index", "ai-model", "management"]
+  "pages": [
+    "index",
+    "---Chat---",
+    "openai-chat",
+    "anthropic-chat",
+    "google-gemini-chat",
+    "qwen-chat",
+    "---Embeddings---",
+    "openai-embedding",
+    "---Realtime---",
+    "openai-realtime",
+    "---Image---",
+    "openai-image",
+    "gemini-image",
+    "qwen-image",
+    "---Audio---",
+    "openai-audio",
+    "---Video---",
+    "veo-video",
+    "veo-image-to-video",
+    "wan-video",
+    "wan-image-to-video",
+    "wan-video-to-video",
+    "seedance-2-video"
+  ]
 }
