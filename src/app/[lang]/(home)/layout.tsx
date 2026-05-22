@@ -40,7 +40,7 @@ const i18nText: Record<
     skills: { text: 'Skills', desc: '' },
     start: {
       text: 'Getting Started',
-      desc: 'Learn how to deploy and configure ComputeVault.',
+      desc: 'Learn how to deploy and configure Unode.',
     },
     install: {
       text: 'Installation',
@@ -70,7 +70,7 @@ const i18nText: Record<
     title: { text: 'ドキュメント', desc: '' },
     apiDocs: { text: 'Apifox プレイグラウンド', desc: '' },
     skills: { text: 'Skills', desc: '' },
-    start: { text: 'はじめに', desc: 'ComputeVault のデプロイと設定方法を学ぶ。' },
+    start: { text: 'はじめに', desc: 'Unode のデプロイと設定方法を学ぶ。' },
     install: {
       text: 'インストール',
       desc: '様々なデプロイ方法とインストールガイド。',

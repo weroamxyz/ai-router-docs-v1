@@ -31,8 +31,8 @@ const titleMap: Record<
   { default: string; template: string; description: string }
 > = {
   en: {
-    default: 'ComputeVault - The Foundation of Your AI Universe',
-    template: '%s | ComputeVault',
+    default: 'Unode - The Foundation of Your AI Universe',
+    template: '%s | Unode',
     description:
       'Connect all AI providers, manage your AI assets, and build the future on a unified infrastructure platform. Deploy in minutes, scale effortlessly.',
   },

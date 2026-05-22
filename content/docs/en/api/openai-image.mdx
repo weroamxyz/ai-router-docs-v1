@@ -28,7 +28,7 @@ Currently supported models include:
 
 ```bash
 # Basic image generation
-curl https://computevault.unodetech.xyz/v1/images/generations \
+curl https://unodetech.xyz/v1/images/generations \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
@@ -39,7 +39,7 @@ curl https://computevault.unodetech.xyz/v1/images/generations \
   }'
 
 # High-quality image generation
-curl https://computevault.unodetech.xyz/v1/images/generations \
+curl https://unodetech.xyz/v1/images/generations \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
@@ -50,7 +50,7 @@ curl https://computevault.unodetech.xyz/v1/images/generations \
   }'
 
 # Transparent background with WebP output
-curl https://computevault.unodetech.xyz/v1/images/generations \
+curl https://unodetech.xyz/v1/images/generations \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
@@ -92,7 +92,7 @@ curl https://computevault.unodetech.xyz/v1/images/generations \
 
 ```bash
 # gpt-image-2 image editing
-curl https://computevault.unodetech.xyz/v1/images/edits \
+curl https://unodetech.xyz/v1/images/edits \
   -H "Authorization: Bearer $API_KEY" \
   -F image="@otter.png" \
   -F mask="@mask.png" \
@@ -101,7 +101,7 @@ curl https://computevault.unodetech.xyz/v1/images/edits \
   -F size="1024x1024"
 
 # gpt-image-2 multi-image editing example
-curl https://computevault.unodetech.xyz/v1/images/edits \
+curl https://unodetech.xyz/v1/images/edits \
   -H "Authorization: Bearer $API_KEY" \
   -F "model=gpt-image-2" \
   -F "image[]=@body-lotion.png" \

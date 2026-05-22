@@ -99,7 +99,7 @@ queued → in_progress → completed
 ### Complete Request:
 
 ```bash
-curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" -H "Content-Type: application/json" -H "Authorization: Bearer API_KEY" -d @veoTest.json
+curl -X POST "https://unodetech.xyz/v1/video/generations" -H "Content-Type: application/json" -H "Authorization: Bearer API_KEY" -d @veoTest.json
 ```
 
 ### Endpoint:
@@ -141,7 +141,7 @@ POST /v1/video/generations
 ### Complete Standard Format Endpoint
 
 ```bash
-curl -X GET "https://computevault.unodetech.xyz/v1/video/generations/TASK_ID" -H "Authorization: Bearer API_KEY"
+curl -X GET "https://unodetech.xyz/v1/video/generations/TASK_ID" -H "Authorization: Bearer API_KEY"
 ```
 
 ### Endpoint:
@@ -191,7 +191,7 @@ GET /v1/video/generations/{task_id}
     "metadata": null,
     "status": "succeeded",
     "task_id": "TASK_ID",
-    "url": "https://computevault.unodetech.xyz/v1/videos/TASK_ID/content"
+    "url": "https://unodetech.xyz/v1/videos/TASK_ID/content"
   }
 }
 ```

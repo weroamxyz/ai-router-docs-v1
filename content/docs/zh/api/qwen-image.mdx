@@ -31,7 +31,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 ```bash
 # 基础图片生成
-curl "https://computevault.unodetech.xyz/v1/images/generations" \
+curl "https://unodetech.xyz/v1/images/generations" \
   -H 'Content-Type: application/json' \
   -H "Authorization: Bearer $API_KEY" \
   -X POST \
@@ -61,7 +61,7 @@ curl "https://computevault.unodetech.xyz/v1/images/generations" \
 
 ```bash
 # 图片编辑（使用 multipart form）
-curl -X POST "https://computevault.unodetech.xyz/v1/images/edits" \
+curl -X POST "https://unodetech.xyz/v1/images/edits" \
   -H "Authorization: Bearer $API_KEY" \
   -F "image=@hand-statue.png" \
   -F "model=qwen-image-edit" \

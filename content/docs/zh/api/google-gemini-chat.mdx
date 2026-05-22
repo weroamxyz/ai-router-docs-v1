@@ -39,7 +39,7 @@ Google Gemini API 支持使用图片、音频、代码、工具等生成内容�
 ### 基础文本对话 ✅
 
 ```bash
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -77,7 +77,7 @@ cat > "$TEMP_JSON" << EOF
 }
 EOF
 
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d "@$TEMP_JSON"
@@ -117,7 +117,7 @@ cat > tools.json << EOF
 } 
 EOF
 
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -d @<(echo '
   {
@@ -145,7 +145,7 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:gene
 ### JSON 模式响应 ✅
 
 ```bash
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
 -H 'Content-Type: application/json' \
 -d '{
     "contents": [{
@@ -183,7 +183,7 @@ else
 fi
 AUDIO_B64=$(base64 $B64FLAGS "$AUDIO_PATH")
 
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -211,7 +211,7 @@ else
 fi
 VIDEO_B64=$(base64 $B64FLAGS "$VIDEO_PATH")
 
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -241,7 +241,7 @@ PDF_B64=$(base64 $B64FLAGS "$PDF_PATH")
 
 echo $MIME_TYPE
 
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -257,7 +257,7 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:gene
 ### 聊天对话 ✅
 
 ```bash
-curl https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
+curl https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -278,7 +278,7 @@ curl https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:gener
 ### 流式响应 ✅
 
 ```bash
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=sse&key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=sse&key=$API_KEY" \
     -H 'Content-Type: application/json' \
     --no-buffer \
     -d '{
@@ -291,7 +291,7 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:stre
 ### 代码执行 ✅
 
 ```bash
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -307,7 +307,7 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:gene
 ### 生成配置 ✅
 
 ```bash
-curl https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
+curl https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -340,7 +340,7 @@ echo '{
         "parts":[{
             "text": "'I support Martians Soccer Club and I think Jupiterians Football Club sucks! Write a ironic phrase about them.'"}]}]}' > request.json
 
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d @request.json
@@ -349,7 +349,7 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:gene
 ### 系统指令 ✅
 
 ```bash
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
 -H 'Content-Type: application/json' \
 -d '{ "system_instruction": {
     "parts":
@@ -365,12 +365,12 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:gene
 
 #### 生成内容
 ```
-POST https://computevault.unodetech.xyz/v1beta/{model=models/*}:generateContent
+POST https://unodetech.xyz/v1beta/{model=models/*}:generateContent
 ```
 
 #### 流式生成内容
 ```
-POST https://computevault.unodetech.xyz/v1beta/{model=models/*}:streamGenerateContent
+POST https://unodetech.xyz/v1beta/{model=models/*}:streamGenerateContent
 ```
 
 ### 鉴权方法

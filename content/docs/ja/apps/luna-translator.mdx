@@ -1,10 +1,10 @@
 ---
 title: LunaTranslator - オープンソース GalGame 翻訳ツール
-description: LunaTranslator チュートリアル — オープンソースのGalGame / ビジュアルノベル翻訳ツール。HOOK、OCR、AI翻訳エンジンをサポート。ComputeVault と連携して翻訳品質を向上させます。
+description: LunaTranslator チュートリアル — オープンソースのGalGame / ビジュアルノベル翻訳ツール。HOOK、OCR、AI翻訳エンジンをサポート。Unode と連携して翻訳品質を向上させます。
 ---
 
 <Callout type="info" title="チャット設定オプション">
-  ComputeVault
+  Unode
   コンソールのシステム設定->チャット設定で、以下のショートカットオプションを追加すると、トークン管理ページから
   LunaTranslator にワンクリックで入力できます。
 </Callout>
@@ -43,13 +43,13 @@ description: LunaTranslator チュートリアル — オープンソースのGa
 
 [LunaTranslator ドキュメント - ダウンロード & 起動 & 更新](https://docs.lunatranslator.org/ja/README.html) からダウンロードしてインストールしてください。
 
-## LunaTranslator で ComputeVault を連携する
+## LunaTranslator で Unode を連携する
 
-LunaTranslator はローカルにデプロイされた ComputeVault の連携をサポートしています。ご自身でデプロイした ComputeVault を使用するか、サービスプロバイダーが合法的なアップストリームライセンスとコンプライアンス義務を持つ ComputeVault サービスであることを確認してください。出所不明のAPIアドレスやAPIキーを本番環境に接続しないでください。
+LunaTranslator はローカルにデプロイされた Unode の連携をサポートしています。ご自身でデプロイした Unode を使用するか、サービスプロバイダーが合法的なアップストリームライセンスとコンプライアンス義務を持つ Unode サービスであることを確認してください。出所不明のAPIアドレスやAPIキーを本番環境に接続しないでください。
 
 ### ワンクリック設定
 
-1.  ComputeVault コンソールの`システム設定` -> `チャット設定`で、以下のショートカットオプションを追加します。
+1.  Unode コンソールの`システム設定` -> `チャット設定`で、以下のショートカットオプションを追加します。
 
     ```json
     { "LunaTranslator": "lunatranslator://llmapi/base64?data={cheryConfig}" }
@@ -65,7 +65,7 @@ LunaTranslator はローカルにデプロイされた ComputeVault の連携を
 
     ![设置api](/assets/luna_translator/api_setting.png)
 
-4.  **model** ドロップダウンボックスの横にある更新ボタンをクリックして、ComputeVault プラットフォームのモデルリストを取得し、モデル名を選択または入力した後、OKをクリックして保存します。
+4.  **model** ドロップダウンボックスの横にある更新ボタンをクリックして、Unode プラットフォームのモデルリストを取得し、モデル名を選択または入力した後、OKをクリックして保存します。
 
     ![设置模型](/assets/luna_translator/setting_model.png)
 
@@ -93,7 +93,7 @@ LunaTranslator はローカルにデプロイされた ComputeVault の連携を
 
     ![设置 API2](/assets/luna_translator/setting_api2.png)
 
-5.  **model** ドロップダウンボックスの横にある更新ボタンをクリックして、ComputeVault プラットフォームのモデルリストを取得し、モデル名を選択または入力した後、OKをクリックして保存します。
+5.  **model** ドロップダウンボックスの横にある更新ボタンをクリックして、Unode プラットフォームのモデルリストを取得し、モデル名を選択または入力した後、OKをクリックして保存します。
 
     ![设置 API3](/assets/luna_translator/setting_api3.png)
 

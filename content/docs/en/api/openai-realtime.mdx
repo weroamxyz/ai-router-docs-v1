@@ -47,7 +47,7 @@ OpenAI Realtime API provides two connection methods:
 - Generation: Created via server-side API
 
 ```http
-POST https://computevault.unodetech.xyz/v1/realtime/sessions
+POST https://unodetech.xyz/v1/realtime/sessions
 Content-Type: application/json
 Authorization: Bearer $API_KEY
 
@@ -66,14 +66,14 @@ Authorization: Bearer $API_KEY
 ## 🔌 Connection Establishment
 
 ### WebRTC Connection
-- URL: `https://computevault.unodetech.xyz/v1/realtime`
+- URL: `https://unodetech.xyz/v1/realtime`
 - Query parameters: `model`
 - Headers: 
   - `Authorization: Bearer EPHEMERAL_KEY`
   - `Content-Type: application/sdp`
 
 ### WebSocket Connection
-- URL: `wss://computevault.unodetech.xyz/v1/realtime`
+- URL: `wss://unodetech.xyz/v1/realtime`
 - Query parameters: `model`
 - Headers:
   - `Authorization: Bearer YOUR_API_KEY`
@@ -172,7 +172,7 @@ sequenceDiagram
 ```javascript
 import WebSocket from "ws";
 
-const url = "wss://computevault.unodetech.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17";
+const url = "wss://unodetech.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17";
 const ws = new WebSocket(url, {
   headers: {
     "Authorization": "Bearer " + process.env.API_KEY,
@@ -200,7 +200,7 @@ import websocket
 
 API_KEY = os.environ.get("API_KEY")
 
-url = "wss://computevault.unodetech.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17"
+url = "wss://unodetech.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17"
 headers = [
     "Authorization: Bearer " + API_KEY,
     "OpenAI-Beta: realtime=v1"
@@ -232,7 +232,7 @@ you can also use the standard WebSocket interface.
 */
 
 const ws = new WebSocket(
-  "wss://computevault.unodetech.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17",
+  "wss://unodetech.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17",
   [
     "realtime",
     // Authentication
