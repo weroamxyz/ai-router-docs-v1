@@ -12,12 +12,14 @@ Veo is a high-quality text-to-video generation model developed by Google. This d
 
 Currently supported models include:
 
-| Model | Description |
-| --- | --- |
-| **veo-3.0-generate-001** | Veo 3.0 text-to-video generation model |
-| **veo-3.0-fast-generate-001** | Veo 3.0 fast text-to-video generation model |
-| **veo-3.1-generate-001** | Veo 3.1 text-to-video generation model |
-| **veo-3.1-fast-generate-001** | Veo 3.1 fast text-to-video generation model |
+> Models marked with ⚠️ are temporarily unavailable (no active channel configured). It is recommended to use models without this mark.
+
+| Model | Description | Status |
+| --- | --- | --- |
+| **veo-3.0-generate-001** | Veo 3.0 text-to-video generation model | ✅ Available |
+| **veo-3.0-fast-generate-001** | Veo 3.0 fast text-to-video generation model | ✅ Available |
+| **veo-3.1-generate-001** | Veo 3.1 text-to-video generation model | ⚠️ Temporarily Unavailable |
+| **veo-3.1-fast-generate-001** | Veo 3.1 fast text-to-video generation model | ⚠️ Temporarily Unavailable |
 
 ---
 
@@ -32,15 +34,21 @@ The Veo model text-to-video feature provides an asynchronous task processing mec
 ### Task Status Flow
 
 ```
-queued → in_progress → completed
+queued → in_progress → succeeded
                 ↓
             failed
 ```
 
 - queued: Task has been submitted and is waiting to be processed
 - in_progress: Task is being processed
-- completed: Task completed successfully, video has been generated
+- succeeded: Task completed successfully, video has been generated
 - failed: Task failed
+
+> **Note on query endpoints:** This API provides two query endpoints that return different response structures and status values:
+> - `GET /v1/video/generations/{task_id}` — Wrapped response `{"code":"success","data":{...}}`, status value is `"succeeded"` on completion.
+> - `GET /v1/videos/{task_id}` — Flat response `{"id":"...","status":"completed",...}`, status value is `"completed"` on completion.
+>
+> Use either endpoint to poll task status; just be aware of the different `status` field values when parsing results.
 
 ---
 

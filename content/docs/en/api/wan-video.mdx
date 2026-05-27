@@ -219,6 +219,8 @@ GET /v1/video/generations/{task_id}
 
 ### Response Example (Success):
 
+> **Note:** When the task succeeds, the `data.fail_reason` field will contain the video download URL instead of an error message — this is a known behavior of the upstream Wan API. The recommended way to retrieve the video URL is via `data.data.output.video_url`.
+
 ```json
 {
   "code": "success",

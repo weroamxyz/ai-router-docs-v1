@@ -7,6 +7,12 @@ description: Description of backend management interface authentication methods 
 
 Backend management interfaces adopt a multi-level authentication mechanism, commonly: **Public**, **User**, **Admin**, **Root**.
 
+> **Important — AI API Key vs. Management Access Token:**
+>
+> The `sk-...` format **AI API Key** (used for model inference endpoints like `/v1/chat/completions`) is **not valid** for management interfaces. Calling management APIs with an AI API Key will return `{"success": false, "message": "无权进行此操作，access token 无效"}`.
+>
+> Management interfaces require a dedicated **Access Token**, which can be generated in **Personal Settings → Security Settings → System Access Tokens** after logging into the platform.
+
 ## Authentication Methods (Choose One)
 
 ### Session

@@ -343,6 +343,8 @@ GET /v1/video/generations/{task_id}
 
 ### 响应示例（成功）：
 
+> **注意：** 任务成功时，`data.fail_reason` 字段会包含视频下载 URL 而非错误信息——这是上游 SeeDance API 的已知行为。推荐通过 `data.data.content.video_url` 字段获取视频地址。
+
 ```json
 {
     "code": "success",
