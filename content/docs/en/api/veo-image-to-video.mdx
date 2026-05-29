@@ -16,8 +16,8 @@ Currently supported models include:
 | --- | --- |
 | **veo-3.0-generate-001** | Veo 3.0 image-to-video generation model |
 | **veo-3.0-fast-generate-001** | Veo 3.0 fast image-to-video generation model |
-| **veo-3.1-generate-001** | Veo 3.1 image-to-video generation model |
-| **veo-3.1-fast-generate-001** | Veo 3.1 fast image-to-video generation model |
+| **veo-3.1-generate-preview** | Veo 3.1 image-to-video generation model |
+| **veo-3.1-fast-generate-preview** | Veo 3.1 fast image-to-video generation model |
 
 ---
 
@@ -64,7 +64,7 @@ The simplest form of image-to-video generation uses a single image as the first 
 
 ```json
 {
-  "model": "veo-3.1-generate-001",
+  "model": "veo-3.1-generate-preview",
   "prompt": "A cat playing piano in a beautiful garden",
   "image": "<BASE64_ENCODED_IMAGE_DATA>",
   "metadata": {}
@@ -81,7 +81,7 @@ The image in the `image` field specifies the first frame of the video. The image
 
 ```json
 {
-  "model": "veo-3.1-generate-001",
+  "model": "veo-3.1-generate-preview",
   "prompt": "A cat playing piano in a beautiful garden",
   "image": "<BASE64_ENCODED_IMAGE_DATA>",
   "metadata": {
@@ -94,13 +94,13 @@ The image in the `image` field specifies the first frame of the video. The image
 
 Images are specified in an array in `metadata.referenceImages`, containing up to 3 elements. Each reference image is an object containing `image`: base64-encoded image data and `referenceType`: a string with value `"asset"` or `"style"`.
 
-**Note:** This feature is only supported by veo-3.1-generate-001.
+**Note:** This feature is only supported by veo-3.1-generate-preview.
 
 **Request Body:**
 
 ```json
 {
-  "model": "veo-3.1-generate-001",
+  "model": "veo-3.1-generate-preview",
   "prompt": "A cat playing piano in a beautiful garden",
   "image": "<BASE64_ENCODED_IMAGE_DATA>",
   "metadata": {
@@ -122,7 +122,7 @@ Images are specified in an array in `metadata.referenceImages`, containing up to
 
 | Parameter | Type | Required | Description |
 |------|------|------|------|
-| model | string | Yes | Model name, e.g., veo-3.1-generate-001 |
+| model | string | Yes | Model name, e.g., veo-3.1-generate-preview |
 | prompt | string | Yes | Text prompt describing the video content to be generated |
 | image | string | Yes | Base64-encoded image data for the first frame |
 | metadata | object | No | Extended parameters object |
@@ -139,7 +139,7 @@ Images are specified in an array in `metadata.referenceImages`, containing up to
 | sampleCount | number | No | Number of videos to generate, default 1 |
 | storageUri | string | No | Google Cloud Storage URI for storing generated videos |
 | lastFrame | string | No | Base64-encoded image data for the last frame (Veo 3.1 models only) |
-| referenceImages | array | No | Array of reference images, up to 3 elements (veo-3.1-generate-001 only) |
+| referenceImages | array | No | Array of reference images, up to 3 elements (veo-3.1-generate-preview only) |
 
 ### referenceImages Array Elements:
 
