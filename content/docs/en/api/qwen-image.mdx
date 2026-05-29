@@ -119,7 +119,7 @@ Where `$API_KEY` is your API key.
 | `model` | string | Yes | Model name, e.g., "qwen-image-plus" or "wan2.5-t2i-preview" |
 | `prompt` | string | Yes | Text description of the desired image |
 | `n` | integer | No | Number of images to generate, fixed at 1 |
-| `size` | string | No | The resolution of the output image, in the format of width*height. The default resolution is 1328*1328. Available options and their corresponding aspect ratios:<br />- `"1664*928"` (16:9)<br />- `"1472*1140"` (4:3)<br />- `"1328*1328"` (1:1, default)<br />- `"1140*1472"` (3:4)<br />- `"928*1664"` (9:16) |
+| `size` | string | No | The resolution of the output image, in the format of `width*height` (use `*` as the separator, not `x`). The default resolution is `1328*1328`. Only the following exact values are accepted:<br />- `"1664*928"` (16:9)<br />- `"1472*1104"` (4:3)<br />- `"1328*1328"` (1:1, default)<br />- `"1104*1472"` (3:4)<br />- `"928*1664"` (9:16) |
 | `response_format` | string | No | Response format, "url" or "b64_json" |
 
 ##### `prompt`

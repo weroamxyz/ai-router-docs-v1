@@ -7,6 +7,12 @@ description: 后台管理接口鉴权方式与权限级别说明
 
 后台管理接口采用多级鉴权机制，常见为：**公开**、**用户**、**管理员**、**Root**。
 
+> **重要提示 — AI API Key 与管理 Access Token 的区别：**
+>
+> `sk-...` 格式的 **AI API Key**（用于 `/v1/chat/completions` 等模型推理接口）**不能**用于后台管理接口。使用 AI API Key 调用管理接口会返回 `{"success": false, "message": "无权进行此操作，access token 无效"}`。
+>
+> 管理接口需要使用专门的 **Access Token**，可在登录平台后于「个人设置 → 安全设置 → 系统访问令牌」中生成。
+
 ## 认证方式（二选一）
 
 ### Session

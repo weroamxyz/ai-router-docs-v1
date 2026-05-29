@@ -7,19 +7,19 @@
 @theme {
   --spacing-fd-container: 1436px;
 
-  /* Pink theme color */
-  --color-brand: hsl(330, 70%, 55%);
+  /* Tech Blue theme color */
+  --color-brand: hsl(210, 80%, 52%);
   --color-brand-foreground: white;
-  --color-brand-secondary: hsl(340, 75%, 65%);
-  --color-brand-secondary-foreground: hsl(330, 60%, 20%);
-  --color-brand-200: hsl(330, 65%, 75%);
+  --color-brand-secondary: hsl(200, 75%, 60%);
+  --color-brand-secondary-foreground: hsl(210, 60%, 15%);
+  --color-brand-200: hsl(210, 65%, 75%);
 
   /* Fumadocs UI theme color (for navigation, TOC, etc.) */
-  --color-fd-primary: hsl(330, 70%, 55%);
+  --color-fd-primary: hsl(210, 80%, 52%);
   --color-fd-primary-foreground: white;
 
-  --color-landing-foreground: #5c3a4a;
-  --color-landing-foreground-200: #a87b8b;
+  --color-landing-foreground: #1e3a5f;
+  --color-landing-foreground-200: #4a7ab5;
 
   /* System fonts */
   --font-sans:
@@ -31,23 +31,33 @@
 }
 
 .dark {
-  --color-landing-foreground: #f5e0ea;
-  --color-landing-foreground-200: #e0b8d0;
+  --color-landing-foreground: #c8e6ff;
+  --color-landing-foreground-200: #7ec8f0;
 
-  /* Pink theme color (dark mode) */
-  --color-brand: hsl(330, 85%, 70%);
-  --color-brand-secondary: hsl(340, 80%, 75%);
-  --color-brand-secondary-foreground: hsl(330, 60%, 10%);
-  --color-brand-foreground: black;
-  --color-brand-200: hsl(330, 80%, 85%);
+  /* Tech Blue theme color (dark mode) */
+  --color-brand: hsl(210, 85%, 65%);
+  --color-brand-secondary: hsl(200, 80%, 70%);
+  --color-brand-secondary-foreground: hsl(210, 60%, 8%);
+  --color-brand-foreground: white;
+  --color-brand-200: hsl(210, 80%, 80%);
 
   /* Fumadocs UI theme color (for navigation, TOC, etc. - dark mode) */
-  --color-fd-primary: hsl(330, 85%, 70%);
-  --color-fd-primary-foreground: black;
+  --color-fd-primary: hsl(210, 85%, 65%);
+  --color-fd-primary-foreground: white;
 }
 
 @theme inline {
   --default-mono-font-family: var(--font-mono);
+}
+
+::selection {
+  background-color: hsl(210, 80%, 52%, 0.25);
+  color: inherit;
+}
+
+.dark ::selection {
+  background-color: hsl(210, 85%, 65%, 0.3);
+  color: inherit;
 }
 
 body {
