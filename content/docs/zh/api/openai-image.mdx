@@ -27,7 +27,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 ```bash
 # 基础图片生成
-curl https://computevault.unodetech.xyz/v1/images/generations \
+curl https://unodetech.xyz/v1/images/generations \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
@@ -38,7 +38,7 @@ curl https://computevault.unodetech.xyz/v1/images/generations \
   }'
 
 # 高质量图片生成
-curl https://computevault.unodetech.xyz/v1/images/generations \
+curl https://unodetech.xyz/v1/images/generations \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
@@ -49,7 +49,7 @@ curl https://computevault.unodetech.xyz/v1/images/generations \
   }'
 
 # 透明背景与 WebP 输出
-curl https://computevault.unodetech.xyz/v1/images/generations \
+curl https://unodetech.xyz/v1/images/generations \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
@@ -91,7 +91,7 @@ curl https://computevault.unodetech.xyz/v1/images/generations \
 
 ```bash
 # gpt-image-2 图片编辑
-curl https://computevault.unodetech.xyz/v1/images/edits \
+curl https://unodetech.xyz/v1/images/edits \
   -H "Authorization: Bearer $API_KEY" \
   -F image="@otter.png" \
   -F mask="@mask.png" \
@@ -100,7 +100,7 @@ curl https://computevault.unodetech.xyz/v1/images/edits \
   -F size="1024x1024"
 
 # gpt-image-2 多图片编辑示例
-curl https://computevault.unodetech.xyz/v1/images/edits \
+curl https://unodetech.xyz/v1/images/edits \
   -H "Authorization: Bearer $API_KEY" \
   -F "model=gpt-image-2" \
   -F "image[]=@body-lotion.png" \

@@ -19,7 +19,7 @@ const logo = (
 
 const brandName: Record<string, string> = {
   zh: '算力仓',
-  en: 'ComputeVault',
+  en: 'Unode',
 };
 
 export function baseOptions(locale: string): BaseLayoutProps {
@@ -30,7 +30,7 @@ export function baseOptions(locale: string): BaseLayoutProps {
         <>
           {logo}
           <span className="font-medium in-[header]:text-[15px] [.uwu_&]:hidden">
-            {brandName[locale] ?? 'ComputeVault'}
+            {brandName[locale] ?? 'Unode'}
           </span>
         </>
       ),

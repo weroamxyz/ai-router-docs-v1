@@ -43,7 +43,7 @@ Models marked with ⚠️ are temporarily unavailable (no active channel configu
 ### Basic Text Chat ✅
 
 ```bash
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -81,7 +81,7 @@ cat > "$TEMP_JSON" << EOF
 }
 EOF
 
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d "@$TEMP_JSON"
@@ -121,7 +121,7 @@ cat > tools.json << EOF
 } 
 EOF
 
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -d @<(echo '
   {
@@ -149,7 +149,7 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:gene
 ### JSON Schema Response ✅
 
 ```bash
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
 -H 'Content-Type: application/json' \
 -d '{
     "contents": [{
@@ -187,7 +187,7 @@ else
 fi
 AUDIO_B64=$(base64 $B64FLAGS "$AUDIO_PATH")
 
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -215,7 +215,7 @@ else
 fi
 VIDEO_B64=$(base64 $B64FLAGS "$VIDEO_PATH")
 
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -245,7 +245,7 @@ PDF_B64=$(base64 $B64FLAGS "$PDF_PATH")
 
 echo $MIME_TYPE
 
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -261,7 +261,7 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:gene
 ### Chat Dialog ✅
 
 ```bash
-curl https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
+curl https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -282,7 +282,7 @@ curl https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:gener
 ### Streaming Response ✅
 
 ```bash
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=sse&key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=sse&key=$API_KEY" \
     -H 'Content-Type: application/json' \
     --no-buffer \
     -d '{
@@ -295,7 +295,7 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:stre
 ### Code Execution ✅
 
 ```bash
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -311,7 +311,7 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:gene
 ### Generation Config ✅
 
 ```bash
-curl https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
+curl https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -344,7 +344,7 @@ echo '{
         "parts":[{
             "text": "'I support Martians Soccer Club and I think Jupiterians Football Club sucks! Write a ironic phrase about them.'"}]}]}' > request.json
 
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d @request.json
@@ -353,7 +353,7 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:gene
 ### System Instruction ✅
 
 ```bash
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
 -H 'Content-Type: application/json' \
 -d '{ "system_instruction": {
     "parts":
@@ -369,12 +369,12 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-preview:gene
 
 #### Generate Content
 ```
-POST https://computevault.unodetech.xyz/v1beta/{model=models/*}:generateContent
+POST https://unodetech.xyz/v1beta/{model=models/*}:generateContent
 ```
 
 #### Stream Generate Content
 ```
-POST https://computevault.unodetech.xyz/v1beta/{model=models/*}:streamGenerateContent
+POST https://unodetech.xyz/v1beta/{model=models/*}:streamGenerateContent
 ```
 
 ### Authentication Method
