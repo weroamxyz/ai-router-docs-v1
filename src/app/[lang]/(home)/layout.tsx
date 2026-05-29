@@ -196,27 +196,6 @@ export default async function Layout({
               </NavbarMenu>
             ),
           },
-          {
-            type: 'custom',
-            on: 'nav',
-            children: (
-              <span className="inline-flex items-center gap-1.5 text-sm text-fd-muted-foreground cursor-default select-none">
-                {texts.skills.text}
-                <span className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
-                  New
-                </span>
-              </span>
-            ),
-          },
-          {
-            type: 'custom',
-            on: 'nav',
-            children: (
-              <span className="text-sm text-fd-muted-foreground cursor-default select-none">
-                {texts.apiDocs.text}
-              </span>
-            ),
-          },
           ...linkItems,
         ]}
         className="flex-1 dark:bg-neutral-950 dark:[--color-fd-background:var(--color-neutral-950)]"
