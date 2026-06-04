@@ -1,0 +1,278 @@
+---
+title: Seedream Image Format (Image)
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Seedream Image Format (Image)
+
+<Callout type="info" title="Official Documentation">
+[VolcEngine Seedream Image Generation API](https://www.volcengine.com/docs/82379/1541523)
+</Callout>
+
+## 📝 Introduction
+
+Given a text prompt and/or reference image(s), Seedream models will generate new images. Seedream is Bytedance's high-quality image generation model family, supporting text-to-image, image-to-image, and sequential (multi-image set) generation via the VolcEngine channel.
+
+## 🤖 Supported Models
+
+Currently supported models include:
+
+| Model | Description |
+| --- | --- |
+| **doubao-seedream-4-5-251128** | Seedream 4.5 image generation model supporting text-to-image and image-to-image generation |
+| **doubao-seedream-5-0-260128** | Seedream 5.0 image generation model with enhanced quality, web search tool support, and PNG output |
+
+## 💡 Request Examples
+
+### Text-to-Image ✅
+
+```bash
+curl https://unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "doubao-seedream-5-0-260128",
+    "prompt": "A cute little sea otter",
+    "size": "2048x2048",
+    "response_format": "url"
+  }'
+```
+
+**Response Example:**
+
+```json
+{
+  "model": "doubao-seedream-5-0-260128",
+  "created": 1780599167,
+  "data": [
+    {
+      "url": "https://example.com/generated-image.jpeg",
+      "size": "2048x2048"
+    }
+  ],
+  "usage": {
+    "generated_images": 1,
+    "output_tokens": 16384,
+    "total_tokens": 16384
+  }
+}
+```
+
+### Image-to-Image (Reference Image) ✅
+
+```bash
+curl https://unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "doubao-seedream-5-0-260128",
+    "prompt": "A cute little sea otter wearing a beret",
+    "image": "data:image/png;base64,<BASE64_DATA>",
+    "size": "2048x2048"
+  }'
+```
+
+### Generate Image Set (Sequential Generation) ✅
+
+```bash
+curl https://unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "doubao-seedream-5-0-260128",
+    "prompt": "A series of illustrations showing a fox exploring different seasons",
+    "extra_fields": {
+      "sequential_image_generation": "auto",
+      "sequential_image_generation_options": {
+        "max_images": 4
+      }
+    }
+  }'
+```
+
+**Response Example:**
+
+```json
+{
+  "model": "doubao-seedream-5-0-260128",
+  "created": 1780599167,
+  "data": [
+    { "url": "https://example.com/image1.jpeg", "size": "2048x2048" },
+    { "url": "https://example.com/image2.jpeg", "size": "2048x2048" },
+    { "url": "https://example.com/image3.jpeg", "size": "2048x2048" },
+    { "url": "https://example.com/image4.jpeg", "size": "2048x2048" }
+  ],
+  "usage": {
+    "generated_images": 4,
+    "output_tokens": 65536,
+    "total_tokens": 65536
+  }
+}
+```
+
+### Multi-Image Composition ✅
+
+```bash
+curl https://unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "doubao-seedream-5-0-260128",
+    "prompt": "Create an elegant gift set containing these items",
+    "image": [
+      "data:image/png;base64,<BASE64_IMAGE_1>",
+      "data:image/png;base64,<BASE64_IMAGE_2>",
+      "data:image/png;base64,<BASE64_IMAGE_3>"
+    ]
+  }'
+```
+
+## 📮 Request
+
+### Endpoint
+
+#### Create Image
+```
+POST /v1/images/generations
+```
+
+Create images based on text prompts and/or reference images.
+
+### Authentication Method
+
+Include the following in the request header for API key authentication:
+
+```
+Authorization: Bearer $API_KEY
+```
+
+Where `$API_KEY` is your API key.
+
+### Request Body Parameters
+
+| Parameter | Type | Required | Description |
+|------|------|------|------|
+| `model` | string | Yes | Model ID, e.g. `doubao-seedream-5-0-260128` |
+| `prompt` | string | Yes | Text prompt for image generation. Supports Chinese and English. |
+| `image` | string \| string[] | No | Reference image(s) as data URLs (`data:image/<format>;base64,...`). Single image = string, multiple = array. Maximum 14 images. |
+| `size` | string | No | Output resolution. Options: `2K`, `3K`, `4K`, or explicit `<width>x<height>` (e.g. `2048x2048`). See [size values](#size-values) for details. Default determined by model. |
+| `response_format` | string | No | `"url"` (default) or `"b64_json"`. |
+| `watermark` | boolean | No | Whether to add an "AI Generated" watermark. Default: `true`. |
+| `extra_fields` | object | No | Seedream-specific extended parameters. See [Seedream `extra_fields` Reference](#seedream-extra_fields-reference) below. |
+
+#### Size Values
+
+| Value | Description | Models |
+|---|---|---|
+| `2K` | ~2048px (model chooses exact dimensions based on prompt) | 5.0, 4.5 |
+| `3K` | ~3072px | 5.0, 4.5 |
+| `4K` | ~4096px | 5.0, 4.5 |
+| `<width>x<height>` | Explicit pixel dimensions, e.g. `2048x2048`. Must satisfy both minimum total pixels and aspect ratio constraints (see API docs for per-model limits). | All |
+
+## Seedream `extra_fields` Reference
+
+The following parameters are supported in the `extra_fields` object for Seedream image generation models via the VolcEngine channel.
+
+### `extra_fields` Parameters
+
+| Field | Type | Default | Description | Models |
+|---|---|---|---|---|
+| `sequential_image_generation` | string | `"disabled"` | `"auto"`: model decides how many images to return as a set. `"disabled"`: single image only. | 5.0, 4.5, 4.0 |
+| `sequential_image_generation_options` | object | — | Configuration for image set generation. Only effective when `sequential_image_generation` is `"auto"`. | 5.0, 4.5, 4.0 |
+| `sequential_image_generation_options.max_images` | integer | `15` | Maximum number of images to generate in the set. Range: 1–15. Note: input reference images + generated images ≤ 15. | 5.0, 4.5, 4.0 |
+| `tools` | array | — | Enable optional tools. Pass `[{ "type": "web_search" }]` to let the model search the web for timely content (e.g. current events, products). Increases latency. Actual search count returned in `usage.tool_usage.web_search`. | **5.0 only** |
+| `stream` | boolean | `false` | Enable streaming output. Each image is returned as soon as it is ready rather than waiting for the full set. Note: response-side streaming is not currently handled by this router; the upstream will stream but the router responds non-streamingly. | 5.0, 4.5, 4.0 |
+| `output_format` | string | `"jpeg"` | Output file format: `"jpeg"` or `"png"`. | **5.0 only** |
+| `optimize_prompt_options` | object | — | Prompt optimization configuration. | 5.0, 4.5, 4.0 |
+| `optimize_prompt_options.mode` | string | `"standard"` | `"standard"`: higher quality, slower. `"fast"`: lower quality, faster. Note: `"fast"` is **not** supported on 5.0 or 4.5. | 5.0, 4.5, 4.0 |
+
+## 📥 Response
+
+### Successful Response
+
+The endpoint returns a response with the following top-level fields:
+
+| Field | Type | Description |
+|------|------|------|
+| `model` | string | The model ID used for generation |
+| `created` | integer | Unix timestamp (in seconds) of when the image was created |
+| `data` | array | List of generated image objects |
+| `usage` | object | Token usage for the API call |
+
+#### `usage` Fields
+
+| Field | Type | Description |
+|------|------|------|
+| `generated_images` | integer | Number of images generated |
+| `output_tokens` | integer | Tokens used for output |
+| `total_tokens` | integer | Total tokens used |
+
+### Image Object
+
+Each object in the `data` array contains:
+
+| Field | Type | Description |
+|------|------|------|
+| `url` | string | URL of the generated image. Returned when `response_format` is `"url"` (default). |
+| `b64_json` | string | Base64-encoded image data. Returned when `response_format` is `"b64_json"`. |
+| `size` | string | Actual dimensions of the generated image (e.g. `"2048x2048"`). |
+
+Example image object:
+```json
+{
+  "model": "doubao-seedream-5-0-260128",
+  "created": 1780599167,
+  "data": [
+    {
+      "url": "https://example.com/generated-image.jpeg",
+      "size": "2048x2048"
+    }
+  ],
+  "usage": {
+    "generated_images": 1,
+    "output_tokens": 16384,
+    "total_tokens": 16384
+  }
+}
+```
+
+## 🌟 Best Practices
+
+### Prompt Writing Tips
+
+1. Use clear and specific descriptions
+2. Specify important visual details
+3. Describe the expected artistic style and atmosphere
+4. Pay attention to composition and perspective instructions
+5. Seedream supports both Chinese and English prompts
+
+### Parameter Selection Tips
+
+1. **Size Selection**
+    - `2K` / `3K` / `4K`: Preset tiers where the model selects exact dimensions based on the prompt
+    - `<width>x<height>`: Use explicit dimensions when you need a specific aspect ratio or resolution
+
+2. **Image Set Generation**
+    - Set `extra_fields.sequential_image_generation` to `"auto"` to generate a coherent set of related images from a single prompt
+    - Control the set size with `extra_fields.sequential_image_generation_options.max_images` (up to 15)
+    - When using reference images, the total of input images + generated images must not exceed 15
+
+3. **Reference Images**
+    - Pass reference images as base64 data URLs (`data:image/png;base64,...`) in the `image` field
+    - Use up to 14 reference images for multi-image composition
+
+### Common Questions
+
+1. **Image generation failed**
+    - Check if the prompt complies with content policies
+    - Verify API key permissions
+    - Confirm reference image format (must be base64 data URL, not file upload)
+
+2. **Results do not match expectations**
+    - Optimize prompt descriptions with more specific visual detail
+    - Adjust the `size` parameter
+    - Try enabling prompt optimization via `extra_fields.optimize_prompt_options`
+
+3. **Sequential generation returning only one image**
+    - Ensure `extra_fields.sequential_image_generation` is set to `"auto"` (default is `"disabled"`)

@@ -18,6 +18,7 @@
     "openai-image",
     "gemini-image",
     "qwen-image",
+    "seedream-image",
     "---Audio---",
     "openai-audio",
     "---Video---",

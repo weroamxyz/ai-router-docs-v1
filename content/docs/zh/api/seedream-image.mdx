@@ -1,0 +1,278 @@
+---
+title: Seedream 图像格式（Image）
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Seedream 图像格式（Image）
+
+<Callout type="info" title="官方文档">
+[火山引擎 Seedream 图像生成 API](https://www.volcengine.com/docs/82379/1541523)
+</Callout>
+
+## 📝 简介
+
+给定文本提示和/或参考图片，Seedream 模型将生成新的图像。Seedream 是字节跳动旗下的高质量图像生成模型系列，通过火山引擎渠道支持文生图、图生图以及组图（序列图像）生成。
+
+## 🤖 支持的模型
+
+目前支持的模型包括：
+
+| 模型 | 描述 |
+| --- | --- |
+| **doubao-seedream-4-5-251128** | Seedream 4.5 图像生成模型，支持文生图和图生图 |
+| **doubao-seedream-5-0-260128** | Seedream 5.0 图像生成模型，具备更高质量输出，支持联网搜索工具及 PNG 格式输出 |
+
+## 💡 请求示例
+
+### 文生图 ✅
+
+```bash
+curl https://unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "doubao-seedream-5-0-260128",
+    "prompt": "一只可爱的小海獭",
+    "size": "2048x2048",
+    "response_format": "url"
+  }'
+```
+
+**响应示例：**
+
+```json
+{
+  "model": "doubao-seedream-5-0-260128",
+  "created": 1780599167,
+  "data": [
+    {
+      "url": "https://example.com/generated-image.jpeg",
+      "size": "2048x2048"
+    }
+  ],
+  "usage": {
+    "generated_images": 1,
+    "output_tokens": 16384,
+    "total_tokens": 16384
+  }
+}
+```
+
+### 图生图（参考图） ✅
+
+```bash
+curl https://unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "doubao-seedream-5-0-260128",
+    "prompt": "一只戴着贝雷帽的可爱小海獭",
+    "image": "data:image/png;base64,<BASE64_DATA>",
+    "size": "2048x2048"
+  }'
+```
+
+### 生成组图（序列生成） ✅
+
+```bash
+curl https://unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "doubao-seedream-5-0-260128",
+    "prompt": "一只小狐狸探索四季变化的系列插画",
+    "extra_fields": {
+      "sequential_image_generation": "auto",
+      "sequential_image_generation_options": {
+        "max_images": 4
+      }
+    }
+  }'
+```
+
+**响应示例：**
+
+```json
+{
+  "model": "doubao-seedream-5-0-260128",
+  "created": 1780599167,
+  "data": [
+    { "url": "https://example.com/image1.jpeg", "size": "2048x2048" },
+    { "url": "https://example.com/image2.jpeg", "size": "2048x2048" },
+    { "url": "https://example.com/image3.jpeg", "size": "2048x2048" },
+    { "url": "https://example.com/image4.jpeg", "size": "2048x2048" }
+  ],
+  "usage": {
+    "generated_images": 4,
+    "output_tokens": 65536,
+    "total_tokens": 65536
+  }
+}
+```
+
+### 多图合成 ✅
+
+```bash
+curl https://unodetech.xyz/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "doubao-seedream-5-0-260128",
+    "prompt": "将这些物品组合成一个精美的礼品套装",
+    "image": [
+      "data:image/png;base64,<BASE64_IMAGE_1>",
+      "data:image/png;base64,<BASE64_IMAGE_2>",
+      "data:image/png;base64,<BASE64_IMAGE_3>"
+    ]
+  }'
+```
+
+## 📮 请求
+
+### 端点
+
+#### 创建图片
+```
+POST /v1/images/generations
+```
+
+根据文本提示和/或参考图片生成图像。
+
+### 鉴权方法
+
+在请求头中包含以下内容进行 API 密钥鉴权：
+
+```
+Authorization: Bearer $API_KEY
+```
+
+其中 `$API_KEY` 是您的 API 密钥。
+
+### 请求体参数
+
+| 参数 | 类型 | 必需 | 描述 |
+|------|------|------|------|
+| `model` | 字符串 | 是 | 模型 ID，如 `doubao-seedream-5-0-260128` |
+| `prompt` | 字符串 | 是 | 图像生成的文本提示词，支持中英文 |
+| `image` | 字符串 \| 字符串[] | 否 | 参考图片，以 data URL 格式提供（`data:image/<格式>;base64,...`）。单张图片传字符串，多张传数组，最多 14 张 |
+| `size` | 字符串 | 否 | 输出分辨率。可选值：`2K`、`3K`、`4K` 或显式尺寸 `<宽>x<高>`（如 `2048x2048`）。详见 [尺寸说明](#尺寸说明) |
+| `response_format` | 字符串 | 否 | `"url"`（默认）或 `"b64_json"` |
+| `watermark` | 布尔值 | 否 | 是否添加「AI 生成」水印，默认为 `true` |
+| `extra_fields` | 对象 | 否 | Seedream 专属扩展参数，详见下方 [Seedream `extra_fields` 参数说明](#seedream-extra_fields-参数说明) |
+
+#### 尺寸说明
+
+| 值 | 描述 | 支持模型 |
+|---|---|---|
+| `2K` | 约 2048px（模型根据提示词自动决定精确尺寸） | 5.0、4.5 |
+| `3K` | 约 3072px | 5.0、4.5 |
+| `4K` | 约 4096px | 5.0、4.5 |
+| `<宽>x<高>` | 指定像素尺寸，如 `2048x2048`。需满足最小总像素及宽高比限制（详见各模型 API 文档） | 全部 |
+
+## Seedream `extra_fields` 参数说明
+
+以下参数可在 `extra_fields` 对象中设置，用于通过火山引擎渠道调用 Seedream 图像生成模型时启用扩展功能。
+
+### `extra_fields` 参数
+
+| 字段 | 类型 | 默认值 | 描述 | 支持模型 |
+|---|---|---|---|---|
+| `sequential_image_generation` | 字符串 | `"disabled"` | `"auto"`：模型自动决定生成图片数量（组图模式）。`"disabled"`：仅生成单张图片。 | 5.0、4.5、4.0 |
+| `sequential_image_generation_options` | 对象 | — | 组图生成配置，仅在 `sequential_image_generation` 为 `"auto"` 时生效 | 5.0、4.5、4.0 |
+| `sequential_image_generation_options.max_images` | 整数 | `15` | 组图中最多生成的图片数量，范围 1–15。注意：输入参考图数量 + 生成图片数量 ≤ 15 | 5.0、4.5、4.0 |
+| `tools` | 数组 | — | 启用可选工具。传入 `[{ "type": "web_search" }]` 可让模型联网搜索时效性内容（如当前事件、产品信息），会增加响应延迟。实际搜索次数通过 `usage.tool_usage.web_search` 返回 | **仅 5.0** |
+| `stream` | 布尔值 | `false` | 启用流式输出，每张图片生成后立即返回，无需等待全部完成。注意：当前路由暂不处理响应端流式传输，上游会流式输出，但路由以非流式方式响应 | 5.0、4.5、4.0 |
+| `output_format` | 字符串 | `"jpeg"` | 输出文件格式：`"jpeg"` 或 `"png"` | **仅 5.0** |
+| `optimize_prompt_options` | 对象 | — | 提示词优化配置 | 5.0、4.5、4.0 |
+| `optimize_prompt_options.mode` | 字符串 | `"standard"` | `"standard"`：质量更高，速度较慢。`"fast"`：质量稍低，速度更快。注意：`"fast"` **不支持** 5.0 和 4.5 | 5.0、4.5、4.0 |
+
+## 📥 响应
+
+### 成功响应
+
+接口返回包含以下顶层字段的响应：
+
+| 字段 | 类型 | 描述 |
+|------|------|------|
+| `model` | 字符串 | 用于生成的模型 ID |
+| `created` | 整数 | 图像创建时间的 Unix 时间戳（秒） |
+| `data` | 数组 | 生成的图像对象列表 |
+| `usage` | 对象 | 本次 API 调用的用量统计 |
+
+#### `usage` 字段
+
+| 字段 | 类型 | 描述 |
+|------|------|------|
+| `generated_images` | 整数 | 生成的图片数量 |
+| `output_tokens` | 整数 | 输出消耗的 token 数 |
+| `total_tokens` | 整数 | 总消耗 token 数 |
+
+### 图像对象
+
+`data` 数组中的每个对象包含：
+
+| 字段 | 类型 | 描述 |
+|------|------|------|
+| `url` | 字符串 | 生成图像的 URL，当 `response_format` 为 `"url"`（默认）时返回 |
+| `b64_json` | 字符串 | Base64 编码的图像数据，当 `response_format` 为 `"b64_json"` 时返回 |
+| `size` | 字符串 | 生成图像的实际尺寸，如 `"2048x2048"` |
+
+响应示例：
+```json
+{
+  "model": "doubao-seedream-5-0-260128",
+  "created": 1780599167,
+  "data": [
+    {
+      "url": "https://example.com/generated-image.jpeg",
+      "size": "2048x2048"
+    }
+  ],
+  "usage": {
+    "generated_images": 1,
+    "output_tokens": 16384,
+    "total_tokens": 16384
+  }
+}
+```
+
+## 🌟 最佳实践
+
+### Prompt 编写建议
+
+1. 使用清晰具体的描述
+2. 指定重要的视觉细节
+3. 描述期望的艺术风格和氛围
+4. 注意构图和视角的说明
+5. Seedream 支持中英文提示词
+
+### 参数选择建议
+
+1. **尺寸选择**
+    - `2K` / `3K` / `4K`：预设档位，模型根据提示词自动决定精确尺寸
+    - `<宽>x<高>`：需要特定宽高比或精确分辨率时使用
+
+2. **组图生成**
+    - 将 `extra_fields.sequential_image_generation` 设为 `"auto"` 可从单个提示词生成一组内容关联的图片
+    - 通过 `extra_fields.sequential_image_generation_options.max_images` 控制组图数量（最多 15 张）
+    - 使用参考图时，输入图片数量 + 生成图片数量不得超过 15 张
+
+3. **参考图片**
+    - 以 base64 data URL 格式（`data:image/png;base64,...`）在 `image` 字段中传入参考图片
+    - 多图合成最多可提供 14 张参考图片
+
+### 常见问题
+
+1. **图片生成失败**
+    - 检查提示词是否符合内容政策
+    - 验证 API 密钥权限
+    - 确认参考图片格式正确（必须为 base64 data URL，不支持文件上传）
+
+2. **结果与预期不符**
+    - 优化提示词，添加更具体的视觉描述
+    - 调整 `size` 参数
+    - 尝试通过 `extra_fields.optimize_prompt_options` 启用提示词优化
+
+3. **组图模式只返回单张图片**
+    - 确认 `extra_fields.sequential_image_generation` 已设置为 `"auto"`（默认值为 `"disabled"`）
