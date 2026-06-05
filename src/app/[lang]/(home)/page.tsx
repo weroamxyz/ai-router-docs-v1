@@ -47,7 +47,7 @@ const content = {
     ],
     arch: {
       client: 'Client App',
-      gateway: 'ComputeVault Gateway',
+      gateway: 'Unode Gateway',
       models: 'AI Models',
       chips: [
         '🔒 Auth', '⚖️ Load Balance', '🧭 Format Convert',
@@ -73,7 +73,7 @@ const content = {
     ],
     arch: {
       client: 'クライアントアプリ',
-      gateway: 'ComputeVaultゲートウェイ',
+      gateway: 'Unodeゲートウェイ',
       models: 'AIモデル',
       chips: [
         '🔒 認証', '⚖️ 負荷分散', '🧭 フォーマット変換',

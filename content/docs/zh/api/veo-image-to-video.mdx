@@ -16,8 +16,8 @@ Veo 是 Google 开发的高质量图像到视频生成模型，本文档描述�
 | --- | --- |
 | **veo-3.0-generate-001** | Veo 3.0 图像到视频生成模型 |
 | **veo-3.0-fast-generate-001** | Veo 3.0 快速图像到视频生成模型 |
-| **veo-3.1-generate-001** | Veo 3.1 图像到视频生成模型 |
-| **veo-3.1-fast-generate-001** | Veo 3.1 快速图像到视频生成模型 |
+| **veo-3.1-generate-preview** | Veo 3.1 图像到视频生成模型 |
+| **veo-3.1-fast-generate-preview** | Veo 3.1 快速图像到视频生成模型 |
 
 ---
 
@@ -64,7 +64,7 @@ queued → in_progress → completed
 
 ```json
 {
-  "model": "veo-3.1-generate-001",
+  "model": "veo-3.1-generate-preview",
   "prompt": "A cat playing piano in a beautiful garden",
   "image": "<BASE64_ENCODED_IMAGE_DATA>",
   "metadata": {}
@@ -81,7 +81,7 @@ queued → in_progress → completed
 
 ```json
 {
-  "model": "veo-3.1-generate-001",
+  "model": "veo-3.1-generate-preview",
   "prompt": "A cat playing piano in a beautiful garden",
   "image": "<BASE64_ENCODED_IMAGE_DATA>",
   "metadata": {
@@ -94,13 +94,13 @@ queued → in_progress → completed
 
 图像在 `metadata.referenceImages` 中的数组里指定，最多包含 3 个元素。每个参考图像是一个对象，包含 `image`：base64 编码的图像数据和 `referenceType`：值为 `"asset"` 或 `"style"` 的字符串。
 
-**注意：** 此功能仅由 veo-3.1-generate-001 支持。
+**注意：** 此功能仅由 veo-3.1-generate-preview 支持。
 
 **请求体：**
 
 ```json
 {
-  "model": "veo-3.1-generate-001",
+  "model": "veo-3.1-generate-preview",
   "prompt": "A cat playing piano in a beautiful garden",
   "image": "<BASE64_ENCODED_IMAGE_DATA>",
   "metadata": {
@@ -122,7 +122,7 @@ queued → in_progress → completed
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| model | string | 是 | 模型名称，如 veo-3.1-generate-001 |
+| model | string | 是 | 模型名称，如 veo-3.1-generate-preview |
 | prompt | string | 是 | 文本提示词，描述要生成的视频内容 |
 | image | string | 是 | 第一帧的 base64 编码图像数据 |
 | metadata | object | 否 | 扩展参数对象 |
@@ -139,7 +139,7 @@ queued → in_progress → completed
 | sampleCount | number | 否 | 生成视频数量，默认 1 |
 | storageUri | string | 否 | Google Cloud Storage URI，用于存储生成的视频 |
 | lastFrame | string | 否 | 最后一帧的 base64 编码图像数据（仅 Veo 3.1 模型） |
-| referenceImages | array | 否 | 参考图像数组，最多 3 个元素（仅 veo-3.1-generate-001） |
+| referenceImages | array | 否 | 参考图像数组，最多 3 个元素（仅 veo-3.1-generate-preview） |
 
 ### referenceImages 数组元素说明:
 
@@ -153,7 +153,7 @@ queued → in_progress → completed
 ### 完整请求：
 
 ```bash
-curl -X POST "https://computevault.unodetech.xyz/v1/video/generations" -H "Content-Type: application/json" -H "Authorization: Bearer API_KEY" -d @veoImageToVideoTest.json
+curl -X POST "https://unodetech.xyz/v1/video/generations" -H "Content-Type: application/json" -H "Authorization: Bearer API_KEY" -d @veoImageToVideoTest.json
 ```
 
 ### 接口地址: 
@@ -188,7 +188,7 @@ POST /v1/video/generations
 ### 完整标准格式接口
 
 ```bash
-curl -X GET "https://computevault.unodetech.xyz/v1/video/generations/TASK_ID" -H "Authorization: Bearer API_KEY"
+curl -X GET "https://unodetech.xyz/v1/video/generations/TASK_ID" -H "Authorization: Bearer API_KEY"
 ```
 
 ### 接口地址: 
@@ -240,7 +240,7 @@ GET /v1/video/generations/{task_id}
     "metadata": null,
     "status": "succeeded",
     "task_id": "TASK_ID",
-    "url": "https://computevault.unodetech.xyz/v1/videos/TASK_ID/content"
+    "url": "https://unodetech.xyz/v1/videos/TASK_ID/content"
   }
 }
 ```

@@ -22,7 +22,7 @@ OpenAI Audio API provides three main functions:
 ### Text-to-Speech ✅
 
 ```bash
-curl https://computevault.unodetech.xyz/v1/audio/speech \
+curl https://unodetech.xyz/v1/audio/speech \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -54,7 +54,7 @@ The `voice` parameter accepts different voice options:
 ### Speech-to-Text ✅
 
 ```bash
-curl https://computevault.unodetech.xyz/v1/audio/transcriptions \
+curl https://unodetech.xyz/v1/audio/transcriptions \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: multipart/form-data" \
   -F file="@/path/to/file/audio.mp3" \
@@ -72,7 +72,7 @@ curl https://computevault.unodetech.xyz/v1/audio/transcriptions \
 ### Audio Translation ✅
 
 ```bash
-curl https://computevault.unodetech.xyz/v1/audio/translations \
+curl https://unodetech.xyz/v1/audio/translations \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: multipart/form-data" \
   -F file="@/path/to/file/chinese.mp3" \

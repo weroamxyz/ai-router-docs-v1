@@ -20,7 +20,9 @@ Currently supported models include:
 | Model | Description |
 | --- | --- |
 | **gemini-2.5-flash-image** | Google Gemini image generation model that supports generating high-quality images based on text prompts |
+| **gemini-3.1-flash-image-preview** | Google Gemini fast image generation model (preview) |
 | **gemini-3-pro-image-preview** | Google Gemini image generation and editing model that supports generating images based on text prompts, as well as editing images based on input images and text prompts |
+| **imagen-4.0-fast-generate-001** | Google Imagen 4.0 Fast image generation model |
 
 ## 💡 Request Examples
 
@@ -28,7 +30,7 @@ Currently supported models include:
 
 ```bash
 # Basic image generation
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-2.5-flash-image:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-2.5-flash-image:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -88,7 +90,7 @@ curl "https://computevault.unodetech.xyz/v1beta/models/gemini-2.5-flash-image:ge
 
 ```bash
 # Image editing
-curl "https://computevault.unodetech.xyz/v1beta/models/gemini-3-pro-image-preview:generateContent?key=$API_KEY" \
+curl "https://unodetech.xyz/v1beta/models/gemini-3-pro-image-preview:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{

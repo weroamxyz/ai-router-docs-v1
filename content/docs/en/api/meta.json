@@ -1,6 +1,6 @@
 {
   "title": "API Reference",
-  "description": "ComputeVault API Documentation",
+  "description": "Unode API Documentation",
   "icon": "Code",
   "root": true,
   "pages": [
@@ -18,6 +18,7 @@
     "openai-image",
     "gemini-image",
     "qwen-image",
+    "seedream-image",
     "---Audio---",
     "openai-audio",
     "---Video---",
