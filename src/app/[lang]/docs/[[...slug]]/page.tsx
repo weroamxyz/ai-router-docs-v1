@@ -9,8 +9,6 @@ import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/mdx-components';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
-import { Feedback } from '@/components/feedback';
-import { onRateAction } from '@/lib/github';
 
 // GitHub repository info for source links
 const owner = 'QuantumNous';
@@ -49,7 +47,6 @@ export default async function Page(props: {
           })}
         />
       </DocsBody>
-      <Feedback lang={lang} onRateAction={onRateAction} />
     </DocsPage>
   );
 }

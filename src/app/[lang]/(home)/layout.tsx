@@ -182,7 +182,7 @@ export default async function Layout({
               </NavbarMenu>
             ),
           },
-          ...linkItems,
+          ...linkItems(lang),
         ]}
         className="flex-1 dark:bg-neutral-950 dark:[--color-fd-background:var(--color-neutral-950)]"
       >

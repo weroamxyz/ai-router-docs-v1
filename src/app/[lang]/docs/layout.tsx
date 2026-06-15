@@ -30,7 +30,7 @@ export default async function Layout({
       {...base}
       tabMode="top"
       tree={source.pageTree[lang]}
-      links={linkItems.filter((item) => item.type === 'icon')}
+      links={linkItems(lang)}
       sidebar={{
         defaultOpenLevel: 0,
         tabs: {
