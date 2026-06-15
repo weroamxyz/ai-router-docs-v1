@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { siteBaseUrl } from './config';
 
 export function createMetadata(override: Metadata): Metadata {
   return {
@@ -11,7 +12,7 @@ export function createMetadata(override: Metadata): Metadata {
     openGraph: {
       title: override.title ?? undefined,
       description: override.description ?? undefined,
-      url: 'https://www.newapi.ai',
+      url: siteBaseUrl,
       images: '/assets/logo.png',
       siteName: '算力仓',
       type: 'website',
