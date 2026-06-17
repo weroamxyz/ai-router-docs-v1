@@ -1,4 +1,5 @@
 'use client';
+import { siteBaseUrl } from '../lib/config';
 import {
   type ComponentProps,
   createContext,
@@ -40,7 +41,7 @@ function Header() {
         <p className="text-fd-muted-foreground text-xs">
           Powered by{' '}
           <a
-            href="https://www.newapi.ai"
+            href={siteBaseUrl}
             target="_blank"
             rel="noreferrer noopener"
           >
