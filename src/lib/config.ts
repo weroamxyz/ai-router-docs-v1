@@ -1,2 +1,2 @@
-export const siteBaseUrl =
-  process.env.NEXT_PUBLIC_SITE_BASE_URL ?? 'https://www.unodetech.xyz';
+// Re-exported from the central brand module so existing imports keep working.
+export { siteBaseUrl } from './brand';

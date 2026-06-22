@@ -57,7 +57,7 @@ Currently supported models include:
 - Generation: Created via server-side API
 
 ```http
-POST https://www.unodetech.xyz/v1/realtime/sessions
+POST ((SITE_URL))/v1/realtime/sessions
 Content-Type: application/json
 Authorization: Bearer $API_KEY
 
@@ -76,14 +76,14 @@ Authorization: Bearer $API_KEY
 ## 🔌 Connection Establishment
 
 ### WebRTC Connection
-- URL: `https://www.unodetech.xyz/v1/realtime`
+- URL: `((SITE_URL))/v1/realtime`
 - Query parameters: `model`
 - Headers: 
   - `Authorization: Bearer EPHEMERAL_KEY`
   - `Content-Type: application/sdp`
 
 ### WebSocket Connection
-- URL: `wss://unodetech.xyz/v1/realtime`
+- URL: `wss://((SITE_HOST))/v1/realtime`
 - Query parameters: `model`
 - Headers:
   - `Authorization: Bearer YOUR_API_KEY`
@@ -182,7 +182,7 @@ sequenceDiagram
 ```javascript
 import WebSocket from "ws";
 
-const url = "wss://unodetech.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17";
+const url = "wss://((SITE_HOST))/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17";
 const ws = new WebSocket(url, {
   headers: {
     "Authorization": "Bearer " + process.env.API_KEY,
@@ -210,7 +210,7 @@ import websocket
 
 API_KEY = os.environ.get("API_KEY")
 
-url = "wss://unodetech.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17"
+url = "wss://((SITE_HOST))/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17"
 headers = [
     "Authorization: Bearer " + API_KEY,
     "OpenAI-Beta: realtime=v1"
@@ -242,7 +242,7 @@ you can also use the standard WebSocket interface.
 */
 
 const ws = new WebSocket(
-  "wss://unodetech.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17",
+  "wss://((SITE_HOST))/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17",
   [
     "realtime",
     // Authentication
@@ -349,7 +349,7 @@ sudo yum install portaudio-devel
 In the `openai_realtime_client.py` file, ensure the following configuration is correct:
 
 ```python
-WEBSOCKET_URL = "wss://new-api.weroam.xyz/v1/realtime"
+WEBSOCKET_URL = "wss://((SITE_HOST))/v1/realtime"
 API_KEY = "sk-QMA3eCob2EmDI2graXo4onUupApVnrk8wPXemJ7lSfK4QPa0"
 MODEL = "gpt-4o-realtime-preview-2024-12-17"
 ```
@@ -799,7 +799,7 @@ class OpenAIRealtimeClient:
 async def main():
     """Main function"""
     # Configuration parameters
-    WEBSOCKET_URL = "wss://new-api.weroam.xyz/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17"
+    WEBSOCKET_URL = "wss://((SITE_HOST))/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17"
     API_KEY = "sk-EpnduEXFxjAt0AF55W08WBmzqZHlv9f4tmCDWd9TcJqBwVjV"
     MODEL = "gpt-4o-realtime-preview-2024-12-17"
     
