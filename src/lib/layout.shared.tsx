@@ -3,7 +3,7 @@ import { i18n } from '@/lib/i18n';
 import Image from 'next/image';
 import type { LinkItemType } from 'fumadocs-ui/layouts/docs';
 import { ExternalLink } from 'lucide-react';
-import { siteBaseUrl } from '@/lib/config';
+import { siteBaseUrl, docTitle, logoSrc } from '@/lib/brand';
 
 const dashboardLabel: Record<string, string> = {
   en: 'Console',
@@ -34,7 +34,7 @@ export function linkItems(locale: string): LinkItemType[] {
 const logo = (
   <Image
     alt="logo"
-    src="/assets/logo.png"
+    src={logoSrc}
     width={20}
     height={20}
     className="size-5"
@@ -42,11 +42,6 @@ const logo = (
     unoptimized
   />
 );
-
-const brandName: Record<string, string> = {
-  zh: '算力仓文档',
-  en: 'Unode Docs',
-};
 
 export function baseOptions(locale: string): BaseLayoutProps {
   return {
@@ -56,7 +51,7 @@ export function baseOptions(locale: string): BaseLayoutProps {
         <>
           {logo}
           <span className="font-medium in-[header]:text-[15px] [.uwu_&]:hidden">
-            {brandName[locale] ?? 'Unode'}
+            {docTitle[locale as keyof typeof docTitle] ?? docTitle.en}
           </span>
         </>
       ),

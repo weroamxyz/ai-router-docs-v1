@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { siteBaseUrl } from './config';
+import { siteBaseUrl, brandName, logoSrc } from './brand';
 
 export function createMetadata(override: Metadata): Metadata {
   return {
@@ -7,14 +7,14 @@ export function createMetadata(override: Metadata): Metadata {
     icons: {
       icon: '/favicon.ico',
       shortcut: '/favicon.ico',
-      apple: '/assets/logo.png',
+      apple: logoSrc,
     },
     openGraph: {
       title: override.title ?? undefined,
       description: override.description ?? undefined,
       url: siteBaseUrl,
-      images: '/assets/logo.png',
-      siteName: '算力仓',
+      images: logoSrc,
+      siteName: brandName.zh,
       type: 'website',
       ...override.openGraph,
     },
@@ -22,7 +22,7 @@ export function createMetadata(override: Metadata): Metadata {
       card: 'summary_large_image',
       title: override.title ?? undefined,
       description: override.description ?? undefined,
-      images: '/assets/logo.png',
+      images: logoSrc,
       ...override.twitter,
     },
   };

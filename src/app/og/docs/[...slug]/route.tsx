@@ -1,4 +1,5 @@
 import { getPageImage, source } from '@/lib/source';
+import { brandName } from '@/lib/brand';
 import { notFound } from 'next/navigation';
 import { ImageResponse } from 'next/og';
 import { generate as DefaultImage } from 'fumadocs-ui/og';
@@ -18,7 +19,7 @@ export async function GET(
       <DefaultImage
         title={page.data.title}
         description={page.data.description}
-        site="算力仓"
+        site={brandName.zh}
       />
     ),
     {

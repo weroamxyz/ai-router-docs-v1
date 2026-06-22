@@ -17,6 +17,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { getLocalePath } from '@/lib/i18n';
+import { brandName } from '@/lib/brand';
 
 // Navigation items configuration
 const NAV_ITEMS = [
@@ -36,7 +37,7 @@ const i18nText: Record<
     skills: { text: 'Skills', desc: '' },
     start: {
       text: 'Getting Started',
-      desc: 'Learn to use the Unode platform.',
+      desc: `Learn to use the ${brandName.en} platform.`,
     },
     install: {
       text: 'Installation',
@@ -56,7 +57,7 @@ const i18nText: Record<
     title: { text: '文档', desc: '' },
     apiDocs: { text: 'Apifox 操练场', desc: '' },
     skills: { text: 'Skills', desc: '' },
-    start: { text: '快速开始', desc: '学习如何部署和配置算力仓。' },
+    start: { text: '快速开始', desc: `学习如何部署和配置${brandName.zh}。` },
     install: { text: '部署安装', desc: '多种部署方式和安装指南。' },
     support: { text: '帮助支持', desc: '常见问题和社区支持。' },
     api: { text: 'API 参考', desc: '完整的 API 文档和参考指南。' },
@@ -66,7 +67,7 @@ const i18nText: Record<
     title: { text: 'ドキュメント', desc: '' },
     apiDocs: { text: 'Apifox プレイグラウンド', desc: '' },
     skills: { text: 'Skills', desc: '' },
-    start: { text: 'はじめに', desc: 'Unode のデプロイと設定方法を学ぶ。' },
+    start: { text: 'はじめに', desc: `${brandName.ja} のデプロイと設定方法を学ぶ。` },
     install: {
       text: 'インストール',
       desc: '様々なデプロイ方法とインストールガイド。',
