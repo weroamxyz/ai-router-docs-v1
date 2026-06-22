@@ -62,7 +62,22 @@ export const docs = defineDocs({
     },
   },
   meta: {
-    schema: metaSchema,
+    // Resolve ((TOKEN)) placeholders in meta.json title/description per locale.
+    schema: (ctx) =>
+      metaSchema.transform((data) => {
+        const locale = localeFromPath(ctx.path);
+        return {
+          ...data,
+          title:
+            typeof data.title === 'string'
+              ? resolveBrandTokens(data.title, locale)
+              : data.title,
+          description:
+            typeof data.description === 'string'
+              ? resolveBrandTokens(data.description, locale)
+              : data.description,
+        };
+      }),
   },
 });
 
