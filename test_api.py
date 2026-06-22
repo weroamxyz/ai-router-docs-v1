@@ -5,7 +5,7 @@ AI Router API 综合测试脚本
 
 使用方法:
     export API_KEY="your-api-key"
-    export API_BASE_URL="https://computevault.unodetech.xyz"   # 可选，有默认值
+    export API_BASE_URL="https://www.unodetech.xyz"   # 可选，有默认值（RoamAI 用 https://ai.weroam.xyz）
     export MANAGEMENT_TOKEN="your-management-token"            # 可选，用于管理接口
     export TEST_VIDEO="1"                                      # 可选，开启视频生成测试（耗时长）
     export TEST_ALL_MODELS="1"                                 # 可选，测试所有模型（默认只测代表性模型）
@@ -36,7 +36,7 @@ from typing import Optional, Dict, Any, List, Tuple
 # ============================================================
 # 配置
 # ============================================================
-BASE_URL = os.environ.get("API_BASE_URL", "https://computevault.unodetech.xyz").rstrip("/")
+BASE_URL = os.environ.get("API_BASE_URL", "https://www.unodetech.xyz").rstrip("/")
 API_KEY = os.environ.get("API_KEY", "")
 MANAGEMENT_TOKEN = os.environ.get("MANAGEMENT_TOKEN", API_KEY)
 TEST_VIDEO = os.environ.get("TEST_VIDEO", "0") == "1"
