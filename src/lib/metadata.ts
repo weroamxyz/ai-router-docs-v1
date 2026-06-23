@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { siteBaseUrl, brandName, logoSrc } from './brand';
+import { siteBaseUrl, brandName, logoSrc, faviconSrc } from './brand';
 
 export function createMetadata(override: Metadata): Metadata {
   return {
     ...override,
     icons: {
-      icon: '/favicon.ico',
-      shortcut: '/favicon.ico',
+      icon: faviconSrc,
+      shortcut: faviconSrc,
       apple: logoSrc,
     },
     openGraph: {
