@@ -1,5 +1,6 @@
 import { i18n } from '@/lib/i18n';
 import { getLLMText, source } from '@/lib/source';
+import { brandName } from '@/lib/brand';
 
 const defaultLanguage = i18n.defaultLanguage;
 
@@ -37,10 +38,11 @@ export function generateLLMsText(
     })
     .sort((a, b) => a.docsUrl.localeCompare(b.docsUrl));
 
+  const name = brandName[lang as keyof typeof brandName] ?? brandName.en;
   const lines = [
-    `# 算力仓 Docs (${lang})`,
+    `# ${name} Docs (${lang})`,
     '',
-    '> LLM-friendly index for 算力仓 documentation.',
+    `> LLM-friendly index for ${name} documentation.`,
     '',
     '## Preferred Sources',
     `- [Full Documentation](${toAbsoluteUrl(origin, `/${lang}/llms-full.txt`)}): Full corpus in one file.`,

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { BookOpen, Code2 } from 'lucide-react';
 import { Hero, Typewriter } from './page.client';
 import { getLocalePath, i18n } from '@/lib/i18n';
+import { brandName } from '@/lib/brand';
 
 // ─── Content ────────────────────────────────────────────────────────────────
 
@@ -21,7 +22,7 @@ const content = {
     ],
     arch: {
       client: '客户端应用',
-      gateway: '算力仓网关',
+      gateway: `${brandName.zh}网关`,
       models: 'AI 模型',
       chips: [
         '🔒 用户管理', '⚖️ 负载均衡', '🧭 格式转换',
@@ -47,7 +48,7 @@ const content = {
     ],
     arch: {
       client: 'Client App',
-      gateway: 'Unode Gateway',
+      gateway: `${brandName.en} Gateway`,
       models: 'AI Models',
       chips: [
         '🔒 Auth', '⚖️ Load Balance', '🧭 Format Convert',
@@ -73,7 +74,7 @@ const content = {
     ],
     arch: {
       client: 'クライアントアプリ',
-      gateway: 'Unodeゲートウェイ',
+      gateway: `${brandName.ja}ゲートウェイ`,
       models: 'AIモデル',
       chips: [
         '🔒 認証', '⚖️ 負荷分散', '🧭 フォーマット変換',

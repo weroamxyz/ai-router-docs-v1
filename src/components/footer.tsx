@@ -1,7 +1,9 @@
+import { brandName } from '@/lib/brand';
+
 const copyright: Record<string, string> = {
-  zh: 'Copyright © 算力仓版权所有.',
-  en: '© 2025 Unode. All rights reserved.',
-  ja: '© 2025 Unode. All rights reserved.',
+  zh: `Copyright © ${brandName.zh}版权所有.`,
+  en: `© 2025 ${brandName.en}. All rights reserved.`,
+  ja: `© 2025 ${brandName.ja}. All rights reserved.`,
 };
 
 interface FooterProps {
