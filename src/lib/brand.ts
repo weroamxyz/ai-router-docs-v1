@@ -21,6 +21,8 @@ export const siteHost = siteBaseUrl.replace(/^https?:\/\//, '');
 
 export const logoSrc = process.env.NEXT_PUBLIC_LOGO_SRC ?? '/assets/logo.png';
 
+export const faviconSrc = process.env.NEXT_PUBLIC_FAVICON ?? '/favicon.ico';
+
 export const supportEmail =
   process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? 'support@unodetech.xyz';
 
