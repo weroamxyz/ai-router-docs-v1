@@ -36,7 +36,7 @@ export function baseOptions(locale: string): BaseLayoutProps {
     nav: {
       title: (
         <img
-          src="/logo-text.webp"
+          src="/assets/logo-text.webp"
           alt="Unode"
           className="block h-5 w-auto"
         />
