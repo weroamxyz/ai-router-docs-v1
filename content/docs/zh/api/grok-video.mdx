@@ -26,7 +26,7 @@ Grok 视频生成功能提供异步任务处理机制：
 2. 查询状态：通过任务 ID 查询生成进度和状态
 3. 获取结果：任务完成后获取生成的视频文件
 
-同一个 `/v1/video/generations` 端点根据请求体内容服务于三种用例：文生视频、图生视频、参考生视频（三者均通过 `metadata.mode` 的 `generate`，即默认值）。
+同一个 `/v1/video/generations` 端点根据 `images` 是否存在以及 `metadata.imageMode` 的取值，服务于三种用例：不传 `images` 为文生视频；传入 `images` 且 `metadata.imageMode` 省略或为 `"keyframe"`（默认值）为图生视频，此时仅使用第一张图片；传入 `images` 且 `metadata.imageMode` 为 `"reference"` 为参考生视频。
 
 ### 任务状态流转
 
@@ -83,7 +83,7 @@ queued → in_progress → completed
 
 ### 2. 图生视频
 
-在 `images` 中传入且仅传入一个图像 URL（或 base64 数据 URI）。该图像将成为视频的首帧并被锁定——这是默认的图像模式（`keyframe`），因此可省略 `metadata.imageMode`。
+在 `images` 中传入一个或多个图像 URL（或 base64 数据 URI），并省略 `metadata.imageMode` 或将其设为 `"keyframe"`（默认值）。仅使用数组中的**第一张**图像——该图像将成为视频的首帧并被锁定；其余图像将被忽略。
 
 **请求体：**
 
@@ -106,14 +106,14 @@ queued → in_progress → completed
 | --- | --- | --- | --- |
 | prompt | string | 是 | 描述图像应如何动起来的文本提示词 |
 | model | string | 是 | 模型名称：`grok-imagine-video` |
-| images | string 数组 | 是 | 且仅**一个**图像 URL 或 base64 数据 URI；将成为锁定的首帧 |
+| images | string 数组 | 是 | 一个或多个图像 URL 或 base64 数据 URI；仅使用**第一张**，将成为锁定的首帧 |
 | duration | integer | 是 | 取值：闭区间 `1`～`15` 的整数 |
 | size | string | 否 | 默认 `480p`。允许：`480p`、`720p`、`1080p` |
 | metadata | object | 否 | 额外元数据 |
 | metadata.imageMode | string | 否 | 默认 `keyframe`。本模式下须为 `keyframe`（或省略） |
 | metadata.aspect_ratio | string | 否 | 默认 `16:9`。允许：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`、`3:2`、`2:3` |
 
-> **注意：** 图生视频不支持单独传入末帧图像——若未设置 `metadata.imageMode: "reference"` 而传入多张图片，请求将被拒绝。
+> **注意：** 图生视频不支持单独传入末帧图像。如需使用多张图片而不锁定画面，请将 `metadata.imageMode` 设为 `"reference"`——参见[3. 参考生视频](#3-参考生视频)。
 
 ### 3. 参考生视频
 

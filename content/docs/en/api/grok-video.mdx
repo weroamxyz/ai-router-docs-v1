@@ -26,7 +26,7 @@ The Grok video generation feature provides an asynchronous task processing mecha
 2. Query Status: Query generation progress and status through task ID
 3. Get Results: Retrieve the generated video file after task completion
 
-The same `/v1/video/generations` endpoint serves three use cases, selected by the request body: text-to-video, image-to-video, and reference-to-video (all via `metadata.mode` `generate`, the default).
+The same `/v1/video/generations` endpoint serves three use cases, selected by whether `images` is present and by `metadata.imageMode`: no `images` performs text-to-video; `images` with `metadata.imageMode` omitted or set to `"keyframe"` (the default) performs image-to-video, using only the first image; `images` with `metadata.imageMode` set to `"reference"` performs reference-to-video.
 
 ### Task Status Flow
 
@@ -83,7 +83,7 @@ Text-to-video uses `prompt` and `model` only — no `images`. Optional top-level
 
 ### 2. Image-to-Video
 
-Provide exactly one image URL (or base64 data URI) in `images`. It becomes the video's first frame and is locked — this is the default image mode (`keyframe`), so `metadata.imageMode` can be omitted.
+Provide one or more image URLs (or base64 data URIs) in `images` with `metadata.imageMode` omitted or set to `"keyframe"` (the default). Only the **first** image in the array is used — it becomes the video's locked first frame; any additional images are ignored.
 
 **Request body:**
 
@@ -106,14 +106,14 @@ Provide exactly one image URL (or base64 data URI) in `images`. It becomes the v
 | --- | --- | --- | --- |
 | prompt | string | Yes | Text prompt describing how the image should animate |
 | model | string | Yes | Model name: `grok-imagine-video` |
-| images | array of string | Yes | Exactly **one** image URL or base64 data URI; becomes the locked first frame |
+| images | array of string | Yes | One or more image URLs or base64 data URIs; only the **first** is used, becoming the locked first frame |
 | duration | integer | Yes | Allowed: integers from `1` to `15`, inclusive |
 | size | string | No | Default `480p`. Allowed: `480p`, `720p`, `1080p` |
 | metadata | object | No | Extra metadata |
 | metadata.imageMode | string | No | Default `keyframe`. Must be `keyframe` (or omitted) for this mode |
 | metadata.aspect_ratio | string | No | Default `16:9`. Allowed: `1:1`, `16:9`, `9:16`, `4:3`, `3:4`, `3:2`, `2:3` |
 
-> **Note:** Image-to-video does not support a separate last-frame image — passing more than one image without `metadata.imageMode: "reference"` is rejected.
+> **Note:** Image-to-video does not support a separate last-frame image. To use multiple images without locking a frame, set `metadata.imageMode` to `"reference"` — see [3. Reference-to-Video](#3-reference-to-video).
 
 ### 3. Reference-to-Video
 
