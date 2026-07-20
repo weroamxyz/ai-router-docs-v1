@@ -4,6 +4,7 @@ import { Provider } from '@/components/provider';
 import '../global.css';
 import type { Metadata } from 'next';
 import { createMetadata, baseUrl } from '@/lib/metadata';
+import { brandName } from '@/lib/brand';
 import { notFound } from 'next/navigation';
 
 const { provider } = defineI18nUI(i18n, {
@@ -31,14 +32,14 @@ const titleMap: Record<
   { default: string; template: string; description: string }
 > = {
   en: {
-    default: 'Unode - The Foundation of Your AI Universe',
-    template: '%s | Unode',
+    default: `${brandName.en} - The Foundation of Your AI Universe`,
+    template: `%s | ${brandName.en}`,
     description:
       'Connect all AI providers, manage your AI assets, and build the future on a unified infrastructure platform. Deploy in minutes, scale effortlessly.',
   },
   zh: {
-    default: '算力仓 - AI 基座',
-    template: '%s | 算力仓',
+    default: `${brandName.zh} - AI 基座`,
+    template: `%s | ${brandName.zh}`,
     description:
       '承载所有 AI 应用，管理你的数字资产，连接未来的统一基础设施平台。快速部署，轻松扩展。',
   },
@@ -51,6 +52,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const lang = (await params).lang;
   const titles = titleMap[lang] || titleMap.en;
+  const brand = brandName[lang as keyof typeof brandName] ?? brandName.en;
 
   return createMetadata({
     metadataBase: baseUrl,
@@ -71,10 +73,8 @@ export async function generateMetadata({
       'Unified AI Interface',
       'Intelligent API Management',
     ],
-    authors: [
-      { name: '算力仓', url: 'https://github.com/QuantumNous/new-api' },
-    ],
-    creator: '算力仓',
+    authors: [{ name: brand, url: 'https://github.com/QuantumNous/new-api' }],
+    creator: brand,
     alternates: {
       languages: {
         en: '/en',
@@ -87,7 +87,7 @@ export async function generateMetadata({
       locale: lang,
       title: titles.default,
       description: titles.description,
-      siteName: '算力仓',
+      siteName: brand,
     },
     twitter: {
       card: 'summary_large_image',

@@ -1,6 +1,6 @@
 {
   "title": "API Reference",
-  "description": "Unode API Documentation",
+  "description": "((BRAND)) API Documentation",
   "icon": "Code",
   "root": true,
   "pages": [
@@ -27,6 +27,7 @@
     "wan-video",
     "wan-image-to-video",
     "wan-video-to-video",
-    "seedance-2-video"
+    "seedance-2-video",
+    "grok-video"
   ]
 }

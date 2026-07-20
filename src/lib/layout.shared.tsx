@@ -1,9 +1,8 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import { i18n } from '@/lib/i18n';
-import Image from 'next/image';
 import type { LinkItemType } from 'fumadocs-ui/layouts/docs';
 import { ExternalLink } from 'lucide-react';
-import { siteBaseUrl } from '@/lib/config';
+import { siteBaseUrl } from '@/lib/brand';
 
 const dashboardLabel: Record<string, string> = {
   en: 'Console',
@@ -31,34 +30,16 @@ export function linkItems(locale: string): LinkItemType[] {
   ];
 }
 
-const logo = (
-  <Image
-    alt="logo"
-    src="/assets/logo.png"
-    width={20}
-    height={20}
-    className="size-5"
-    priority
-    unoptimized
-  />
-);
-
-const brandName: Record<string, string> = {
-  zh: '算力仓文档',
-  en: 'Unode Docs',
-};
-
 export function baseOptions(locale: string): BaseLayoutProps {
   return {
     i18n,
     nav: {
       title: (
-        <>
-          {logo}
-          <span className="font-medium in-[header]:text-[15px] [.uwu_&]:hidden">
-            {brandName[locale] ?? 'Unode'}
-          </span>
-        </>
+        <img
+          src="/assets/logo-text.webp"
+          alt="Unode"
+          className="block h-5 w-auto"
+        />
       ),
     },
   };

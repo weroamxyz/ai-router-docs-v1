@@ -1,5 +1,6 @@
 'use client';
 import { siteBaseUrl } from '../lib/config';
+import { brandName } from '../lib/brand';
 import {
   type ComponentProps,
   createContext,
@@ -45,7 +46,7 @@ function Header() {
             target="_blank"
             rel="noreferrer noopener"
           >
-            算力仓
+            {brandName.zh}
           </a>
         </p>
       </div>
@@ -248,7 +249,7 @@ function Input(props: ComponentProps<'textarea'>) {
 
 const roleName: Record<string, string> = {
   user: 'you',
-  assistant: '算力仓 Docs',
+  assistant: `${brandName.zh} Docs`,
 };
 
 function Message({
