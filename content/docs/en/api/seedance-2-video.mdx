@@ -1,10 +1,10 @@
 ---
-title: SeeDance 2.0 Video API Documentation
+title: SeeDance Video API Documentation
 ---
 
-# SeeDance 2.0 Video API Documentation
+# SeeDance Video API Documentation
 
-ByteDance Doubao SeeDance 2.0 provides high-quality video generation models. This document describes the complete API interface specification for using SeeDance 2.0 models for video generation. All video generation calls use the same `/v1/video/generations` endpoint, with different parameters depending on the use case.
+ByteDance Doubao SeeDance provides high-quality video generation models. This document describes the complete API interface specification for using SeeDance 2.0 and SeeDance 2.5 models for video generation. All video generation calls use the same `/v1/video/generations` endpoint, with different parameters depending on the use case.
 
 ---
 
@@ -16,14 +16,18 @@ Currently supported models include:
 | --- | --- |
 | **doubao-seedance-2-0-fast-260128** | SeeDance 2.0 fast video generation model |
 | **doubao-seedance-2-0-260128** | SeeDance 2.0 video generation model |
+| **doubao-seedance-2-5-260628** | SeeDance 2.5 video generation model |
 | **dreamina-seedance-2-0-fast-260128** | SeeDance 2.0 fast video generation model (overseas version) |
 | **dreamina-seedance-2-0-260128** | SeeDance 2.0 video generation model (overseas version) |
+| **dreamina-seedance-2-5-260628** | SeeDance 2.5 video generation model (overseas version) |
+
+The request format is identical for every model above. The allowed values for some parameters differ between the 2.0 and 2.5 families — see [Model Differences](#model-differences).
 
 ---
 
 ## Overview
 
-The SeeDance 2.0 video generation feature provides an asynchronous task processing mechanism:
+The SeeDance video generation feature provides an asynchronous task processing mechanism:
 
 1. Submit Task: Send an image and text prompt to create a video generation task
 2. Query Status: Query generation progress and status through task ID
@@ -51,7 +55,45 @@ queued → in_progress → completed
 | POST | /v1/video/generations | Submit video generation task |
 | GET | /v1/video/generations/\{task_id\} | Query task status |
 
+## Model Differences
+
+SeeDance 2.5 accepts the same request shape as 2.0, but raises every reference-input ceiling, adds audio-only input and `mov` output, and constrains the aspect ratio in some modes. Requests that exceed the limits of the selected model are rejected with a `400 invalid_request` error before they reach the upstream provider.
+
+| Parameter / capability | SeeDance 2.0 series | SeeDance 2.5 |
+| --- | --- | --- |
+| `duration` | Default `5`. Integers `4`–`15`, or `-1` for automatic duration | Default `-1`. Integers `4`–`30`, or `-1` for automatic duration. Video editing tasks accept `-1` only |
+| `size` (resolution) | Default `720p`. `480p`, `720p`; `doubao-seedance-2-0-260128` and `dreamina-seedance-2-0-260128` also accept `1080p` and `4k` | Default `720p`. `480p`, `720p` |
+| `metadata.ratio` | Default `adaptive`. `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` | Same values for text-to-video and reference-to-video. First/last-frame, video editing and video extension accept `adaptive` only |
+| Reference images | Up to **9** | Up to **30** |
+| Reference videos | Up to **3**; see [constraints](#4-reference-videos) | Up to **10**; see [constraints](#4-reference-videos) |
+| Reference audio | Up to **3**; requires at least one reference image or video | Up to **10**; may be used on its own (see [Audio-Only Reference](#6-audio-only-reference-seedance-25)) |
+| Image input formats | `jpeg`, `png`, `webp`, `bmp`, `tiff`, `gif` | Also `heic` and `heif` |
+| `metadata.output_format` | Not supported (always `mp4`) | `mp4` (default) or `mov` |
+| Video editing / extension | Not supported | Supported (see [Video Editing and Extension](#7-video-editing-and-extension-seedance-25)) |
+
+### Additional `metadata` fields
+
+These optional fields are forwarded to the model as-is and apply to all SeeDance models unless noted otherwise.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| metadata.resolution | string | Alternative to the top-level `size` field; overrides it when both are present |
+| metadata.duration | integer | Alternative to the top-level `duration` field; overrides it when both are present |
+| metadata.generate_audio | boolean | Default `true`. When `true` the model generates voice, sound effects and background music matching the footage; `false` produces a silent video |
+| metadata.return_last_frame | boolean | Default `false`. When `true` the last frame of the generated video is also returned, as a PNG with the same pixel dimensions and no watermark |
+| metadata.watermark | boolean | Default `false`. When `true` an `AI Generated` watermark is shown in the lower-right corner |
+| metadata.output_format | string | SeeDance 2.5 only. `mp4` (default) or `mov`. `mov` uses high-colour-precision professional encoding (H.264 / YUV 4:4:4 / PCM audio) that some players cannot open; it is recommended for video editing and extension workflows |
+| metadata.priority | integer | Default `0`. Range `0`–`9`; a higher value moves the task ahead of lower-priority queued tasks |
+| metadata.execution_expires_after | integer | Default `172800` (48 hours). Range `3600`–`259200` seconds. A task still queued or running after this time is terminated |
+| metadata.safety_identifier | string | Stable, opaque per-end-user identifier, at most 64 characters. Use a hash of the user ID rather than personal data |
+| metadata.tools | array of object | Opts into upstream tooling, e.g. `[{"type": "web_search"}]`. SeeDance 2.0 and 2.5 only |
+| metadata.callback_url | string | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
+
+Metadata keys other than the ones documented here (and `imageMode`, `referenceVideos`, `referenceAudio`, which are consumed while building the request) are ignored.
+
 ## Usage Examples
+
+Examples 1–5 apply to both the 2.0 and 2.5 families; substitute any supported model name and observe the limits in [Model Differences](#model-differences). Examples 6–7 cover capabilities that only exist on SeeDance 2.5.
 
 ### 1. Basic Text Prompt
 
@@ -76,8 +118,8 @@ Text-to-video uses `prompt` and `model`. Optional top-level fields include `dura
 | --- | --- | --- | --- |
 | prompt | string | Yes | Text prompt for the video |
 | model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
-| duration | integer | No | Default `5`. Allowed: integers from `4` to `15`, inclusive, or `-1` for automatic duration selection |
-| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
+| duration | integer | No | Default `5` (2.0) or `-1` (2.5). Allowed: integers from `4` to `15` (2.0) or `4` to `30` (2.5), inclusive, or `-1` for automatic duration selection |
+| size | string | No | Default `720p`. Allowed: `480p`, `720p`; the non-fast 2.0 models also accept `1080p` and `4k` |
 | metadata | object | No | Extra metadata |
 | metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
 | metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
@@ -110,15 +152,15 @@ Provide one or two image URLs in `images`: the first entry is the first frame; w
 | prompt | string | Yes | Text prompt for the video |
 | model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
 | images | array of string | Yes | One or two image URLs: first frame, and optionally last frame |
-| duration | integer | No | Default `5`. Allowed: integers from `4` to `15`, inclusive, or `-1` for automatic duration selection |
-| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
+| duration | integer | No | Default `5` (2.0) or `-1` (2.5). Allowed: integers from `4` to `15` (2.0) or `4` to `30` (2.5), inclusive, or `-1` for automatic duration selection |
+| size | string | No | Default `720p`. Allowed: `480p`, `720p`; the non-fast 2.0 models also accept `1080p` and `4k` |
 | metadata | object | No | Extra metadata |
-| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
+| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive`. **SeeDance 2.5 accepts `adaptive` only in this mode** — the output always keeps the aspect ratio of the first frame |
 | metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
 
 ### 3. Reference Images
 
-This flow also uses the top-level `images` array. Set `metadata.imageMode` to `reference` so each URL is treated as a **reference image** (not first/last frame). In this mode you can pass **up to nine** images. Optional top-level `duration` and `size` work the same as in **Basic Text Prompt**. In the prompt, reference images with tags such as `[image 1]`, `[image 2]`, … in the same order as `images`.
+This flow also uses the top-level `images` array. Set `metadata.imageMode` to `reference` so each URL is treated as a **reference image** (not first/last frame). In this mode you can pass **up to nine** images on 2.0 models and **up to thirty** on 2.5 models. Optional top-level `duration` and `size` work the same as in **Basic Text Prompt**. In the prompt, reference images with tags such as `[image 1]`, `[image 2]`, … in the same order as `images`.
 
 **Request body:**
 
@@ -145,17 +187,25 @@ This flow also uses the top-level `images` array. Set `metadata.imageMode` to `r
 | --- | --- | --- | --- |
 | prompt | string | Yes | Text prompt; use `[image 1]` … `[image N]` to refer to images in order |
 | model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
-| images | array of string | Yes | Reference image URLs (up to **9** in this mode) |
-| duration | integer | No | Default `5`. Allowed: integers from `4` to `15`, inclusive, or `-1` for automatic duration selection |
-| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
+| images | array of string | Yes | Reference image URLs (up to **9** on 2.0, **30** on 2.5) |
+| duration | integer | No | Default `5` (2.0) or `-1` (2.5). Allowed: integers from `4` to `15` (2.0) or `4` to `30` (2.5), inclusive, or `-1` for automatic duration selection |
+| size | string | No | Default `720p`. Allowed: `480p`, `720p`; the non-fast 2.0 models also accept `1080p` and `4k` |
 | metadata | object | No | Must include `imageMode`: `reference` for reference-image mode |
 | metadata.imageMode | string | Yes (this mode) | Set to `reference` |
 | metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
 | metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
 
+**Constraints on each reference image:**
+
+- **Count:** up to **9** images on 2.0 models, up to **30** on 2.5 models.
+- **Format:** `jpeg`, `png`, `webp`, `bmp`, `tiff`, `gif`; 2.5 models also accept `heic` and `heif`.
+- **Aspect ratio** (width ÷ height): between **0.4** and **2.5** (inclusive).
+- **Width and height** (pixels): each between **300** and **6000** (inclusive).
+- **File size:** each image must not exceed **30 MB**, and the whole request body must not exceed **64 MB**. Prefer URLs over base64 for large files.
+
 ### 4. Reference Videos
 
-Pass reference clip URLs in `metadata.referenceVideos` (up to **three**). The prompt can refer to them in order (e.g. `[video 1]`, `[video 2]`, `[video 3]`).
+Pass reference clip URLs in `metadata.referenceVideos` (up to **three** on 2.0 models, up to **ten** on 2.5 models). The prompt can refer to them in order (e.g. `[video 1]`, `[video 2]`, `[video 3]`).
 
 **Request body:**
 
@@ -181,23 +231,23 @@ Pass reference clip URLs in `metadata.referenceVideos` (up to **three**). The pr
 | --- | --- | --- | --- |
 | prompt | string | Yes | Text prompt describing how to use the reference videos (e.g. `[video 1]`, `[video 2]`, `[video 3]` in order) |
 | model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
-| duration | integer | No | Default `5`. Allowed: integers from `4` to `15`, inclusive, or `-1` for automatic duration selection |
-| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
+| duration | integer | No | Default `5` (2.0) or `-1` (2.5). Allowed: integers from `4` to `15` (2.0) or `4` to `30` (2.5), inclusive, or `-1` for automatic duration selection |
+| size | string | No | Default `720p`. Allowed: `480p`, `720p`; the non-fast 2.0 models also accept `1080p` and `4k` |
 | metadata | object | No | Must include `referenceVideos` for this mode |
-| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
-| metadata.referenceVideos | array of string | Yes (this mode) | Up to **3** video URLs |
+| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive`. **SeeDance 2.5 accepts `adaptive` only** when the reference videos are edited or extended rather than used as style/content references |
+| metadata.referenceVideos | array of string | Yes (this mode) | Up to **3** video URLs on 2.0, up to **10** on 2.5 |
 | metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
 
 **Constraints on each reference video (and inputs overall):**
 
-- **Count:** at most 3 URLs in `referenceVideos`.
+- **Count:** at most 3 URLs in `referenceVideos` on 2.0 models, at most 10 on 2.5 models.
 - **Container format:** `mp4` or `mov`.
-- **Resolution:** `480p` or `720p`.
-- **Duration per clip:** each video must be between **2** and **15** seconds (inclusive); **combined** duration of all input videos must not exceed **15** seconds.
+- **Resolution:** `480p` or `720p` on 2.0 models; `480p`, `720p`, `1080p` or `4k` on 2.5 models.
+- **Duration per clip:** on 2.0 models each video must be between **2** and **15** seconds (inclusive) and the **combined** duration of all input videos must not exceed **15** seconds; on 2.5 models each video must be between **2** and **30** seconds and the combined duration must not exceed **30** seconds.
 - **Aspect ratio** (width ÷ height): between **0.4** and **2.5** (inclusive).
 - **Width and height** (pixels): each between **300** and **6000** (inclusive).
-- **Total pixels** (width × height): between **409600** and **927408** (inclusive).
-- **File size:** each file must not exceed **50 MB**.
+- **Total pixels** (width × height): between **409600** and **927408** (inclusive) on 2.0 models; between **409600** and **8295044** (inclusive) on 2.5 models.
+- **File size:** each file must not exceed **50 MB** on 2.0 models, or **200 MB** on 2.5 models.
 - **Frame rate:** between **24** and **60** fps (inclusive).
 
 ### 5. Multimodal References
@@ -234,14 +284,117 @@ Combine **reference images** (`images` + `metadata.imageMode`: `reference`), **r
 | --- | --- | --- | --- |
 | prompt | string | Yes | Long-form prompt referencing `[video N]`, `[audio N]`, `[image N]` as needed |
 | model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
-| images | array of string | No | Reference image URLs when `metadata.imageMode` is `reference` (up to **9**; see [Reference Images](#3-reference-images)) |
-| duration | integer | No | Default `5`. Allowed: integers from `4` to `15`, inclusive, or `-1` for automatic duration selection |
-| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
+| images | array of string | No | Reference image URLs when `metadata.imageMode` is `reference` (up to **9** on 2.0, **30** on 2.5; see [Reference Images](#3-reference-images)) |
+| duration | integer | No | Default `5` (2.0) or `-1` (2.5). Allowed: integers from `4` to `15` (2.0) or `4` to `30` (2.5), inclusive, or `-1` for automatic duration selection |
+| size | string | No | Default `720p`. Allowed: `480p`, `720p`; the non-fast 2.0 models also accept `1080p` and `4k` |
 | metadata | object | No | Combines modes below |
 | metadata.imageMode | string | When using `images` as references | Set to `reference` |
-| metadata.referenceVideos | array of string | No | Reference video URLs (up to **3**; constraints in [Reference Videos](#4-reference-videos)) |
-| metadata.referenceAudio | array of string | No | Reference audio URLs |
+| metadata.referenceVideos | array of string | No | Reference video URLs (up to **3** on 2.0, **10** on 2.5; constraints in [Reference Videos](#4-reference-videos)) |
+| metadata.referenceAudio | array of string | No | Reference audio URLs (up to **3** on 2.0, **10** on 2.5). On 2.0 models audio cannot be used alone — at least one reference image or video is required |
 | metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
+| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
+
+**Constraints on each reference audio clip:**
+
+- **Count:** at most 3 URLs in `referenceAudio` on 2.0 models, at most 10 on 2.5 models.
+- **Format:** `wav` or `mp3`.
+- **Duration per clip:** on 2.0 models each clip must be between **2** and **15** seconds (inclusive) with a **combined** duration of at most **15** seconds; on 2.5 models each clip must be between **2** and **30** seconds with a combined duration of at most **30** seconds.
+- **File size:** each file must not exceed **15 MB**, and the whole request body must not exceed **64 MB**. Prefer URLs over base64 for large files.
+- **Companion input:** on 2.0 models `referenceAudio` requires at least one reference image or reference video; requests without one are rejected with `400 invalid_request`. 2.5 models accept audio on its own.
+
+Generated audio is always mono, regardless of how many channels the input audio has.
+
+### 6. Audio-Only Reference (SeeDance 2.5)
+
+SeeDance 2.5 is the first family that accepts reference audio with no accompanying image or video. Pass the clip(s) in `metadata.referenceAudio` and describe the footage that should be generated around them; the model synchronises the visuals to the supplied audio. The same audio constraints as in [Multimodal References](#5-multimodal-references) apply.
+
+Sending this request to a 2.0 model returns `400 invalid_request`.
+
+**Request body:**
+
+```json
+{
+    "prompt": "A lone busker plays on a rain-slick city street at night, neon signs reflected in the puddles. Use [audio 1] as the performance audio and cut the camera moves to its rhythm; slow push-in on the guitar, then a wide shot as passers-by stop to listen.",
+    "model": "doubao-seedance-2-5-260628",
+    "duration": 12,
+    "size": "720p",
+    "metadata": {
+        "referenceAudio": [
+            "https://example.com/audio/street-guitar.mp3"
+        ],
+        "ratio": "16:9",
+        "callback_url": ""
+    }
+}
+```
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| prompt | string | No | Text prompt describing the visuals; refer to the clips as `[audio 1]`, `[audio 2]`, … in order |
+| model | string | Yes | A SeeDance 2.5 model name (e.g. `doubao-seedance-2-5-260628`) |
+| duration | integer | No | Default `-1`. Allowed: integers from `4` to `30`, inclusive, or `-1` for automatic duration selection |
+| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
+| metadata | object | Yes | Must include `referenceAudio` for this mode |
+| metadata.referenceAudio | array of string | Yes (this mode) | Up to **10** audio URLs, each `wav` or `mp3`, 2–30 seconds, 30 seconds combined |
+| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
+| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
+
+### 7. Video Editing and Extension (SeeDance 2.5)
+
+SeeDance 2.5 can also **edit** a source clip (restyle it, change its setting, replace its audio while keeping the original motion) or **extend** it forwards or backwards. Both flows pass the source clip in `metadata.referenceVideos` and describe the intended change in the prompt.
+
+The task type is inferred from the input assets and the prompt, so write the prompt explicitly — say "keep the original footage and only change …" for an edit, or "continue from the final frame …" for an extension. Both flows have stricter parameter constraints than plain reference-to-video:
+
+- `metadata.ratio` must be `adaptive`: the output always keeps the aspect ratio of the input video.
+- For **editing**, `duration` must be `-1`; the output length follows the input (and may be about 0.4 seconds shorter). The input clip must be **4–30 seconds** long.
+- For **extending**, `duration` may be set to any value from `4` to `30`, or `-1`.
+- `metadata.output_format`: `mov` is recommended for both the input and the output when the result feeds a professional post-production workflow.
+
+**Request body (editing):**
+
+```json
+{
+    "prompt": "Keep the original footage, framing and camera movement exactly as they are; restyle the whole shot as a hand-painted watercolour animation and change the overcast daytime sky to a violet sunset.",
+    "model": "doubao-seedance-2-5-260628",
+    "duration": -1,
+    "metadata": {
+        "referenceVideos": [
+            "https://example.com/video/street_walk.mov"
+        ],
+        "ratio": "adaptive",
+        "output_format": "mov",
+        "callback_url": ""
+    }
+}
+```
+
+**Request body (extending):**
+
+```json
+{
+    "prompt": "Continue [video 1] from its final frame without any cut: the camera keeps pushing down the corridor, the door at the far end swings open and reveals a sunlit courtyard.",
+    "model": "doubao-seedance-2-5-260628",
+    "duration": 10,
+    "metadata": {
+        "referenceVideos": [
+            "https://example.com/video/corridor.mp4"
+        ],
+        "ratio": "adaptive",
+        "callback_url": ""
+    }
+}
+```
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| prompt | string | Yes | Text prompt describing the edit or the continuation |
+| model | string | Yes | A SeeDance 2.5 model name (e.g. `doubao-seedance-2-5-260628`) |
+| duration | integer | No | Editing: must be `-1`. Extension: integers from `4` to `30`, inclusive, or `-1` |
+| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
+| metadata | object | Yes | Must include `referenceVideos` for this mode |
+| metadata.referenceVideos | array of string | Yes (this mode) | Source video URLs; constraints in [Reference Videos](#4-reference-videos). Editing requires a clip of **4–30** seconds |
+| metadata.ratio | string | No | Must be `adaptive` (the default) in these modes |
+| metadata.output_format | string | No | `mp4` (default) or `mov`. `mov` is recommended for editing and extension |
 | metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
 
 ## 1. Submit Video Generation Task
@@ -383,6 +536,8 @@ GET /v1/video/generations/{task_id}
     }
 }
 ```
+
+> **Note:** The returned `duration` is an integer approximation, calculated as the total frame count divided by 24 and rounded down. A 133-frame video lasts 5.54 seconds but reports a `duration` of `5`.
 
 ## 3. Callback
 
