@@ -1,7 +1,7 @@
 // Single source of truth for brand identity.
 //
 // All values resolve from NEXT_PUBLIC_* env vars at build time, defaulting to the
-// Unode (算力仓) brand. Switch brand per deployment by setting these env vars
+// MojogogoAI brand. Switch brand per deployment by setting these env vars
 // (e.g. the RoamAI Vercel project sets NEXT_PUBLIC_BRAND_NAME / _SITE_BASE_URL /
 // _LOGO_SRC). The same content/code therefore serves both brands.
 //
@@ -14,9 +14,9 @@ type Locale = 'en' | 'zh' | 'ja';
 const nameOverride = process.env.NEXT_PUBLIC_BRAND_NAME?.trim() || undefined;
 
 export const siteBaseUrl =
-  process.env.NEXT_PUBLIC_SITE_BASE_URL ?? 'https://www.unodetech.xyz';
+  process.env.NEXT_PUBLIC_SITE_BASE_URL ?? 'https://pay.hkit.ai';
 
-// Host part of siteBaseUrl, e.g. "www.unodetech.xyz" — used in wss:// examples.
+// Host part of siteBaseUrl, e.g. "pay.hkit.ai" — used in wss:// examples.
 export const siteHost = siteBaseUrl.replace(/^https?:\/\//, '');
 
 export const logoSrc = process.env.NEXT_PUBLIC_LOGO_SRC ?? '/assets/logo.png';
@@ -26,20 +26,19 @@ export const faviconSrc = process.env.NEXT_PUBLIC_FAVICON ?? '/favicon.ico';
 export const supportEmail =
   process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? 'support@unodetech.xyz';
 
-// Brand name per locale (defaults: en/ja "Unode", zh "算力仓"). A single
-// NEXT_PUBLIC_BRAND_NAME override applies to every locale (RoamAI has no
-// separate Chinese name).
+// Brand name per locale (default: "MojogogoAI" for every locale). A single
+// NEXT_PUBLIC_BRAND_NAME override applies to every locale.
 export const brandName: Record<Locale, string> = {
-  en: nameOverride ?? 'Unode',
-  ja: nameOverride ?? 'Unode',
-  zh: nameOverride ?? '算力仓',
+  en: nameOverride ?? 'MojogogoAI',
+  ja: nameOverride ?? 'MojogogoAI',
+  zh: nameOverride ?? 'MojogogoAI',
 };
 
 // Nav / documentation title per locale.
 export const docTitle: Record<Locale, string> = {
   en: `${brandName.en} Docs`,
   ja: `${brandName.ja} Docs`,
-  zh: nameOverride ? `${nameOverride} 文档` : '算力仓文档',
+  zh: `${brandName.zh} 文档`,
 };
 
 function asLocale(value: string): Locale {
