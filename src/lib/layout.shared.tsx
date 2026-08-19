@@ -37,8 +37,8 @@ export function baseOptions(locale: string): BaseLayoutProps {
       title: (
         <img
           src="/assets/logo-text.webp"
-          alt="Unode"
-          className="block h-5 w-auto"
+          alt="MOJO GOGO"
+          className="block h-9 w-auto rounded-sm"
         />
       ),
     },
