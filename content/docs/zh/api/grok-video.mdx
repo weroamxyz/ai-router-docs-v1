@@ -1,0 +1,299 @@
+---
+title: Grok 视频接口文档
+---
+
+# Grok 视频接口文档
+
+xAI 的 Grok Imagine 提供视频生成模型。本文档描述了使用 Grok 视频模型进行视频生成的 API 接口。所有视频生成调用都使用相同的 `/v1/video/generations` 端点，根据用例使用不同的参数。
+
+---
+
+## 支持的模型
+
+目前支持的模型包括：
+
+| 模型 | 描述 |
+| --- | --- |
+| **grok-imagine-video** | Grok Imagine 视频生成模型（文生视频、图生视频、参考生视频） |
+
+---
+
+## 概述
+
+Grok 视频生成功能提供异步任务处理机制：
+
+1. 提交任务：发送文本提示词（以及可选的一张或多张图片），创建视频任务
+2. 查询状态：通过任务 ID 查询生成进度和状态
+3. 获取结果：任务完成后获取生成的视频文件
+
+同一个 `/v1/video/generations` 端点根据 `images` 是否存在以及 `metadata.imageMode` 的取值，服务于三种用例：不传 `images` 为文生视频；传入 `images` 且 `metadata.imageMode` 省略或为 `"keyframe"`（默认值）为图生视频，此时仅使用第一张图片；传入 `images` 且 `metadata.imageMode` 为 `"reference"` 为参考生视频。
+
+### 任务状态流转
+
+```
+queued → in_progress → completed
+                ↓
+            failed
+```
+
+- queued: 任务已提交，等待处理
+- in_progress: 任务正在处理中
+- completed: 任务成功完成，视频已生成
+- failed: 任务失败
+
+> **注意：** Grok 视频不支持推送回调。请轮询 [2. 查询任务状态](#2-查询任务状态) 直到任务达到终止状态。
+
+---
+
+## 接口列表
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /v1/video/generations | 提交视频生成任务 |
+| GET | /v1/video/generations/\{task_id\} | 查询任务状态 |
+
+## 调用示例
+
+### 1. 文生视频
+
+文生视频仅使用 `prompt` 与 `model`，不传 `images`。顶层可选字段包括 `duration` 和 `size`，`aspect_ratio` 通过 `metadata` 设置。
+
+**请求体：**
+
+```json
+{
+    "prompt": "A glowing crystal-powered rocket launching from the red dunes of Mars",
+    "model": "grok-imagine-video",
+    "duration": 10,
+    "size": "720p",
+    "metadata": {
+        "aspect_ratio": "16:9"
+    }
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| prompt | string | 是 | 视频的文本提示词 |
+| model | string | 是 | 模型名称：`grok-imagine-video` |
+| duration | integer | 是 | 取值：闭区间 `1`～`15` 的整数 |
+| size | string | 否 | 默认 `480p`。允许：`480p`、`720p`、`1080p` |
+| metadata | object | 否 | 额外元数据 |
+| metadata.aspect_ratio | string | 否 | 默认 `16:9`（省略时由 xAI 应用）。允许：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`、`3:2`、`2:3` |
+
+### 2. 图生视频
+
+在 `images` 中传入一个或多个图像 URL（或 base64 数据 URI），并省略 `metadata.imageMode` 或将其设为 `"keyframe"`（默认值）。仅使用数组中的**第一张**图像——该图像将成为视频的首帧并被锁定；其余图像将被忽略。
+
+**请求体：**
+
+```json
+{
+    "prompt": "The rocket's engines ignite and it lifts off in a cloud of dust",
+    "model": "grok-imagine-video",
+    "images": [
+        "https://example.com/rocket-on-launchpad.jpg"
+    ],
+    "duration": 8,
+    "size": "720p",
+    "metadata": {
+        "aspect_ratio": "16:9"
+    }
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| prompt | string | 是 | 描述图像应如何动起来的文本提示词 |
+| model | string | 是 | 模型名称：`grok-imagine-video` |
+| images | string 数组 | 是 | 一个或多个图像 URL 或 base64 数据 URI；仅使用**第一张**，将成为锁定的首帧 |
+| duration | integer | 是 | 取值：闭区间 `1`～`15` 的整数 |
+| size | string | 否 | 默认 `480p`。允许：`480p`、`720p`、`1080p` |
+| metadata | object | 否 | 额外元数据 |
+| metadata.imageMode | string | 否 | 默认 `keyframe`。本模式下须为 `keyframe`（或省略） |
+| metadata.aspect_ratio | string | 否 | 默认 `16:9`。允许：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`、`3:2`、`2:3` |
+
+> **注意：** 图生视频不支持单独传入末帧图像。如需使用多张图片而不锁定画面，请将 `metadata.imageMode` 设为 `"reference"`——参见[3. 参考生视频](#3-参考生视频)。
+
+### 3. 参考生视频
+
+将 `metadata.imageMode` 设置为 `"reference"`，此时 `images` 中的每个 URL 都被视为**参考图**，用于影响视频生成而不锁定任何画面。可在提示词中使用 `<IMAGE_1>`、`<IMAGE_2>` 等标签，按 `images` 中的顺序引用参考图。
+
+**请求体：**
+
+```json
+{
+    "prompt": "The model from <IMAGE_1> walks the runway wearing the shirt from <IMAGE_2>",
+    "model": "grok-imagine-video",
+    "images": [
+        "https://example.com/model-reference.jpg",
+        "https://example.com/shirt-reference.jpg"
+    ],
+    "duration": 10,
+    "size": "720p",
+    "metadata": {
+        "imageMode": "reference",
+        "aspect_ratio": "16:9"
+    }
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| prompt | string | 是 | 文本提示词；使用 `<IMAGE_1>` … `<IMAGE_N>` 按顺序引用图片 |
+| model | string | 是 | 模型名称：`grok-imagine-video` |
+| images | string 数组 | 是 | 参考图像 URL 或 base64 数据 URI（一个或多个） |
+| duration | integer | 是 | 取值：闭区间 `1`～`15` 的整数 |
+| size | string | 否 | 默认 `480p`。允许：`480p`、`720p`、`1080p` |
+| metadata | object | 否 | 本模式需包含 `imageMode` |
+| metadata.imageMode | string | 是（本模式） | 取值为 `reference` |
+| metadata.aspect_ratio | string | 否 | 默认 `16:9`。允许：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`、`3:2`、`2:3` |
+
+## 1. 提交视频生成任务
+
+请求体请参考上文 [调用示例](#调用示例)；按实际场景填写字段。
+
+### 完整请求：
+
+```bash
+curl -X POST "((SITE_URL))/v1/video/generations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer API_KEY" \
+  -d @request-body.json
+```
+
+### 接口地址:
+
+```
+POST /v1/video/generations
+```
+
+### 请求头:
+
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| Content-Type | string | 是 | application/json |
+| Authorization | string | 是 | Bearer API_KEY |
+
+### 响应示例:
+
+```json
+{
+  "id": "TASK_ID",
+  "task_id": "TASK_ID",
+  "object": "video",
+  "model": "grok-imagine-video",
+  "status": "queued",
+  "progress": 0,
+  "created_at": 1776717808
+}
+```
+
+### 响应字段说明:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | string | 任务 ID，用于后续查询任务状态 |
+| task_id | string | 与 `id` 相同；为向后兼容保留 |
+| object | string | 固定为 `video` |
+| model | string | 本任务使用的模型 |
+| status | string | 提交后立即固定为 `queued` |
+| progress | integer | 提交后立即固定为 `0` |
+| created_at | integer | 任务创建时间的 Unix 时间戳（秒） |
+
+## 2. 查询任务状态
+
+### 完整请求：
+
+```bash
+curl -X GET "((SITE_URL))/v1/video/generations/TASK_ID" \
+  -H "Authorization: Bearer API_KEY"
+```
+
+### 接口地址:
+
+```
+GET /v1/video/generations/{task_id}
+```
+
+### 请求头:
+
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| Authorization | string | 是 | Bearer API_KEY |
+
+### 路径参数:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| task_id | string | 是 | 任务 ID |
+
+### 响应示例（处理中）：
+
+```json
+{
+    "code": "success",
+    "message": "",
+    "data": {
+        "task_id": "<TASK_ID>",
+        "action": "generate",
+        "status": "IN_PROGRESS",
+        "fail_reason": "",
+        "submit_time": 1776717808,
+        "start_time": 1776717809,
+        "finish_time": 0,
+        "progress": "50%",
+        "data": {
+            "status": "pending",
+            "model": "grok-imagine-video"
+        }
+    }
+}
+```
+
+### 响应示例（成功）：
+
+> **注意：** 任务成功时，`data.fail_reason` 字段会包含视频下载 URL 而非错误信息。推荐通过 `data.data.video.url` 字段获取视频地址。
+
+```json
+{
+    "code": "success",
+    "message": "",
+    "data": {
+        "task_id": "<TASK_ID>",
+        "action": "generate",
+        "status": "SUCCESS",
+        "fail_reason": "<VIDEO_URL>",
+        "submit_time": 1776717808,
+        "start_time": 1776717809,
+        "finish_time": 1776717962,
+        "progress": "100%",
+        "data": {
+            "status": "done",
+            "model": "grok-imagine-video",
+            "video": {
+                "url": "<VIDEO_URL>",
+                "duration": 8,
+                "respect_moderation": true
+            },
+            "usage": {
+                "cost_in_usd_ticks": 2500000000
+            }
+        }
+    }
+}
+```
+
+### 响应字段说明:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| data.status | string | 归一化后的任务状态：`QUEUED`、`IN_PROGRESS`、`SUCCESS`、`FAILURE` |
+| data.action | string | `textGenerate`（文生视频）、`generate`（图生视频）或 `referenceGenerate`（参考生视频） |
+| data.fail_reason | string | 成功时：视频 URL（见上方注意事项）。失败时：错误信息 |
+| data.progress | string | 百分比字符串，如 `"50%"`、`"100%"` |
+| data.data.status | string | xAI 原始状态：`pending`、`done`、`expired`、`failed` |
+| data.data.video.url | string | 生成视频的直链地址（`data.data.status` 为 `done` 时出现） |
+| data.data.video.duration | number | 生成视频的实际时长（秒） |
+| data.data.usage.cost_in_usd_ticks | integer | xAI 对本任务收取的确切费用，单位为 USD ticks（10,000,000,000 ticks = $1） |
+| data.data.error.message | string | 错误信息（`data.data.status` 为 `failed` 或 `expired` 时出现） |

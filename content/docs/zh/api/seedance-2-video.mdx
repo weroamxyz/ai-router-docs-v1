@@ -1,10 +1,10 @@
 ---
-title: SeeDance 2.0 视频接口文档
+title: SeeDance 视频接口文档
 ---
 
-# SeeDance 2.0 视频接口文档
+# SeeDance 视频接口文档
 
-豆包 SeeDance 2.0 提供高质量视频生成模型，本文档描述了使用 SeeDance 2.0 模型进行视频生成的完整 API 接口规范。所有视频生成调用都使用相同的 `/v1/video/generations` 端点，根据用例使用不同的参数。
+豆包 SeeDance 提供高质量视频生成模型，本文档描述了使用 SeeDance 2.0 与 SeeDance 2.5 模型进行视频生成的完整 API 接口规范。所有视频生成调用都使用相同的 `/v1/video/generations` 端点，根据用例使用不同的参数。
 
 ---
 
@@ -16,14 +16,18 @@ title: SeeDance 2.0 视频接口文档
 | --- | --- |
 | **doubao-seedance-2-0-fast-260128** | SeeDance 2.0 快速视频生成模型 |
 | **doubao-seedance-2-0-260128** | SeeDance 2.0 视频生成模型 |
-| **doubao-seedance-2-0-fast-260128** | SeeDance 2.0 快速视频生成模型（海外版） |
-| **doubao-seedance-2-0-260128** | SeeDance 2.0 视频生成模型（海外版） |
+| **doubao-seedance-2-5-260628** | SeeDance 2.5 视频生成模型 |
+| **dreamina-seedance-2-0-fast-260128** | SeeDance 2.0 快速视频生成模型（海外版） |
+| **dreamina-seedance-2-0-260128** | SeeDance 2.0 视频生成模型（海外版） |
+| **dreamina-seedance-2-5-260628** | SeeDance 2.5 视频生成模型（海外版） |
+
+上述所有模型的请求格式完全一致。部分参数的取值范围在 2.0 与 2.5 系列之间存在差异，详见 [模型差异](#模型差异)。
 
 ---
 
 ## 概述
 
-SeeDance 2.0 视频生成功能提供异步任务处理机制：
+SeeDance 视频生成功能提供异步任务处理机制：
 
 1. 提交任务：发送图像和文本提示词，创建视频生成任务
 2. 查询状态：通过任务 ID 查询生成进度和状态
@@ -51,7 +55,45 @@ queued → in_progress → completed
 | POST | /v1/video/generations | 提交视频生成任务 |
 | GET | /v1/video/generations/\{task_id\} | 查询任务状态 |
 
+## 模型差异
+
+SeeDance 2.5 的请求结构与 2.0 完全相同，但提高了所有参考输入的上限，新增了纯音频输入与 `mov` 输出，并在部分模式下限制了宽高比。超出所选模型限制的请求会在转发到上游服务商之前，直接返回 `400 invalid_request` 错误。
+
+| 参数 / 能力 | SeeDance 2.0 系列 | SeeDance 2.5 |
+| --- | --- | --- |
+| `duration` | 默认 `5`。整数 `4`～`15`，或 `-1` 表示自动选择时长 | 默认 `-1`。整数 `4`～`30`，或 `-1` 表示自动选择时长。视频编辑任务仅接受 `-1` |
+| `size`（分辨率） | 默认 `720p`。`480p`、`720p`；`doubao-seedance-2-0-260128` 与 `dreamina-seedance-2-0-260128` 还支持 `1080p` 与 `4k` | 默认 `720p`。`480p`、`720p` |
+| `metadata.ratio` | 默认 `adaptive`。`16:9`、`4:3`、`1:1`、`3:4`、`9:16`、`21:9`、`adaptive` | 文生视频与参考生视频支持相同取值。首末帧、视频编辑与视频续写仅接受 `adaptive` |
+| 参考图像 | 最多 **9** 张 | 最多 **30** 张 |
+| 参考视频 | 最多 **3** 个；见 [约束](#4-参考视频) | 最多 **10** 个；见 [约束](#4-参考视频) |
+| 参考音频 | 最多 **3** 个；须同时提供至少一个参考图或参考视频 | 最多 **10** 个；可单独使用（见 [纯音频参考](#6-seedance-25-纯音频参考)） |
+| 图像输入格式 | `jpeg`、`png`、`webp`、`bmp`、`tiff`、`gif` | 额外支持 `heic` 与 `heif` |
+| `metadata.output_format` | 不支持（始终为 `mp4`） | `mp4`（默认）或 `mov` |
+| 视频编辑 / 续写 | 不支持 | 支持（见 [视频编辑与续写](#7-seedance-25-视频编辑与续写)） |
+
+### 其他 `metadata` 字段
+
+以下可选字段会原样转发给模型，除特别说明外适用于所有 SeeDance 模型。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| metadata.resolution | string | 顶层 `size` 字段的替代项；两者同时存在时以此字段为准 |
+| metadata.duration | integer | 顶层 `duration` 字段的替代项；两者同时存在时以此字段为准 |
+| metadata.generate_audio | boolean | 默认 `true`。为 `true` 时模型会生成与画面匹配的人声、音效与背景音乐；为 `false` 时生成无声视频 |
+| metadata.return_last_frame | boolean | 默认 `false`。为 `true` 时会额外返回生成视频的末帧，格式为 PNG，像素尺寸与视频一致且不带水印 |
+| metadata.watermark | boolean | 默认 `false`。为 `true` 时在右下角显示 `AI Generated` 水印 |
+| metadata.output_format | string | 仅 SeeDance 2.5 支持。`mp4`（默认）或 `mov`。`mov` 采用高色彩精度的专业编码（H.264 / YUV 4:4:4 / PCM 音频），部分播放器无法打开；推荐用于视频编辑与续写工作流 |
+| metadata.priority | integer | 默认 `0`。取值 `0`～`9`；数值越大，任务在排队队列中越靠前 |
+| metadata.execution_expires_after | integer | 默认 `172800`（48 小时）。取值 `3600`～`259200` 秒。超过该时间仍在排队或运行的任务会被终止 |
+| metadata.safety_identifier | string | 稳定且不可反推的终端用户标识，最长 64 个字符。请使用用户 ID 的哈希值，而非个人信息 |
+| metadata.tools | array of object | 启用上游工具能力，例如 `[{"type": "web_search"}]`。仅 SeeDance 2.0 与 2.5 支持 |
+| metadata.callback_url | string | 若设置，将尝试向指定 URL 发送回调。详见 [回调](#3-回调) |
+
+除上述字段（以及构建请求时会被消费的 `imageMode`、`referenceVideos`、`referenceAudio`）之外的 metadata 键都会被忽略。
+
 ## 调用示例
+
+示例 1～5 同时适用于 2.0 与 2.5 系列；可替换为任意受支持的模型名称，并遵守 [模型差异](#模型差异) 中的限制。示例 6～7 为 SeeDance 2.5 独有的能力。
 
 ### 1. 基础文本提示词
 
@@ -76,11 +118,11 @@ queued → in_progress → completed
 | --- | --- | --- | --- |
 | prompt | string | 是 | 文生视频提示词 |
 | model | string | 是 | 模型名称（如 `doubao-seedance-2-0-fast-260128`） |
-| duration | integer | 否 | 默认 `5`。取值：闭区间 `4`～`15` 的整数，或 `-1` 表示自动选择时长 |
-| size | string | 否 | 默认 `720p`。允许：`480p`、`720p` |
+| duration | integer | 否 | 默认 `5`（2.0）或 `-1`（2.5）。取值：闭区间 `4`～`15`（2.0）或 `4`～`30`（2.5）的整数，或 `-1` 表示自动选择时长 |
+| size | string | 否 | 默认 `720p`。允许：`480p`、`720p`；2.0 非 fast 模型还支持 `1080p` 与 `4k` |
 | metadata | object | 否 | 额外元数据 |
 | metadata.ratio | string | 否 | 默认 `adaptive`。允许：`16:9`、`4:3`、`1:1`、`3:4`、`9:16`、`21:9`、`adaptive` |
-| metadata.callback_url | string | 否 | 若设置，将尝试向指定 URL 发送回调。详见 [回调](#3-callback)。 |
+| metadata.callback_url | string | 否 | 若设置，将尝试向指定 URL 发送回调。详见 [回调](#3-回调)。 |
 
 ### 2. 首帧 / 末帧图像
 
@@ -110,15 +152,15 @@ queued → in_progress → completed
 | prompt | string | 是 | 视频生成提示词 |
 | model | string | 是 | 模型名称（如 `doubao-seedance-2-0-fast-260128`） |
 | images | string 数组 | 是 | 1～2 个图像 URL：首帧，以及可选的末帧 |
-| duration | integer | 否 | 默认 `5`。取值：闭区间 `4`～`15` 的整数，或 `-1` 表示自动选择时长 |
-| size | string | 否 | 默认 `720p`。允许：`480p`、`720p` |
+| duration | integer | 否 | 默认 `5`（2.0）或 `-1`（2.5）。取值：闭区间 `4`～`15`（2.0）或 `4`～`30`（2.5）的整数，或 `-1` 表示自动选择时长 |
+| size | string | 否 | 默认 `720p`。允许：`480p`、`720p`；2.0 非 fast 模型还支持 `1080p` 与 `4k` |
 | metadata | object | 否 | 额外元数据 |
-| metadata.ratio | string | 否 | 默认 `adaptive`。允许：`16:9`、`4:3`、`1:1`、`3:4`、`9:16`、`21:9`、`adaptive` |
-| metadata.callback_url | string | 否 | 若设置，将尝试向指定 URL 发送回调。详见 [回调](#3-callback)。 |
+| metadata.ratio | string | 否 | 默认 `adaptive`。允许：`16:9`、`4:3`、`1:1`、`3:4`、`9:16`、`21:9`、`adaptive`。**SeeDance 2.5 在本模式下仅接受 `adaptive`**——输出始终保持首帧的宽高比 |
+| metadata.callback_url | string | 否 | 若设置，将尝试向指定 URL 发送回调。详见 [回调](#3-回调)。 |
 
 ### 3. 参考图像
 
-同样使用顶层 `images` 数组。在 `metadata` 中设置 `"imageMode": "reference"` 时，图片作为**参考图**输入（而非首末帧）。此模式下最多可传 **9** 张图。顶层可选 `duration`、`size`，以及 **`metadata.ratio`**，与 **基础文本提示词** 一致。提示词中可用 `[图1]`、`[图2]` 等与 `images` 顺序对应的占位引用。
+同样使用顶层 `images` 数组。在 `metadata` 中设置 `"imageMode": "reference"` 时，图片作为**参考图**输入（而非首末帧）。此模式下 2.0 模型最多可传 **9** 张图，2.5 模型最多可传 **30** 张。顶层可选 `duration`、`size`，以及 **`metadata.ratio`**，与 **基础文本提示词** 一致。提示词中可用 `[图1]`、`[图2]` 等与 `images` 顺序对应的占位引用。
 
 **请求体：**
 
@@ -145,17 +187,25 @@ queued → in_progress → completed
 | --- | --- | --- | --- |
 | prompt | string | 是 | 提示词；使用 `[图1]` … `[图N]` 按顺序引用参考图 |
 | model | string | 是 | 模型名称（如 `doubao-seedance-2-0-fast-260128`） |
-| images | string 数组 | 是 | 参考图 URL（本模式下最多 **9** 张） |
-| duration | integer | 否 | 默认 `5`。取值：闭区间 `4`～`15` 的整数，或 `-1` 表示自动选择时长 |
-| size | string | 否 | 默认 `720p`。允许：`480p`、`720p` |
+| images | string 数组 | 是 | 参考图 URL（2.0 最多 **9** 张，2.5 最多 **30** 张） |
+| duration | integer | 否 | 默认 `5`（2.0）或 `-1`（2.5）。取值：闭区间 `4`～`15`（2.0）或 `4`～`30`（2.5）的整数，或 `-1` 表示自动选择时长 |
+| size | string | 否 | 默认 `720p`。允许：`480p`、`720p`；2.0 非 fast 模型还支持 `1080p` 与 `4k` |
 | metadata | object | 否 | 本模式需包含 `imageMode` |
 | metadata.imageMode | string | 是（本模式） | 取值为 `reference` |
 | metadata.ratio | string | 否 | 默认 `adaptive`。允许：`16:9`、`4:3`、`1:1`、`3:4`、`9:16`、`21:9`、`adaptive` |
-| metadata.callback_url | string | 否 | 若设置，将尝试向指定 URL 发送回调。详见 [回调](#3-callback)。 |
+| metadata.callback_url | string | 否 | 若设置，将尝试向指定 URL 发送回调。详见 [回调](#3-回调)。 |
+
+**单张参考图约束：**
+
+- **数量：** 2.0 模型最多 **9** 张，2.5 模型最多 **30** 张。
+- **格式：** `jpeg`、`png`、`webp`、`bmp`、`tiff`、`gif`；2.5 模型还支持 `heic` 与 `heif`。
+- **宽高比**（宽 ÷ 高）：须在 **[0.4, 2.5]**（含端点）。
+- **宽、高**（像素）：各自须在 **[300, 6000]**（含端点）。
+- **文件大小：** 单张图片不超过 **30 MB**，且整个请求体不超过 **64 MB**。大文件建议使用 URL 而非 base64。
 
 ### 4. 参考视频
 
-在 `metadata.referenceVideos` 中传入参考视频 URL（最多 **3** 个）。提示词中可按顺序指代这些视频（如下例中的 视频1 / 视频2 / 视频3）。
+在 `metadata.referenceVideos` 中传入参考视频 URL（2.0 模型最多 **3** 个，2.5 模型最多 **10** 个）。提示词中可按顺序指代这些视频（如下例中的 视频1 / 视频2 / 视频3）。
 
 **请求体：**
 
@@ -181,28 +231,28 @@ queued → in_progress → completed
 | --- | --- | --- | --- |
 | prompt | string | 是 | 描述如何衔接、使用参考视频的提示词（如按顺序使用 `[video 1]`、`[video 2]`、`[video 3]`） |
 | model | string | 是 | 模型名称（如 `doubao-seedance-2-0-fast-260128`） |
-| duration | integer | 否 | 默认 `5`。取值：闭区间 `4`～`15` 的整数，或 `-1` 表示自动选择时长 |
-| size | string | 否 | 默认 `720p`。允许：`480p`、`720p` |
+| duration | integer | 否 | 默认 `5`（2.0）或 `-1`（2.5）。取值：闭区间 `4`～`15`（2.0）或 `4`～`30`（2.5）的整数，或 `-1` 表示自动选择时长 |
+| size | string | 否 | 默认 `720p`。允许：`480p`、`720p`；2.0 非 fast 模型还支持 `1080p` 与 `4k` |
 | metadata | object | 否 | 本模式需包含 `referenceVideos` |
-| metadata.ratio | string | 否 | 默认 `adaptive`。允许：`16:9`、`4:3`、`1:1`、`3:4`、`9:16`、`21:9`、`adaptive` |
-| metadata.referenceVideos | string 数组 | 是（本模式） | 参考视频 URL，最多 **3** 个 |
-| metadata.callback_url | string | 否 | 若设置，将尝试向指定 URL 发送回调。详见 [回调](#3-callback)。 |
+| metadata.ratio | string | 否 | 默认 `adaptive`。允许：`16:9`、`4:3`、`1:1`、`3:4`、`9:16`、`21:9`、`adaptive`。当参考视频用于编辑或续写（而非作为风格 / 内容参考）时，**SeeDance 2.5 仅接受 `adaptive`** |
+| metadata.referenceVideos | string 数组 | 是（本模式） | 参考视频 URL，2.0 最多 **3** 个，2.5 最多 **10** 个 |
+| metadata.callback_url | string | 否 | 若设置，将尝试向指定 URL 发送回调。详见 [回调](#3-回调)。 |
 
 **参考视频（及输入总体）约束：**
 
-- **数量：** `referenceVideos` 中最多 3 个 URL。
+- **数量：** `referenceVideos` 中，2.0 模型最多 3 个 URL，2.5 模型最多 10 个。
 - **封装格式：** `mp4` 或 `mov`。
-- **分辨率：** `480p` 或 `720p`。
-- **单段时长：** 每个视频时长须在 **[2, 15]** 秒（含端点）；**所有输入视频时长之和**不得超过 **15** 秒。
+- **分辨率：** 2.0 模型为 `480p` 或 `720p`；2.5 模型为 `480p`、`720p`、`1080p` 或 `4k`。
+- **单段时长：** 2.0 模型下每个视频时长须在 **[2, 15]** 秒（含端点），且**所有输入视频时长之和**不得超过 **15** 秒；2.5 模型下每个视频时长须在 **[2, 30]** 秒，时长之和不得超过 **30** 秒。
 - **宽高比**（宽 ÷ 高）：须在 **[0.4, 2.5]**（含端点）。
 - **宽、高**（像素）：各自须在 **[300, 6000]**（含端点）。
-- **总像素数**（宽 × 高）：须在 **[409600, 927408]**（含端点）。
-- **文件大小：** 单个文件不超过 **50 MB**。
+- **总像素数**（宽 × 高）：2.0 模型须在 **[409600, 927408]**（含端点）；2.5 模型须在 **[409600, 8295044]**（含端点）。
+- **文件大小：** 2.0 模型下单个文件不超过 **50 MB**，2.5 模型下不超过 **200 MB**。
 - **帧率：** 须在 **[24, 60]** fps（含端点）。
 
 ### 5. 多模态参考
 
-可在同一请求中组合 **参考图**（`images` + `metadata.imageMode`: `reference`）、**参考视频**（`metadata.referenceVideos`）与 **参考音频**（`metadata.referenceAudio`）。提示词中可按资源角色指代（如 视频1、音频1、图片1 / 图片2）。参考视频仍需满足上文 **参考视频** 一节中的约束。
+可在同一请求中组合 **参考图**（`images` + `metadata.imageMode`: `reference`）、**参考视频**（`metadata.referenceVideos`）与 **参考音频**（`metadata.referenceAudio`）。提示词中可按资源角色指代（如 视频1、音频1、图片1 / 图片2）。参考视频仍需满足 [参考视频](#4-参考视频) 一节中的约束。
 
 **请求体：**
 
@@ -234,14 +284,117 @@ queued → in_progress → completed
 | --- | --- | --- | --- |
 | prompt | string | 是 | 长提示词，可按需使用 `[video N]`、`[audio N]`、`[image N]` 等指代资源 |
 | model | string | 是 | 模型名称（如 `doubao-seedance-2-0-fast-260128`） |
-| images | string 数组 | 否 | 当 `metadata.imageMode` 为 `reference` 时作为参考图（最多 9 张，见上文 **参考图像**） |
-| duration | integer | 否 | 默认 `5`。取值：闭区间 `4`～`15` 的整数，或 `-1` 表示自动选择时长 |
-| size | string | 否 | 默认 `720p`。允许：`480p`、`720p` |
+| images | string 数组 | 否 | 当 `metadata.imageMode` 为 `reference` 时作为参考图（2.0 最多 9 张，2.5 最多 30 张，见 [参考图像](#3-参考图像)） |
+| duration | integer | 否 | 默认 `5`（2.0）或 `-1`（2.5）。取值：闭区间 `4`～`15`（2.0）或 `4`～`30`（2.5）的整数，或 `-1` 表示自动选择时长 |
+| size | string | 否 | 默认 `720p`。允许：`480p`、`720p`；2.0 非 fast 模型还支持 `1080p` 与 `4k` |
 | metadata | object | 否 | 组合下列字段 |
 | metadata.imageMode | string | 使用参考图时 | 取值为 `reference` |
-| metadata.referenceVideos | string 数组 | 否 | 参考视频 URL（最多 3 个，约束见 **参考视频**） |
-| metadata.referenceAudio | string 数组 | 否 | 参考音频 URL |
+| metadata.referenceVideos | string 数组 | 否 | 参考视频 URL（2.0 最多 3 个，2.5 最多 10 个，约束见 [参考视频](#4-参考视频)） |
+| metadata.referenceAudio | string 数组 | 否 | 参考音频 URL（2.0 最多 3 个，2.5 最多 10 个）。2.0 模型下音频不能单独使用，须同时提供至少一个参考图或参考视频 |
 | metadata.ratio | string | 否 | 默认 `adaptive`。允许：`16:9`、`4:3`、`1:1`、`3:4`、`9:16`、`21:9`、`adaptive` |
+| metadata.callback_url | string | 否 | 若设置，将尝试向指定 URL 发送回调。详见 [回调](#3-回调)。 |
+
+**单段参考音频约束：**
+
+- **数量：** `referenceAudio` 中，2.0 模型最多 3 个 URL，2.5 模型最多 10 个。
+- **格式：** `wav` 或 `mp3`。
+- **单段时长：** 2.0 模型下每段音频时长须在 **[2, 15]** 秒（含端点），且时长之和不得超过 **15** 秒；2.5 模型下每段音频时长须在 **[2, 30]** 秒，时长之和不得超过 **30** 秒。
+- **文件大小：** 单个文件不超过 **15 MB**，且整个请求体不超过 **64 MB**。大文件建议使用 URL 而非 base64。
+- **配套输入：** 2.0 模型下 `referenceAudio` 须搭配至少一个参考图或参考视频；否则请求会被拒绝并返回 `400 invalid_request`。2.5 模型允许单独使用音频。
+
+无论输入音频有多少声道，生成的音频始终为单声道。
+
+### 6. SeeDance 2.5 纯音频参考
+
+SeeDance 2.5 是首个支持在没有图像、视频的情况下单独使用参考音频的系列。在 `metadata.referenceAudio` 中传入音频，并在提示词中描述需要围绕该音频生成的画面；模型会将画面与所提供的音频同步。音频约束与 [多模态参考](#5-多模态参考) 一节相同。
+
+向 2.0 模型发送此类请求会返回 `400 invalid_request`。
+
+**请求体：**
+
+```json
+{
+    "prompt": "A lone busker plays on a rain-slick city street at night, neon signs reflected in the puddles. Use [audio 1] as the performance audio and cut the camera moves to its rhythm; slow push-in on the guitar, then a wide shot as passers-by stop to listen.",
+    "model": "doubao-seedance-2-5-260628",
+    "duration": 12,
+    "size": "720p",
+    "metadata": {
+        "referenceAudio": [
+            "https://example.com/audio/street-guitar.mp3"
+        ],
+        "ratio": "16:9",
+        "callback_url": ""
+    }
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| prompt | string | 否 | 描述画面的提示词；可按顺序使用 `[audio 1]`、`[audio 2]` … 指代音频 |
+| model | string | 是 | SeeDance 2.5 模型名称（如 `doubao-seedance-2-5-260628`） |
+| duration | integer | 否 | 默认 `-1`。取值：闭区间 `4`～`30` 的整数，或 `-1` 表示自动选择时长 |
+| size | string | 否 | 默认 `720p`。允许：`480p`、`720p` |
+| metadata | object | 是 | 本模式需包含 `referenceAudio` |
+| metadata.referenceAudio | string 数组 | 是（本模式） | 最多 **10** 个音频 URL，格式为 `wav` 或 `mp3`，单段 2～30 秒，合计不超过 30 秒 |
+| metadata.ratio | string | 否 | 默认 `adaptive`。允许：`16:9`、`4:3`、`1:1`、`3:4`、`9:16`、`21:9`、`adaptive` |
+| metadata.callback_url | string | 否 | 若设置，将尝试向指定 URL 发送回调。详见 [回调](#3-回调)。 |
+
+### 7. SeeDance 2.5 视频编辑与续写
+
+SeeDance 2.5 还可以对源视频进行**编辑**（改变风格、更换场景、在保留原有运动的前提下替换音频），或对其进行向前 / 向后的**续写**。两种流程都通过 `metadata.referenceVideos` 传入源视频，并在提示词中描述期望的改动。
+
+任务类型由输入素材与提示词共同推断，因此提示词需写得明确——编辑时说明「保留原始画面，仅修改……」，续写时说明「从末帧继续……」。两种流程的参数约束都比普通的参考生视频更严格：
+
+- `metadata.ratio` 必须为 `adaptive`：输出始终保持输入视频的宽高比。
+- **编辑**时 `duration` 必须为 `-1`；输出时长跟随输入（可能比输入短约 0.4 秒）。输入视频时长须为 **4～30 秒**。
+- **续写**时 `duration` 可取 `4`～`30` 的任意值，或 `-1`。
+- `metadata.output_format`：当结果需要进入专业后期流程时，输入与输出均推荐使用 `mov`。
+
+**请求体（编辑）：**
+
+```json
+{
+    "prompt": "Keep the original footage, framing and camera movement exactly as they are; restyle the whole shot as a hand-painted watercolour animation and change the overcast daytime sky to a violet sunset.",
+    "model": "doubao-seedance-2-5-260628",
+    "duration": -1,
+    "metadata": {
+        "referenceVideos": [
+            "https://example.com/video/street_walk.mov"
+        ],
+        "ratio": "adaptive",
+        "output_format": "mov",
+        "callback_url": ""
+    }
+}
+```
+
+**请求体（续写）：**
+
+```json
+{
+    "prompt": "Continue [video 1] from its final frame without any cut: the camera keeps pushing down the corridor, the door at the far end swings open and reveals a sunlit courtyard.",
+    "model": "doubao-seedance-2-5-260628",
+    "duration": 10,
+    "metadata": {
+        "referenceVideos": [
+            "https://example.com/video/corridor.mp4"
+        ],
+        "ratio": "adaptive",
+        "callback_url": ""
+    }
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| prompt | string | 是 | 描述编辑内容或续写内容的提示词 |
+| model | string | 是 | SeeDance 2.5 模型名称（如 `doubao-seedance-2-5-260628`） |
+| duration | integer | 否 | 编辑：必须为 `-1`。续写：闭区间 `4`～`30` 的整数，或 `-1` |
+| size | string | 否 | 默认 `720p`。允许：`480p`、`720p` |
+| metadata | object | 是 | 本模式需包含 `referenceVideos` |
+| metadata.referenceVideos | string 数组 | 是（本模式） | 源视频 URL；约束见 [参考视频](#4-参考视频)。编辑要求视频时长为 **4～30** 秒 |
+| metadata.ratio | string | 否 | 本模式下必须为 `adaptive`（即默认值） |
+| metadata.output_format | string | 否 | `mp4`（默认）或 `mov`。编辑与续写推荐使用 `mov` |
 | metadata.callback_url | string | 否 | 若设置，将尝试向指定 URL 发送回调。详见 [回调](#3-回调)。 |
 
 ## 1. 提交视频生成任务
@@ -385,6 +538,8 @@ GET /v1/video/generations/{task_id}
 }
 ```
 
+> **注意：** 返回的 `duration` 为整数近似值，按总帧数除以 24 后向下取整计算。一个 133 帧的视频实际时长为 5.54 秒，但 `duration` 会返回 `5`。
+
 ## 3. 回调
 
 ```
@@ -403,7 +558,7 @@ Webhook 请求由「外层」结构与载荷组成，格式如下：
 }
 ```
 
-`payload.data` 中的数据格式与 [2. 查询任务状态](#2-query-task-status) 接口响应中的 `data` 字段一致。
+`payload.data` 中的数据格式与 [2. 查询任务状态](#2-查询任务状态) 接口响应中的 `data` 字段一致。
 
 ### 请求示例（任务进行中）
 
