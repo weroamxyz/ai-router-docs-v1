@@ -28,7 +28,7 @@ Currently supported models include:
 ### Create Image ✅
 
 ```bash
-# Basic image generation
+# Generate an image and return a temporary URL
 curl ((SITE_URL))/v1/images/generations \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
@@ -36,7 +36,8 @@ curl ((SITE_URL))/v1/images/generations \
     "model": "gpt-image-2",
     "prompt": "A cute little sea otter",
     "n": 1,
-    "size": "1024x1024"
+    "size": "1024x1024",
+    "response_format": "url"
   }'
 
 # High-quality image generation
@@ -69,7 +70,7 @@ curl ((SITE_URL))/v1/images/generations \
   "created": 1589478378,
   "data": [
     {
-      "b64_json": "...",
+      "url": "https://cdn.example.com/generated-images/...?...",
       "revised_prompt": "A cute little sea otter playing in the water, with round eyes and fluffy fur"
     }
   ],
@@ -99,7 +100,8 @@ curl ((SITE_URL))/v1/images/edits \
   -F mask="@mask.png" \
   -F model="gpt-image-2" \
   -F prompt="A cute little sea otter wearing a beret" \
-  -F size="1024x1024"
+  -F size="1024x1024" \
+  -F response_format="url"
 
 # gpt-image-2 multi-image editing example
 curl ((SITE_URL))/v1/images/edits \
@@ -120,7 +122,7 @@ curl ((SITE_URL))/v1/images/edits \
   "created": 1713833628,
   "data": [
     {
-      "b64_json": "..."
+      "url": "https://cdn.example.com/generated-images/...?..."
     }
   ],
   "usage": {
@@ -170,7 +172,7 @@ Where `$API_KEY` is your API key.
 | Parameter | Type | Required | Description |
 |------|------|------|------|
 | `prompt` | string | Yes | Text description of the desired image. Maximum 32000 characters. |
-| `model` | string | No | Model to use for image generation. Default: `gpt-image-2`. |
+| `model` | string | Yes | Image generation model, such as `gpt-image-1`, `gpt-image-1.5`, or `gpt-image-2`. |
 | `n` | integer | No | Number of images to generate (1–10). Default: `1`. |
 | `size` | string | No | Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` also accepts arbitrary `WIDTHxHEIGHT` strings. Default: `auto`. |
 | `quality` | string | No | Quality of the generated image. Options: `high`, `medium`, `low`, `auto`. Default: `auto`. |
@@ -178,11 +180,16 @@ Where `$API_KEY` is your API key.
 | `output_format` | string | No | File format of the returned image. Options: `png`, `jpeg`, `webp`. Default: `png`. |
 | `output_compression` | integer | No | Compression level (0–100) for `jpeg` and `webp` output. Default: `100`. |
 | `moderation` | string | No | Content-moderation strictness for generated images. Options: `low`, `auto`. Default: `auto`. |
+| `response_format` | string | No | Image response format. Use `url` for an image URL or `b64_json` for Base64 data. When omitted, the model or upstream provider's default behavior is preserved. |
 | `stream` | boolean | No | Generate the image in streaming mode. Default: `false`. |
 | `partial_images` | integer | No | Number of partial images to emit during streaming (0–3). Only valid when `stream` is `true`. |
 | `user` | string | No | Unique identifier for the end user to help OpenAI monitor and detect abuse. |
 
-GPT Image models always return base64-encoded images; the `response_format` parameter is not supported.
+<Callout type="info" title="URL responses">
+For GPT Image models that only return Base64, the API stores the generated image and returns a temporary signed URL when URL delivery is available. This parameter is handled by the API compatibility layer and does not require native upstream support for `response_format`.
+
+Before use, a platform administrator must enable image URL delivery in the current environment and include the current API key or traffic in its rollout. Otherwise, `response_format=url` returns `503`. Clients do not configure or receive Bunny credentials.
+</Callout>
 
 #### Edit Image (`/v1/images/edits`)
 
@@ -191,7 +198,7 @@ GPT Image models always return base64-encoded images; the `response_format` para
 | `image` | file or file[] | Yes | Image(s) to edit. Each must be a PNG, WEBP, or JPG file, less than 25MB. Up to 16 images can be provided as an array. |
 | `prompt` | string | Yes | Text description of the desired edit. Maximum 32000 characters. |
 | `mask` | file | No | PNG image whose transparent areas (alpha = 0) indicate the positions to edit. Must be less than 4MB and the same size as the image. |
-| `model` | string | No | Model to use for image generation. Default: `gpt-image-2`. |
+| `model` | string | Yes | Image editing model, such as `gpt-image-1`, `gpt-image-1.5`, or `gpt-image-2`. |
 | `n` | integer | No | Number of images to generate (1–10). Default: `1`. |
 | `size` | string | No | Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` also accepts arbitrary `WIDTHxHEIGHT` strings. Default: `auto`. |
 | `quality` | string | No | Quality of the generated image. Options: `high`, `medium`, `low`, `auto`. Default: `auto`. |
@@ -200,6 +207,7 @@ GPT Image models always return base64-encoded images; the `response_format` para
 | `output_compression` | integer | No | Compression level (0–100) for `jpeg` and `webp` output. Default: `100`. |
 | `input_fidelity` | string | No | Controls how closely the output adheres to the input image(s). Options: `high`, `low`. |
 | `moderation` | string | No | Content-moderation strictness for generated images. Options: `low`, `auto`. Default: `auto`. |
+| `response_format` | string | No | Image response format. Use `url` for an image URL or `b64_json` for Base64 data. When omitted, the model or upstream provider's default behavior is preserved. |
 | `stream` | boolean | No | Generate the image in streaming mode. Default: `false`. |
 | `partial_images` | integer | No | Number of partial images to emit during streaming (0–3). Only valid when `stream` is `true`. |
 | `user` | string | No | Unique identifier for the end user to help OpenAI monitor and detect abuse. |
@@ -235,16 +243,47 @@ Each object in the `data` array contains:
 
 | Field | Type | Description |
 |------|------|------|
-| `b64_json` | string | Base64-encoded image data. Returned by default for GPT Image models. |
+| `url` | string | Image URL returned for `response_format=url`; it may be an upstream-native URL or a temporary signed URL created after Base64 storage. |
+| `b64_json` | string | Base64-encoded image data. Returned for `response_format=b64_json`, an upstream Base64 default, or an allowed URL-delivery fallback. |
 | `revised_prompt` | string | The modified prompt used for generation, if the prompt was revised |
 
-Example image object:
+Each image object contains either `url` or `b64_json`; clients must not assume that both fields are present. URL response example:
+
 ```json
 {
-  "b64_json": "...",
+  "url": "https://cdn.example.com/generated-images/...?...",
   "revised_prompt": "A cute little sea otter playing in the water, with round eyes and fluffy fur"
 }
 ```
+
+### Response Format and URL Delivery
+
+| `response_format` | Behavior |
+|------|------|
+| Omitted | Preserves the model or upstream provider's default response format. GPT Image models usually return `b64_json`. |
+| `b64_json` | Requests Base64 image data in the response. |
+| `url` | Requests an image URL. Native URLs pass through; eligible Base64 results are stored and replaced with temporary signed URLs. |
+
+Temporary URLs expire. Download or transfer the image soon after receiving the response instead of treating the URL as permanent. If a recoverable URL-delivery failure occurs, the API may return Base64 and set `X-Image-Delivery-Fallback: base64`. Clients requesting `response_format=url` should inspect both the response field and this header.
+
+The returned URL includes its access signature and can be downloaded directly with HTTP GET; do not attach the API `Authorization` header. Keep the complete query string because it is part of the signature:
+
+```bash
+IMAGE_URL=$(jq -r '.data[0].url // empty' response.json)
+test -n "$IMAGE_URL" && curl --fail --location "$IMAGE_URL" --output generated.png
+```
+
+URL delivery applies to non-streaming requests that return one complete JSON response. Do not combine `response_format=url` with `stream=true`; process streaming image requests using the selected model's streaming event format.
+
+### URL Delivery Errors
+
+| HTTP status | Error code | Recommended action |
+|------|------|------|
+| `400` | Invalid request | Ensure `response_format` is the lowercase value `url` or `b64_json`. |
+| `502` | `image_url_delivery_failed` | The image was generated, but storage or URL signing failed in strict mode. Retry later without aggressive immediate retries. |
+| `502` | `image_response_too_large` | The generated response exceeded the server processing limit. Reduce the image count or dimensions. |
+| `503` | `image_url_delivery_unavailable` | URL delivery is not enabled for the current model, API key, or environment. Use `b64_json` or wait for an administrator to enable it. |
+| `503` | Other `image_delivery_*` errors | URL-delivery capacity or runtime state is temporarily unavailable. Retry with backoff. |
 
 ## 🌟 Best Practices
 
@@ -275,4 +314,4 @@ Example image object:
 2. Results do not match expectations
     - Optimize prompt description
     - Adjust quality and style parameters
-    - Consider using image editing or variation features 
+    - Consider using image editing or variation features

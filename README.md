@@ -22,6 +22,21 @@ Build the application for production:
 bun run build
 ```
 
+## OpenAPI Generation
+
+Generate the per-endpoint OpenAPI files and Chinese API pages with:
+
+```bash
+bun run generate:openapi
+```
+
+Endpoint metadata is fetched from Apifox. Version-controlled corrections in
+`scripts/config/http-endpoint-overrides.json` are applied by endpoint ID after
+the fetch. Generation fails when a configured endpoint ID is no longer present,
+so upstream changes cannot silently remove a documented contract. English and
+Japanese generated pages are maintained by the translation workflow and are not
+deleted by this command.
+
 ## Project Structure
 
 | Path                      | Description                  |

@@ -3,7 +3,7 @@
   "info": {
     "title": "生成图像",
     "version": "1.0.0",
-    "description": "在给定提示的情况下创建图像。[了解更多](https://platform.openai.com/docs/guides/images)。"
+    "description": "根据文本提示创建图像。支持通过 response_format 选择返回图像 URL 或 Base64 数据。Base64-only 模型的 URL 交付需要由平台管理员启用。"
   },
   "tags": [
     {
@@ -19,17 +19,17 @@
     }
   },
   "paths": {
-    "/v1/images/generations/": {
+    "/v1/images/generations": {
       "post": {
         "tags": [
           "图像（Images）/原生OpenAI格式"
         ],
         "summary": "生成图像",
-        "description": "在给定提示的情况下创建图像。[了解更多](https://platform.openai.com/docs/guides/images)。",
+        "description": "根据文本提示创建图像。支持通过 response_format 选择返回图像 URL 或 Base64 数据。Base64-only 模型的 URL 交付需要由平台管理员启用。",
         "operationId": "post-v1-images-generations",
         "parameters": [],
         "requestBody": {
-          "required": false,
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -37,57 +37,83 @@
                 "properties": {
                   "model": {
                     "type": "string",
-                    "description": "用于图像生成的模型。`dall-e-2`、`dall-e-3` 或 `gpt-image-1` 之一。默认为 `dall-e-2`，除非使用特定于 `gpt-image-1` 的参数。"
+                    "description": "用于图像生成的模型，例如 gpt-image-1、gpt-image-1.5 或 gpt-image-2。"
                   },
                   "prompt": {
                     "type": "string",
-                    "description": "所需图像的文本描述。`gpt-image-1` 的最大长度为 32000 个字符，`dall-e-2` 的最大长度为 1000 个字符，`dall-e-3` 的最大长度为 4000 个字符。"
+                    "description": "所需图像的文本描述。"
                   },
                   "n": {
                     "type": "integer",
-                    "description": "要生成的图像数量。必须介于 1 到 10 之间。对于 `dall-e-3`，仅支持 `n=1`。"
+                    "minimum": 1,
+                    "maximum": 10,
+                    "default": 1,
+                    "description": "要生成的图像数量。"
                   },
                   "size": {
                     "type": "string",
-                    "description": "生成的图像的大小。`对于 gpt-image-1`，必须是 `1024x1024`、`1536x1024`（横向）、`1024x1536`（纵向）或`自动`（默认值）之一，`对于 dall-e-2`，必须是 `256x256、``512x512` 或 `1024x1024` 之一，对于 `dall-e-3`，必须是 `1024x1024`、`1792x1024` 或 `1024x1792` 之一。"
-                  },
-                  "background": {
-                    "type": "string",
-                    "description": "允许为生成的图像的背景设置透明度。此参数仅支持 `gpt-image-1`。必须是以下之一 `透明`、`不透明`或`自动`（默认值）。使用`自动`时，模型将自动确定图像的最佳背景。\n\n如果`是透明`的，则输出格式需要支持透明度，因此应将其设置为 `png`（默认值）或 `webp`。"
-                  },
-                  "moderation": {
-                    "type": "string",
-                    "description": "控制 `gpt-image-1` 生成的图像的内容审核级别。必须为`低，` 以进行限制较少的筛选或`自动`（默认值）。"
+                    "description": "生成图像的尺寸，例如 1024x1024、1536x1024、1024x1536 或 auto。"
                   },
                   "quality": {
                     "type": "string",
-                    "description": "将生成的图像的质量。"
+                    "description": "生成图像的质量，例如 high、medium、low 或 auto。"
                   },
-                  "stream": {
-                    "type": "string"
+                  "background": {
+                    "type": "string",
+                    "enum": [
+                      "transparent",
+                      "opaque",
+                      "auto"
+                    ],
+                    "description": "生成图像的背景设置。"
                   },
-                  "style": {
-                    "type": "string"
+                  "output_format": {
+                    "type": "string",
+                    "enum": [
+                      "png",
+                      "jpeg",
+                      "webp"
+                    ],
+                    "description": "生成图像的文件格式。"
+                  },
+                  "output_compression": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "JPEG 或 WebP 输出的压缩级别。"
+                  },
+                  "moderation": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "auto"
+                    ],
+                    "description": "内容审核级别。"
+                  },
+                  "response_format": {
+                    "type": "string",
+                    "enum": [
+                      "url",
+                      "b64_json"
+                    ],
+                    "description": "响应图像格式。url 请求图像 URL，仅适用于非流式完整 JSON 响应；原生 URL 会直接返回，Base64-only 模型会在 URL 交付已启用时返回临时签名 URL。b64_json 返回 Base64 数据。不传时保留模型或上游渠道的默认行为。"
                   },
                   "user": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "代表最终用户的唯一标识符。"
                   }
                 },
                 "required": [
+                  "model",
                   "prompt"
                 ],
-                "x-apifox-orders": [
-                  "model",
-                  "prompt",
-                  "n",
-                  "size",
-                  "background",
-                  "moderation",
-                  "quality",
-                  "stream",
-                  "style",
-                  "user"
-                ]
+                "example": {
+                  "model": "gpt-image-2",
+                  "prompt": "A watercolor painting of a mountain lake at sunrise",
+                  "n": 1,
+                  "size": "1024x1024",
+                  "response_format": "url"
+                }
               }
             }
           }
@@ -99,7 +125,16 @@
         ],
         "responses": {
           "200": {
-            "description": "Response",
+            "description": "图像生成成功。data 中的每个图像对象返回 url 或 b64_json。",
+            "headers": {
+              "X-Image-Delivery-Fallback": {
+                "description": "当请求 response_format=url 但服务端按回退策略返回 Base64 时，值为 base64。",
+                "schema": {
+                  "type": "string",
+                  "const": "base64"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -113,77 +148,159 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "b64_json": {
-                            "type": "string"
-                          },
                           "url": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uri",
+                            "description": "图像 URL；可能是上游原生 URL，或由 URL 交付功能生成的临时签名 URL。"
+                          },
+                          "b64_json": {
+                            "type": "string",
+                            "description": "Base64 编码的图像数据；仅在 Base64 响应或回退时返回。"
+                          },
+                          "revised_prompt": {
+                            "type": "string",
+                            "description": "模型修改后的提示词（如果上游返回）。"
                           }
                         },
-                        "required": [
-                          "url"
-                        ],
-                        "x-apifox-orders": [
-                          "b64_json",
-                          "url"
+                        "oneOf": [
+                          {
+                            "required": [
+                              "url"
+                            ]
+                          },
+                          {
+                            "required": [
+                              "b64_json"
+                            ]
+                          }
                         ]
                       }
                     },
                     "usage": {
                       "type": "object",
-                      "properties": {
-                        "total_tokens": {
-                          "type": "integer"
-                        },
-                        "input_tokens": {
-                          "type": "integer"
-                        },
-                        "output_tokens": {
-                          "type": "integer"
-                        },
-                        "input_tokens_details": {
-                          "type": "object",
-                          "properties": {
-                            "text_tokens": {
-                              "type": "integer"
-                            },
-                            "image_tokens": {
-                              "type": "integer"
-                            }
-                          },
-                          "required": [
-                            "text_tokens",
-                            "image_tokens"
-                          ],
-                          "x-apifox-orders": [
-                            "text_tokens",
-                            "image_tokens"
-                          ]
-                        }
-                      },
-                      "required": [
-                        "total_tokens",
-                        "input_tokens",
-                        "output_tokens",
-                        "input_tokens_details"
-                      ],
-                      "x-apifox-orders": [
-                        "total_tokens",
-                        "input_tokens",
-                        "output_tokens",
-                        "input_tokens_details"
-                      ]
+                      "description": "上游返回的用量信息。",
+                      "additionalProperties": true
                     }
                   },
                   "required": [
                     "created",
-                    "data",
-                    "usage"
-                  ],
-                  "x-apifox-orders": [
-                    "created",
-                    "data",
-                    "usage"
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数无效，例如 response_format 不是 url 或 b64_json。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "图像已生成，但严格模式下的 URL 存储或交付失败。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "image_delivery_error"
+                        },
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "image_url_delivery_failed",
+                            "image_response_too_large"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type",
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "当前模型、令牌或运行环境未启用 URL 交付，或交付容量暂时不可用。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "image_delivery_error",
+                            "new_api_error"
+                          ]
+                        },
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "image_url_delivery_unavailable",
+                            "image_delivery_unavailable",
+                            "image_delivery_capacity_exhausted",
+                            "image_delivery_circuit_open"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type",
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
                   ]
                 }
               }

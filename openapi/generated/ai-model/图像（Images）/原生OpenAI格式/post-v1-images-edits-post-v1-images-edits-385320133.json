@@ -3,7 +3,7 @@
   "info": {
     "title": "编辑图像",
     "version": "1.0.0",
-    "description": "在给定原始图像和提示的情况下创建编辑或扩展图像。\n\n"
+    "description": "根据一个或多个输入图像和提示创建编辑图像。支持通过 response_format 选择返回图像 URL 或 Base64 数据。Base64-only 模型的 URL 交付需要由平台管理员启用。"
   },
   "tags": [
     {
@@ -19,82 +19,106 @@
     }
   },
   "paths": {
-    "/v1/images/edits/": {
+    "/v1/images/edits": {
       "post": {
         "tags": [
           "图像（Images）/原生OpenAI格式"
         ],
         "summary": "编辑图像",
-        "description": "在给定原始图像和提示的情况下创建编辑或扩展图像。\n\n",
+        "description": "根据一个或多个输入图像和提示创建编辑图像。支持通过 response_format 选择返回图像 URL 或 Base64 数据。Base64-only 模型的 URL 交付需要由平台管理员启用。",
         "operationId": "post-v1-images-edits",
         "parameters": [],
         "requestBody": {
-          "required": false,
+          "required": true,
           "content": {
             "multipart/form-data": {
               "schema": {
                 "type": "object",
                 "properties": {
                   "image": {
-                    "description": "要编辑的图像。必须是有效的 PNG 文件，小于 4MB，并且是方形的。如果未提供遮罩，图像必须具有透明度，将用作遮罩。",
-                    "type": "string",
-                    "format": "binary",
-                    "examples": [
-                      "cmMtdXBsb2FkLTE2ODc4MzMzNDc3NTEtMjA=/31225951_59371037e9_small.png"
-                    ]
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "format": "binary"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "binary"
+                        }
+                      }
+                    ],
+                    "description": "要编辑的一张或多张图像。多图请求使用 image[] 字段。"
                   },
                   "mask": {
-                    "description": "附加图像，其完全透明区域（例如，alpha 为零的区域）指示image应编辑的位置。必须是有效的 PNG 文件，小于 4MB，并且尺寸与原始image相同。",
                     "type": "string",
                     "format": "binary",
-                    "examples": [
-                      []
-                    ]
-                  },
-                  "prompt": {
-                    "description": "所需图像的文本描述。最大长度为 1000 个字符。",
-                    "type": "string",
-                    "examples": [
-                      "A cute baby sea otter wearing a beret."
-                    ]
-                  },
-                  "n": {
-                    "description": "要生成的图像数。必须介于 1 和 10 之间。",
-                    "type": "string",
-                    "examples": [
-                      "1"
-                    ]
-                  },
-                  "size": {
-                    "description": "生成图像的大小。必须是`256x256`、`512x512`或 `1024x1024`之一。",
-                    "type": "string",
-                    "examples": [
-                      "1024x1024"
-                    ]
-                  },
-                  "response_format": {
-                    "description": "生成的图像返回的格式。必须是`url`或`b64_json`。",
-                    "type": "string",
-                    "examples": [
-                      "url"
-                    ]
-                  },
-                  "user": {
-                    "description": "代表您的最终用户的唯一标识符，可以帮助 OpenAI 监控和检测滥用行为。[了解更多](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids)。",
-                    "type": "string",
-                    "examples": [
-                      ""
-                    ]
+                    "description": "可选遮罩图像。"
                   },
                   "model": {
                     "type": "string",
-                    "examples": [
-                      "dall-e-2"
+                    "description": "用于图像编辑的模型，例如 gpt-image-1、gpt-image-1.5 或 gpt-image-2。"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "description": "期望编辑效果的文本描述。"
+                  },
+                  "n": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "default": 1
+                  },
+                  "size": {
+                    "type": "string"
+                  },
+                  "quality": {
+                    "type": "string"
+                  },
+                  "background": {
+                    "type": "string",
+                    "enum": [
+                      "transparent",
+                      "opaque",
+                      "auto"
                     ]
+                  },
+                  "output_format": {
+                    "type": "string",
+                    "enum": [
+                      "png",
+                      "jpeg",
+                      "webp"
+                    ]
+                  },
+                  "output_compression": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "input_fidelity": {
+                    "type": "string",
+                    "enum": [
+                      "high",
+                      "low"
+                    ]
+                  },
+                  "response_format": {
+                    "type": "string",
+                    "enum": [
+                      "url",
+                      "b64_json"
+                    ],
+                    "description": "响应图像格式。url 请求图像 URL，仅适用于非流式完整 JSON 响应；原生 URL 会直接返回，Base64-only 模型会在 URL 交付已启用时返回临时签名 URL。b64_json 返回 Base64 数据。不传时保留模型或上游渠道的默认行为。"
+                  },
+                  "user": {
+                    "type": "string"
                   }
                 },
                 "required": [
                   "image",
+                  "model",
                   "prompt"
                 ]
               }
@@ -108,13 +132,181 @@
         ],
         "responses": {
           "200": {
-            "description": "Response",
+            "description": "图像编辑成功。data 中的每个图像对象返回 url 或 b64_json。",
+            "headers": {
+              "X-Image-Delivery-Fallback": {
+                "description": "当请求 response_format=url 但服务端按回退策略返回 Base64 时，值为 base64。",
+                "schema": {
+                  "type": "string",
+                  "const": "base64"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {},
-                  "x-apifox-orders": []
+                  "properties": {
+                    "created": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "图像 URL；可能是上游原生 URL，或由 URL 交付功能生成的临时签名 URL。"
+                          },
+                          "b64_json": {
+                            "type": "string",
+                            "description": "Base64 编码的图像数据；仅在 Base64 响应或回退时返回。"
+                          },
+                          "revised_prompt": {
+                            "type": "string"
+                          }
+                        },
+                        "oneOf": [
+                          {
+                            "required": [
+                              "url"
+                            ]
+                          },
+                          {
+                            "required": [
+                              "b64_json"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": [
+                    "created",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数无效，例如 response_format 不是 url 或 b64_json。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "图像已生成，但严格模式下的 URL 存储或交付失败。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "image_delivery_error"
+                        },
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "image_url_delivery_failed",
+                            "image_response_too_large"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type",
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "当前模型、令牌或运行环境未启用 URL 交付，或交付容量暂时不可用。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "image_delivery_error",
+                            "new_api_error"
+                          ]
+                        },
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "image_url_delivery_unavailable",
+                            "image_delivery_unavailable",
+                            "image_delivery_capacity_exhausted",
+                            "image_delivery_circuit_open"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type",
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
