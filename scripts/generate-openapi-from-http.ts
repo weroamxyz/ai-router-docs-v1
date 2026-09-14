@@ -43,7 +43,13 @@ type HttpEndpoint = {
     contentType?: string; // "json" | "noContent" ...
     mediaType?: string;
     jsonSchema?: Record<string, unknown>;
-    headers?: Array<unknown>;
+    headers?: Array<{
+      name: string;
+      description?: string;
+      required?: boolean;
+      schema?: Record<string, unknown>;
+      type?: string;
+    }>;
   }>;
   auth?: {
     type?: string;
@@ -55,6 +61,8 @@ type HttpEndpoint = {
     required?: boolean;
   };
 };
+
+type HttpEndpointOverrides = Record<string, Partial<HttpEndpoint>>;
 
 type HttpParameter = {
   name: string;
@@ -198,6 +206,34 @@ function deepClone<T>(x: T): T {
   return x ? (JSON.parse(JSON.stringify(x)) as T) : x;
 }
 
+async function loadEndpointOverrides(): Promise<HttpEndpointOverrides> {
+  const overridePath =
+    process.env.HTTP_ENDPOINT_OVERRIDES_FILE?.trim() ||
+    './scripts/config/http-endpoint-overrides.json';
+  try {
+    const raw = await readFile(overridePath, 'utf8');
+    const overrides = JSON.parse(raw) as HttpEndpointOverrides;
+    console.log(
+      `Loaded ${Object.keys(overrides).length} endpoint override(s) from ${overridePath}`
+    );
+    return overrides;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return {};
+    throw new Error(`Failed to load endpoint overrides from ${overridePath}`, {
+      cause: error,
+    });
+  }
+}
+
+function applyEndpointOverride(
+  endpoint: HttpEndpoint,
+  overrides: HttpEndpointOverrides
+): HttpEndpoint {
+  const override = overrides[String(endpoint.id)];
+  if (!override) return endpoint;
+  return { ...endpoint, ...deepClone(override), id: endpoint.id };
+}
+
 function resolveSchemaRefs(
   schema: any,
   defs: Map<string, any>,
@@ -322,14 +358,32 @@ function buildResponses(ep: HttpEndpoint, defs: Map<string, any>) {
     const code = String(r.code);
     const mediaType = r.mediaType || 'application/json';
     const isNoContent = (r.contentType || '').toLowerCase() === 'nocontent';
+    const headers = Object.fromEntries(
+      (r.headers ?? []).map((header) => [
+        header.name,
+        {
+          description: header.description || undefined,
+          required: header.required || undefined,
+          schema:
+            header.schema ??
+            (header.type ? { type: header.type } : { type: 'string' }),
+        },
+      ])
+    );
+    const responseHeaders =
+      Object.keys(headers).length > 0 ? { headers } : undefined;
 
     if (isNoContent || !r.jsonSchema) {
-      res[code] = { description: r.description || r.name || 'Response' };
+      res[code] = {
+        description: r.description || r.name || 'Response',
+        ...responseHeaders,
+      };
       continue;
     }
 
     res[code] = {
       description: r.description || r.name || 'Response',
+      ...responseHeaders,
       content: {
         [mediaType]: {
           schema: resolveSchemaRefs(deepClone(r.jsonSchema), defs),
@@ -491,11 +545,15 @@ async function main() {
       'Invalid http source: expected { success: true, data: [] }'
     );
   }
+  const endpointOverrides = await loadEndpointOverrides();
+  const unusedOverrideIds = new Set(Object.keys(endpointOverrides));
 
   let count = 0;
   const usedOperationIds = new Set<string>();
 
-  for (const ep of root.data) {
+  for (const sourceEndpoint of root.data) {
+    unusedOverrideIds.delete(String(sourceEndpoint.id));
+    const ep = applyEndpointOverride(sourceEndpoint, endpointOverrides);
     const group = groupByModuleId(ep.moduleId);
     const tags = (ep.tags && ep.tags.length > 0 ? ep.tags : ['default']).map(
       (t) => t || 'default'
@@ -565,6 +623,12 @@ async function main() {
 
     await writeFile(outFile, JSON.stringify(doc, null, 2), 'utf8');
     count++;
+  }
+
+  if (unusedOverrideIds.size > 0) {
+    throw new Error(
+      `Endpoint overrides did not match the HTTP source: ${Array.from(unusedOverrideIds).join(', ')}`
+    );
   }
 
   console.log(

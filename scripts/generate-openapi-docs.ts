@@ -194,20 +194,18 @@ async function ensureFileFromTemplate(destPath: string, templatePath: string) {
 async function generate() {
   const slugOverrides = await loadTagSlugOverrides();
 
-  // Clean old generated docs (all locales) to keep the output absolutely clean
-  const locales = ['zh', 'en', 'ja'];
-  await Promise.all(
-    locales.flatMap((locale) => [
-      rm(`./content/docs/${locale}/api/ai-model`, {
-        recursive: true,
-        force: true,
-      }),
-      rm(`./content/docs/${locale}/api/management`, {
-        recursive: true,
-        force: true,
-      }),
-    ])
-  );
+  // This generator only recreates Chinese API pages. Other locales are managed by
+  // the translation workflow and must not be removed here.
+  await Promise.all([
+    rm('./content/docs/zh/api/ai-model', {
+      recursive: true,
+      force: true,
+    }),
+    rm('./content/docs/zh/api/management', {
+      recursive: true,
+      force: true,
+    }),
+  ]);
 
   // Ensure /zh/docs/api root can be fully restored even if deleted
   await mkdir('./content/docs/zh/api', { recursive: true });
