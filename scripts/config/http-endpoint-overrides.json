@@ -1,0 +1,410 @@
+{
+  "385320132": {
+    "path": "/v1/images/generations",
+    "description": "根据文本提示创建图像。支持通过 response_format 选择返回图像 URL 或 Base64 数据。Base64-only 模型的 URL 交付需要由平台管理员启用。",
+    "requestBody": {
+      "type": "application/json",
+      "required": true,
+      "mediaType": "application/json",
+      "parameters": [],
+      "jsonSchema": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "用于图像生成的模型，例如 gpt-image-1、gpt-image-1.5 或 gpt-image-2。"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "所需图像的文本描述。"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 1,
+            "description": "要生成的图像数量。"
+          },
+          "size": {
+            "type": "string",
+            "description": "生成图像的尺寸，例如 1024x1024、1536x1024、1024x1536 或 auto。"
+          },
+          "quality": {
+            "type": "string",
+            "description": "生成图像的质量，例如 high、medium、low 或 auto。"
+          },
+          "background": {
+            "type": "string",
+            "enum": ["transparent", "opaque", "auto"],
+            "description": "生成图像的背景设置。"
+          },
+          "output_format": {
+            "type": "string",
+            "enum": ["png", "jpeg", "webp"],
+            "description": "生成图像的文件格式。"
+          },
+          "output_compression": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "JPEG 或 WebP 输出的压缩级别。"
+          },
+          "moderation": {
+            "type": "string",
+            "enum": ["low", "auto"],
+            "description": "内容审核级别。"
+          },
+          "response_format": {
+            "type": "string",
+            "enum": ["url", "b64_json"],
+            "description": "响应图像格式。url 请求图像 URL，仅适用于非流式完整 JSON 响应；原生 URL 会直接返回，Base64-only 模型会在 URL 交付已启用时返回临时签名 URL。b64_json 返回 Base64 数据。不传时保留模型或上游渠道的默认行为。"
+          },
+          "user": {
+            "type": "string",
+            "description": "代表最终用户的唯一标识符。"
+          }
+        },
+        "required": ["model", "prompt"],
+        "example": {
+          "model": "gpt-image-2",
+          "prompt": "A watercolor painting of a mountain lake at sunrise",
+          "n": 1,
+          "size": "1024x1024",
+          "response_format": "url"
+        }
+      }
+    },
+    "responses": [
+      {
+        "code": 200,
+        "name": "成功",
+        "description": "图像生成成功。data 中的每个图像对象返回 url 或 b64_json。",
+        "contentType": "json",
+        "mediaType": "application/json",
+        "headers": [
+          {
+            "name": "X-Image-Delivery-Fallback",
+            "description": "当请求 response_format=url 但服务端按回退策略返回 Base64 时，值为 base64。",
+            "schema": { "type": "string", "const": "base64" }
+          }
+        ],
+        "jsonSchema": {
+          "type": "object",
+          "properties": {
+            "created": { "type": "integer" },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "图像 URL；可能是上游原生 URL，或由 URL 交付功能生成的临时签名 URL。"
+                  },
+                  "b64_json": {
+                    "type": "string",
+                    "description": "Base64 编码的图像数据；仅在 Base64 响应或回退时返回。"
+                  },
+                  "revised_prompt": {
+                    "type": "string",
+                    "description": "模型修改后的提示词（如果上游返回）。"
+                  }
+                },
+                "oneOf": [{ "required": ["url"] }, { "required": ["b64_json"] }]
+              }
+            },
+            "usage": {
+              "type": "object",
+              "description": "上游返回的用量信息。",
+              "additionalProperties": true
+            }
+          },
+          "required": ["created", "data"]
+        }
+      },
+      {
+        "code": 400,
+        "name": "请求参数错误",
+        "description": "请求参数无效，例如 response_format 不是 url 或 b64_json。",
+        "contentType": "json",
+        "mediaType": "application/json",
+        "jsonSchema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string" },
+                "type": { "type": "string" },
+                "code": { "type": "string" }
+              },
+              "required": ["message", "type"]
+            }
+          },
+          "required": ["error"]
+        }
+      },
+      {
+        "code": 502,
+        "name": "URL 交付失败",
+        "description": "图像已生成，但严格模式下的 URL 存储或交付失败。",
+        "contentType": "json",
+        "mediaType": "application/json",
+        "jsonSchema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string" },
+                "type": { "type": "string", "const": "image_delivery_error" },
+                "code": {
+                  "type": "string",
+                  "enum": [
+                    "image_url_delivery_failed",
+                    "image_response_too_large"
+                  ]
+                }
+              },
+              "required": ["message", "type", "code"]
+            }
+          },
+          "required": ["error"]
+        }
+      },
+      {
+        "code": 503,
+        "name": "URL 交付不可用",
+        "description": "当前模型、令牌或运行环境未启用 URL 交付，或交付容量暂时不可用。",
+        "contentType": "json",
+        "mediaType": "application/json",
+        "jsonSchema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string" },
+                "type": {
+                  "type": "string",
+                  "enum": ["image_delivery_error", "new_api_error"]
+                },
+                "code": {
+                  "type": "string",
+                  "enum": [
+                    "image_url_delivery_unavailable",
+                    "image_delivery_unavailable",
+                    "image_delivery_capacity_exhausted",
+                    "image_delivery_circuit_open"
+                  ]
+                }
+              },
+              "required": ["message", "type", "code"]
+            }
+          },
+          "required": ["error"]
+        }
+      }
+    ]
+  },
+  "385320133": {
+    "path": "/v1/images/edits",
+    "description": "根据一个或多个输入图像和提示创建编辑图像。支持通过 response_format 选择返回图像 URL 或 Base64 数据。Base64-only 模型的 URL 交付需要由平台管理员启用。",
+    "requestBody": {
+      "type": "multipart/form-data",
+      "required": true,
+      "mediaType": "multipart/form-data",
+      "parameters": [],
+      "jsonSchema": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "oneOf": [
+              { "type": "string", "format": "binary" },
+              {
+                "type": "array",
+                "items": { "type": "string", "format": "binary" }
+              }
+            ],
+            "description": "要编辑的一张或多张图像。多图请求使用 image[] 字段。"
+          },
+          "mask": {
+            "type": "string",
+            "format": "binary",
+            "description": "可选遮罩图像。"
+          },
+          "model": {
+            "type": "string",
+            "description": "用于图像编辑的模型，例如 gpt-image-1、gpt-image-1.5 或 gpt-image-2。"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "期望编辑效果的文本描述。"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 1
+          },
+          "size": { "type": "string" },
+          "quality": { "type": "string" },
+          "background": {
+            "type": "string",
+            "enum": ["transparent", "opaque", "auto"]
+          },
+          "output_format": {
+            "type": "string",
+            "enum": ["png", "jpeg", "webp"]
+          },
+          "output_compression": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "input_fidelity": {
+            "type": "string",
+            "enum": ["high", "low"]
+          },
+          "response_format": {
+            "type": "string",
+            "enum": ["url", "b64_json"],
+            "description": "响应图像格式。url 请求图像 URL，仅适用于非流式完整 JSON 响应；原生 URL 会直接返回，Base64-only 模型会在 URL 交付已启用时返回临时签名 URL。b64_json 返回 Base64 数据。不传时保留模型或上游渠道的默认行为。"
+          },
+          "user": { "type": "string" }
+        },
+        "required": ["image", "model", "prompt"]
+      }
+    },
+    "responses": [
+      {
+        "code": 200,
+        "name": "成功",
+        "description": "图像编辑成功。data 中的每个图像对象返回 url 或 b64_json。",
+        "contentType": "json",
+        "mediaType": "application/json",
+        "headers": [
+          {
+            "name": "X-Image-Delivery-Fallback",
+            "description": "当请求 response_format=url 但服务端按回退策略返回 Base64 时，值为 base64。",
+            "schema": { "type": "string", "const": "base64" }
+          }
+        ],
+        "jsonSchema": {
+          "type": "object",
+          "properties": {
+            "created": { "type": "integer" },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "图像 URL；可能是上游原生 URL，或由 URL 交付功能生成的临时签名 URL。"
+                  },
+                  "b64_json": {
+                    "type": "string",
+                    "description": "Base64 编码的图像数据；仅在 Base64 响应或回退时返回。"
+                  },
+                  "revised_prompt": { "type": "string" }
+                },
+                "oneOf": [{ "required": ["url"] }, { "required": ["b64_json"] }]
+              }
+            },
+            "usage": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "required": ["created", "data"]
+        }
+      },
+      {
+        "code": 400,
+        "name": "请求参数错误",
+        "description": "请求参数无效，例如 response_format 不是 url 或 b64_json。",
+        "contentType": "json",
+        "mediaType": "application/json",
+        "jsonSchema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string" },
+                "type": { "type": "string" },
+                "code": { "type": "string" }
+              },
+              "required": ["message", "type"]
+            }
+          },
+          "required": ["error"]
+        }
+      },
+      {
+        "code": 502,
+        "name": "URL 交付失败",
+        "description": "图像已生成，但严格模式下的 URL 存储或交付失败。",
+        "contentType": "json",
+        "mediaType": "application/json",
+        "jsonSchema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string" },
+                "type": { "type": "string", "const": "image_delivery_error" },
+                "code": {
+                  "type": "string",
+                  "enum": [
+                    "image_url_delivery_failed",
+                    "image_response_too_large"
+                  ]
+                }
+              },
+              "required": ["message", "type", "code"]
+            }
+          },
+          "required": ["error"]
+        }
+      },
+      {
+        "code": 503,
+        "name": "URL 交付不可用",
+        "description": "当前模型、令牌或运行环境未启用 URL 交付，或交付容量暂时不可用。",
+        "contentType": "json",
+        "mediaType": "application/json",
+        "jsonSchema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string" },
+                "type": {
+                  "type": "string",
+                  "enum": ["image_delivery_error", "new_api_error"]
+                },
+                "code": {
+                  "type": "string",
+                  "enum": [
+                    "image_url_delivery_unavailable",
+                    "image_delivery_unavailable",
+                    "image_delivery_capacity_exhausted",
+                    "image_delivery_circuit_open"
+                  ]
+                }
+              },
+              "required": ["message", "type", "code"]
+            }
+          },
+          "required": ["error"]
+        }
+      }
+    ]
+  }
+}

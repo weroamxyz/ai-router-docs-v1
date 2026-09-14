@@ -28,7 +28,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 ### 创建图片 ✅
 
 ```bash
-# 基础图片生成
+# 生成图片并返回临时 URL
 curl ((SITE_URL))/v1/images/generations \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
@@ -36,7 +36,8 @@ curl ((SITE_URL))/v1/images/generations \
     "model": "gpt-image-2",
     "prompt": "一只可爱的小海獭",
     "n": 1,
-    "size": "1024x1024"
+    "size": "1024x1024",
+    "response_format": "url"
   }'
 
 # 高质量图片生成
@@ -69,7 +70,7 @@ curl ((SITE_URL))/v1/images/generations \
   "created": 1589478378,
   "data": [
     {
-      "b64_json": "...",
+      "url": "https://cdn.example.com/generated-images/...?...",
       "revised_prompt": "一只可爱的小海獭在水中嬉戏,它有着圆圆的眼睛和毛茸茸的皮毛"
     }
   ],
@@ -99,7 +100,8 @@ curl ((SITE_URL))/v1/images/edits \
   -F mask="@mask.png" \
   -F model="gpt-image-2" \
   -F prompt="一只戴着贝雷帽的可爱小海獭" \
-  -F size="1024x1024"
+  -F size="1024x1024" \
+  -F response_format="url"
 
 # gpt-image-2 多图片编辑示例
 curl ((SITE_URL))/v1/images/edits \
@@ -120,7 +122,7 @@ curl ((SITE_URL))/v1/images/edits \
   "created": 1713833628,
   "data": [
     {
-      "b64_json": "..."
+      "url": "https://cdn.example.com/generated-images/...?..."
     }
   ],
   "usage": {
@@ -161,7 +163,7 @@ POST /v1/images/edits
 Authorization: Bearer $API_KEY
 ```
 
-其中 `$OPENAI_API_KEY` 是您的 API 密钥。
+其中 `$API_KEY` 是您的 API 密钥。
 
 ### 请求体参数
 
@@ -170,7 +172,7 @@ Authorization: Bearer $API_KEY
 | 参数 | 类型 | 必需 | 说明 |
 |------|------|------|------|
 | `prompt` | 字符串 | 是 | 期望生成图片的文本描述。最大长度为 32000 字符。 |
-| `model` | 字符串 | 否 | 用于图像生成的模型。默认值：`gpt-image-2`。 |
+| `model` | 字符串 | 是 | 用于图像生成的模型，例如 `gpt-image-1`、`gpt-image-1.5` 或 `gpt-image-2`。 |
 | `n` | 整数 | 否 | 要生成的图片数量（1–10）。默认值：`1`。 |
 | `size` | 字符串 | 否 | 生成图片的尺寸。标准可选值：`1024x1024`、`1536x1024`（横版）、`1024x1536`（竖版）、`auto`。`gpt-image-2` 还支持任意 `宽度x高度` 字符串。默认值：`auto`。 |
 | `quality` | 字符串 | 否 | 生成图片的质量。可选值：`high`、`medium`、`low`、`auto`。默认值：`auto`。 |
@@ -178,11 +180,16 @@ Authorization: Bearer $API_KEY
 | `output_format` | 字符串 | 否 | 返回图片的文件格式。可选值：`png`、`jpeg`、`webp`。默认值：`png`。 |
 | `output_compression` | 整数 | 否 | `jpeg` 与 `webp` 输出的压缩级别（0–100）。默认值：`100`。 |
 | `moderation` | 字符串 | 否 | 生成图片的内容审核强度。可选值：`low`、`auto`。默认值：`auto`。 |
+| `response_format` | 字符串 | 否 | 响应图片格式。`url` 请求图片 URL，`b64_json` 返回 Base64 数据。不传时保留模型或上游渠道的默认行为。 |
 | `stream` | 布尔值 | 否 | 以流式模式生成图片。默认值：`false`。 |
 | `partial_images` | 整数 | 否 | 流式响应中发送的部分图片数量（0–3）。仅在 `stream` 为 `true` 时有效。 |
 | `user` | 字符串 | 否 | 代表最终用户的唯一标识符，可帮助 OpenAI 监控和检测滥用行为。 |
 
-GPT Image 模型始终返回 base64 编码的图片，不支持 `response_format` 参数。
+<Callout type="info" title="URL 响应">
+对于本身只返回 Base64 的 GPT Image 模型，API 会在 URL 交付功能可用时将生成结果保存到对象存储，并返回临时签名 URL。该参数由本 API 兼容层处理，不要求上游模型原生支持 `response_format`。
+
+使用前需由平台管理员在当前环境启用图片 URL 交付，并确保当前 API 密钥或流量命中启用范围；否则 `response_format=url` 会返回 `503`。客户端无需配置或持有 Bunny 凭据。
+</Callout>
 
 #### 编辑图片 (`/v1/images/edits`)
 
@@ -191,7 +198,7 @@ GPT Image 模型始终返回 base64 编码的图片，不支持 `response_format
 | `image` | 文件或文件数组 | 是 | 要编辑的图片。每个图片应为 PNG、WEBP 或 JPG 文件，小于 25MB。最多可提供 16 张图片作为数组。 |
 | `prompt` | 字符串 | 是 | 期望编辑的文本描述。最大长度为 32000 字符。 |
 | `mask` | 文件 | 否 | 额外的 PNG 图片，其完全透明区域（alpha 为零）指示应该编辑的位置。必须小于 4MB 且与 image 尺寸相同。 |
-| `model` | 字符串 | 否 | 用于图像生成的模型。默认值：`gpt-image-2`。 |
+| `model` | 字符串 | 是 | 用于图像编辑的模型，例如 `gpt-image-1`、`gpt-image-1.5` 或 `gpt-image-2`。 |
 | `n` | 整数 | 否 | 要生成的图片数量（1–10）。默认值：`1`。 |
 | `size` | 字符串 | 否 | 生成图片的尺寸。标准可选值：`1024x1024`、`1536x1024`（横版）、`1024x1536`（竖版）、`auto`。`gpt-image-2` 还支持任意 `宽度x高度` 字符串。默认值：`auto`。 |
 | `quality` | 字符串 | 否 | 生成图片的质量。可选值：`high`、`medium`、`low`、`auto`。默认值：`auto`。 |
@@ -200,6 +207,7 @@ GPT Image 模型始终返回 base64 编码的图片，不支持 `response_format
 | `output_compression` | 整数 | 否 | `jpeg` 与 `webp` 输出的压缩级别（0–100）。默认值：`100`。 |
 | `input_fidelity` | 字符串 | 否 | 控制输出与输入图片的契合程度。可选值：`high`、`low`。 |
 | `moderation` | 字符串 | 否 | 生成图片的内容审核强度。可选值：`low`、`auto`。默认值：`auto`。 |
+| `response_format` | 字符串 | 否 | 响应图片格式。`url` 请求图片 URL，`b64_json` 返回 Base64 数据。不传时保留模型或上游渠道的默认行为。 |
 | `stream` | 布尔值 | 否 | 以流式模式生成图片。默认值：`false`。 |
 | `partial_images` | 整数 | 否 | 流式响应中发送的部分图片数量（0–3）。仅在 `stream` 为 `true` 时有效。 |
 | `user` | 字符串 | 否 | 代表最终用户的唯一标识符，可帮助 OpenAI 监控和检测滥用行为。 |
@@ -235,16 +243,47 @@ GPT Image 模型始终返回 base64 编码的图片，不支持 `response_format
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `b64_json` | 字符串 | base64 编码的图片数据。GPT Image 模型默认返回此字段。 |
+| `url` | 字符串 | 图片地址。当请求 `response_format=url` 时返回；可能是上游原生 URL，也可能是 Base64 转存后生成的临时签名 URL。 |
+| `b64_json` | 字符串 | Base64 编码的图片数据。当请求 `response_format=b64_json`、使用上游默认 Base64 行为，或 URL 交付发生允许回退的故障时返回。 |
 | `revised_prompt` | 字符串 | 如果提示有任何修改，则包含用于生成图片的修改后的提示 |
 
-示例图片对象:
+每个图片对象会包含 `url` 或 `b64_json`，调用方不应假定两个字段同时存在。URL 响应示例：
+
 ```json
 {
-  "b64_json": "...",
+  "url": "https://cdn.example.com/generated-images/...?...",
   "revised_prompt": "一只可爱的小海獭在水中嬉戏,它有着圆圆的眼睛和毛茸茸的皮毛"
 }
 ```
+
+### 响应格式与 URL 交付
+
+| `response_format` | 行为 |
+|------|------|
+| 不传 | 保留模型或上游渠道的默认响应格式。GPT Image 模型通常返回 `b64_json`。 |
+| `b64_json` | 请求在响应中返回 Base64 图像数据。 |
+| `url` | 请求在响应中返回 URL。原生 URL 会直接返回；符合条件的 Base64 结果会存储后转换为临时签名 URL。 |
+
+临时 URL 会过期，客户端应在收到响应后及时下载或转存图片，不应将其作为永久地址保存。当 URL 交付过程中发生可回退故障时，API 可能返回 Base64，并设置响应头 `X-Image-Delivery-Fallback: base64`。客户端使用 `response_format=url` 时应同时检查响应字段和该响应头。
+
+返回的 URL 已包含访问签名，可直接通过 HTTP GET 下载，不需要附加 API `Authorization` 请求头。查询参数是签名的一部分，下载时必须保留完整 URL：
+
+```bash
+IMAGE_URL=$(jq -r '.data[0].url // empty' response.json)
+test -n "$IMAGE_URL" && curl --fail --location "$IMAGE_URL" --output generated.png
+```
+
+URL 交付适用于返回完整 JSON 的非流式请求。不要将 `response_format=url` 与 `stream=true` 组合使用；流式图片请求应按对应模型的流式响应格式处理。
+
+### URL 交付错误
+
+| HTTP 状态码 | 错误码 | 处理建议 |
+|------|------|------|
+| `400` | 参数错误 | 确认 `response_format` 仅使用小写的 `url` 或 `b64_json`。 |
+| `502` | `image_url_delivery_failed` | 图像已生成，但严格模式下存储或签名失败。可稍后重试，避免立即高频重试。 |
+| `502` | `image_response_too_large` | 生成响应超过服务端允许的处理上限。减少单次生成数量或图片尺寸。 |
+| `503` | `image_url_delivery_unavailable` | 当前模型、API 密钥或运行环境尚未提供 URL 交付。可改用 `b64_json`，或等待管理员启用。 |
+| `503` | 其他 `image_delivery_*` 错误 | URL 交付容量或运行状态暂时不可用。按退避策略重试。 |
 
 ## 🌟 最佳实践
 
@@ -275,4 +314,4 @@ GPT Image 模型始终返回 base64 编码的图片，不支持 `response_format
 2. 结果与预期不符
     - 优化 prompt 描述
     - 调整质量和风格参数
-    - 考虑使用图片编辑或变体功能 
+    - 考虑使用图片编辑或变体功能
