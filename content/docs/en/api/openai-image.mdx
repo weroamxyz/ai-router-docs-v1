@@ -22,6 +22,8 @@ Currently supported models include:
 | **gpt-image-1** | GPT-Image-1 image generation model |
 | **gpt-image-1.5** | GPT-Image-1.5 image generation and editing model |
 | **gpt-image-2** | GPT-Image-2 image generation and editing model, supporting multi-image editing capabilities, able to create new composite images based on multiple input images |
+| **gpt-image-2.5-sunburst** | Most capable GPT-Image-2.5 model, optimized for precise image generation and editing. The dated snapshot `gpt-image-2.5-sunburst-2026-09-08` is also supported. |
+| **gpt-image-2.5-flare** | Fast GPT-Image-2.5 model for high-quality everyday image generation and editing. The dated snapshot `gpt-image-2.5-flare-2026-09-08` is also supported. |
 
 ## 💡 Request Examples
 
@@ -40,14 +42,14 @@ curl ((SITE_URL))/v1/images/generations \
     "response_format": "url"
   }'
 
-# High-quality image generation
+# Maximum-quality GPT Image 2.5 generation
 curl ((SITE_URL))/v1/images/generations \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
-    "model": "gpt-image-2",
+    "model": "gpt-image-2.5-sunburst",
     "prompt": "A cute little sea otter",
-    "quality": "high",
+    "quality": "max",
     "size": "1024x1024"
   }'
 
@@ -93,12 +95,12 @@ curl ((SITE_URL))/v1/images/generations \
 ### Edit Image ✅
 
 ```bash
-# gpt-image-2 image editing
+# GPT Image 2.5 image editing
 curl ((SITE_URL))/v1/images/edits \
   -H "Authorization: Bearer $API_KEY" \
   -F image="@otter.png" \
   -F mask="@mask.png" \
-  -F model="gpt-image-2" \
+  -F model="gpt-image-2.5-sunburst" \
   -F prompt="A cute little sea otter wearing a beret" \
   -F size="1024x1024" \
   -F response_format="url"
@@ -155,6 +157,21 @@ POST /v1/images/edits
 
 Create edited or extended images based on one or more original images and prompts.
 
+<Callout type="info" title="JSON image-edit requests">
+Image editing supports both `multipart/form-data` uploads and `application/json` request bodies. For JSON requests, provide source images in the `images` array. Each image reference must contain either an `image_url` (a URL or Base64 data URL) or a `file_id`. A mask can use the same reference format. All other allowed edit parameters remain the same.
+
+```jsonc
+{
+  "model": "gpt-image-2.5-sunburst",
+  "prompt": "A cute little sea otter wearing a beret",
+  "images": [{ "image_url": "https://example.com/otter.png" }],
+  "mask": { "file_id": "file-mask" },
+  "quality": "max"
+  // ...other image-edit parameters
+}
+```
+</Callout>
+
 ### Authentication Method
 
 Include the following in the request header for API key authentication:
@@ -172,10 +189,10 @@ Where `$API_KEY` is your API key.
 | Parameter | Type | Required | Description |
 |------|------|------|------|
 | `prompt` | string | Yes | Text description of the desired image. Maximum 32000 characters. |
-| `model` | string | Yes | Image generation model, such as `gpt-image-1`, `gpt-image-1.5`, or `gpt-image-2`. |
+| `model` | string | Yes | Image generation model, such as `gpt-image-1`, `gpt-image-1.5`, `gpt-image-2`, `gpt-image-2.5-sunburst`, or `gpt-image-2.5-flare`. Dated GPT Image 2.5 snapshots ending in `-2026-09-08` are also supported. |
 | `n` | integer | No | Number of images to generate (1–10). Default: `1`. |
-| `size` | string | No | Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` also accepts arbitrary `WIDTHxHEIGHT` strings. Default: `auto`. |
-| `quality` | string | No | Quality of the generated image. Options: `high`, `medium`, `low`, `auto`. Default: `auto`. |
+| `size` | string | No | Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` and both GPT Image 2.5 variants also accept custom `WIDTHxHEIGHT` strings; see [Custom dimensions](#custom-dimensions). Default: `auto`. |
+| `quality` | string | No | Quality of the generated image. Options for GPT Image models: `low`, `medium`, `high`, `auto`. GPT Image 2.5 Sunburst and Flare additionally support `xhigh` and `max`. Default: `auto`. |
 | `background` | string | No | Background of the generated image. Options: `transparent`, `opaque`, `auto`. Transparent requires `output_format` of `png` or `webp`. Default: `auto`. |
 | `output_format` | string | No | File format of the returned image. Options: `png`, `jpeg`, `webp`. Default: `png`. |
 | `output_compression` | integer | No | Compression level (0–100) for `jpeg` and `webp` output. Default: `100`. |
@@ -198,10 +215,10 @@ Before use, a platform administrator must enable image URL delivery in the curre
 | `image` | file or file[] | Yes | Image(s) to edit. Each must be a PNG, WEBP, or JPG file, less than 25MB. Up to 16 images can be provided as an array. |
 | `prompt` | string | Yes | Text description of the desired edit. Maximum 32000 characters. |
 | `mask` | file | No | PNG image whose transparent areas (alpha = 0) indicate the positions to edit. Must be less than 4MB and the same size as the image. |
-| `model` | string | Yes | Image editing model, such as `gpt-image-1`, `gpt-image-1.5`, or `gpt-image-2`. |
+| `model` | string | Yes | Image editing model, such as `gpt-image-1`, `gpt-image-1.5`, `gpt-image-2`, `gpt-image-2.5-sunburst`, or `gpt-image-2.5-flare`. Dated GPT Image 2.5 snapshots ending in `-2026-09-08` are also supported. |
 | `n` | integer | No | Number of images to generate (1–10). Default: `1`. |
-| `size` | string | No | Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` also accepts arbitrary `WIDTHxHEIGHT` strings. Default: `auto`. |
-| `quality` | string | No | Quality of the generated image. Options: `high`, `medium`, `low`, `auto`. Default: `auto`. |
+| `size` | string | No | Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` and both GPT Image 2.5 variants also accept custom `WIDTHxHEIGHT` strings; see [Custom dimensions](#custom-dimensions). Default: `auto`. |
+| `quality` | string | No | Quality of the generated image. Options for GPT Image models: `low`, `medium`, `high`, `auto`. GPT Image 2.5 Sunburst and Flare additionally support `xhigh` and `max`. Default: `auto`. |
 | `background` | string | No | Background of the generated image. Options: `transparent`, `opaque`, `auto`. Transparent requires `output_format` of `png` or `webp`. Default: `auto`. |
 | `output_format` | string | No | File format of the returned image. Options: `png`, `jpeg`, `webp`. Default: `png`. |
 | `output_compression` | integer | No | Compression level (0–100) for `jpeg` and `webp` output. Default: `100`. |
@@ -211,6 +228,17 @@ Before use, a platform administrator must enable image URL delivery in the curre
 | `stream` | boolean | No | Generate the image in streaming mode. Default: `false`. |
 | `partial_images` | integer | No | Number of partial images to emit during streaming (0–3). Only valid when `stream` is `true`. |
 | `user` | string | No | Unique identifier for the end user to help OpenAI monitor and detect abuse. |
+
+### Custom dimensions
+
+For `gpt-image-2`, `gpt-image-2.5-sunburst`, and `gpt-image-2.5-flare` (including their dated snapshots), `size` can be a custom `WIDTHxHEIGHT` value such as `1536x864`. Custom dimensions must meet all of these constraints:
+
+- Width and height must be multiples of 16.
+- The aspect ratio must be between 1:3 and 3:1.
+- Neither edge can exceed 3840 pixels.
+- The total pixel count must be between 655,360 and 8,294,400 pixels.
+
+Resolutions above `2560x1440` are experimental.
 
 ## 📥 Response
 
@@ -224,7 +252,7 @@ Both endpoints return a response containing a list of image objects.
 | `data` | array | List of generated image objects |
 | `background` | string | The actual background setting used (`transparent` or `opaque`) |
 | `output_format` | string | The actual output format used (`png`, `webp`, or `jpeg`) |
-| `quality` | string | The actual quality level used (`low`, `medium`, or `high`) |
+| `quality` | string | The actual quality level used (`low`, `medium`, `high`, `xhigh`, or `max`, depending on the model) |
 | `size` | string | The actual dimensions of the generated image |
 | `usage` | object | Token usage for the API call |
 
@@ -302,6 +330,7 @@ URL delivery applies to non-streaming requests that return one complete JSON res
 
 2. Quality
     - quality=high: For images requiring fine details
+    - quality=xhigh or quality=max: GPT Image 2.5 only; use for higher-detail final assets when increased latency and cost are acceptable
     - quality=auto: Let the model choose the optimal quality
 
 ### Common Questions
