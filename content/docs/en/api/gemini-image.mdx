@@ -86,6 +86,52 @@ curl "((SITE_URL))/v1beta/models/gemini-2.5-flash-image:generateContent?key=$API
 }
 ```
 
+### Create Image with URL Delivery
+
+```bash
+# Generate an image and return a temporary URL
+curl "((SITE_URL))/v1beta/models/gemini-2.5-flash-image:generateContent?key=$API_KEY" \
+  -H 'Content-Type: application/json' \
+  -X POST \
+  -d '{
+    "contents": [{
+      "parts": [{"text": "Give me an image of a cat"}]
+    }],
+    "generationConfig": {
+      "responseFormat": {
+        "image": {"delivery": "URI"}
+      }
+    }
+  }'
+```
+
+**Response Example:**
+
+```json
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Here is an image for you: "
+          },
+          {
+            "fileData": {
+              "mimeType": "image/png",
+              "fileUri": "https://cdn.example.com/generated-images/...?..."
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ]
+}
+```
+
 ### Edit Image ✅
 
 ```bash
@@ -247,6 +293,7 @@ Where `$API_KEY` is your API key.
 |------|------|------|------|
 | `responseModalities` | Array | No | Specifies the modality types that should be included in the response, such as ["TEXT", "IMAGE"] |
 | `imageConfig` | Object | No | Image generation configuration parameters |
+| `responseFormat` | Object | No | Response formatting options. Set `image.delivery` to `"URI"` to request image URLs. |
 
 **ImageConfig Object Properties:**
 
@@ -254,6 +301,12 @@ Where `$API_KEY` is your API key.
 |------|------|------|------|
 | `aspectRatio` | String | No | Aspect ratio of the image, such as "1:1", "16:9", etc. |
 | `imageSize` | String | No | Image size, such as "2K", "4K", etc. |
+
+**ResponseFormat Image Object Properties:**
+
+| Property | Type | Required | Description |
+|------|------|------|------|
+| `delivery` | String | No | Set to uppercase `"URI"` to request a URL for each generated image. When omitted, the upstream response format is preserved. |
 
 ## 📥 Response
 
@@ -282,8 +335,9 @@ Where `$API_KEY` is your API key.
 
 | Property | Type | Description |
 |------|------|------|
-| `text` | String | Text content (optional, may include descriptive text) |
-| `inlineData` | Object | Generated image data (optional) |
+| `text` | String | Text content; some upstreams embed generated images as Markdown data URLs here |
+| `inlineData` | Object | Base64 image data when URL delivery is not requested or falls back |
+| `fileData` | Object | Generated image URL when URL delivery succeeds, or an upstream-native image URI |
 
 **InlineData Object Properties:**
 
@@ -291,6 +345,13 @@ Where `$API_KEY` is your API key.
 |------|------|------|
 | `mimeType` | String | MIME type of the image (e.g., "image/png") |
 | `data` | String | Base64-encoded image data |
+
+**FileData Object Properties:**
+
+| Property | Type | Description |
+|------|------|------|
+| `mimeType` | String | MIME type of the image (for example, `image/png`) |
+| `fileUri` | String | URL of the generated image |
 
 **FinishReason Enum Values:**
 
@@ -335,6 +396,19 @@ Where `$API_KEY` is your API key.
 
 ### Image Object Example
 
+With `"delivery": "URI"`:
+
+```json
+{
+  "fileData": {
+    "mimeType": "image/png",
+    "fileUri": "https://cdn.example.com/generated-images/...?..."
+  }
+}
+```
+
+Without URL delivery, the image may be returned as Base64:
+
 ```json
 {
   "inlineData": {
@@ -343,6 +417,22 @@ Where `$API_KEY` is your API key.
   }
 }
 ```
+
+### Image URL Delivery
+
+URL delivery applies to non-streaming `generateContent` requests. Depending on the model, image data will either be returned in candidates.content.parts in an "inlineData" object or directly as Markdown in a "text" object.
+
+Temporary URLs expire. Download or transfer the image soon after receiving it.
+
+### URL Delivery Errors
+
+| HTTP status | Error code | Recommended action |
+|------|------|------|
+| `400` | Invalid request | Use a non-streaming `generateContent` request and valid `responseFormat` JSON. Only uppercase `"URI"` activates URL delivery. |
+| `502` | `image_url_delivery_failed` | Storage or URL signing failed in strict mode; retry later. |
+| `502` | `image_response_too_large` | Reduce the image count or dimensions. |
+| `503` | `image_url_delivery_unavailable` | URL delivery for this API key or traffic. |
+| `503` | Other `image_delivery_*` errors | Retry with backoff when capacity or runtime state recovers. |
 
 ## 🌟 Best Practices
 
