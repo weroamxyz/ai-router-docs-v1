@@ -19,22 +19,21 @@ Google Gemini API 支持使用图片、音频、代码、工具等生成内容�
 
 | 模型 | 描述 |
 | --- | --- |
-| **gemini-2.5-flash** | 面向低延迟、高吞吐推理任务的最佳性价比模型 |
-| **gemini-2.5-pro** | 2.5 系列中最先进的模型，具备深度推理与编码能力，适用于复杂任务 |
 | **gemini-3-flash-preview** | 以更低成本媲美更大模型性能的前沿级模型（预览版） |
 | **gemini-3.1-flash-lite** | 以更低成本媲美更大模型性能的前沿级模型 |
 | **gemini-3.1-pro-preview** | 具备高级智能、复杂问题解决能力，以及强大的智能体与氛围编码能力（预览版） |
 | **gemini-3.5-flash-lite** | 3.5 系列中速度最快、性价比最高的模型，专为高吞吐执行打造 |
 | **gemini-3.5-flash** | 上一代 Flash 模型，为常规高吞吐工作负载提供基础速度和性能 |
 | **gemini-3.6-flash** | 前一代 Flash 模型，在通用智能体和日常任务中兼顾速度与多模态能力 |
-| **gemini-3.7-flash** | 最新、最强大的 Flash 模型，专为复杂编码、智能体工作流和可靠的多步执行打造 |
+| **gemini-3.7-flash** | 智能的日常主力模型，专为复杂编码、智能体工作流和可靠的多步执行打造 |
+| **gemini-3.8-flash** | 迄今最智能的 Flash 模型，专为长周期编码和自主智能体打造 |
 
 ## 💡 请求示例
 
 ### 基础文本对话 ✅
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -72,7 +71,7 @@ cat > "$TEMP_JSON" << EOF
 }
 EOF
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d "@$TEMP_JSON"
@@ -112,7 +111,7 @@ cat > tools.json << EOF
 } 
 EOF
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -d @<(echo '
   {
@@ -140,7 +139,7 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
 ### JSON 模式响应 ✅
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
 -H 'Content-Type: application/json' \
 -d '{
     "contents": [{
@@ -178,7 +177,7 @@ else
 fi
 AUDIO_B64=$(base64 $B64FLAGS "$AUDIO_PATH")
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -206,7 +205,7 @@ else
 fi
 VIDEO_B64=$(base64 $B64FLAGS "$VIDEO_PATH")
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -236,7 +235,7 @@ PDF_B64=$(base64 $B64FLAGS "$PDF_PATH")
 
 echo $MIME_TYPE
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -252,7 +251,7 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
 ### 聊天对话 ✅
 
 ```bash
-curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
+curl ((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -273,7 +272,7 @@ curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KE
 ### 流式响应 ✅
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=sse&key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:streamGenerateContent?alt=sse&key=$API_KEY" \
     -H 'Content-Type: application/json' \
     --no-buffer \
     -d '{
@@ -286,7 +285,7 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=
 ### 代码执行 ✅
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -302,7 +301,7 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
 ### 生成配置 ✅
 
 ```bash
-curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
+curl ((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -335,7 +334,7 @@ echo '{
         "parts":[{
             "text": "'I support Martians Soccer Club and I think Jupiterians Football Club sucks! Write a ironic phrase about them.'"}]}]}' > request.json
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d @request.json
@@ -344,7 +343,7 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
 ### 系统指令 ✅
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
 -H 'Content-Type: application/json' \
 -d '{ "system_instruction": {
     "parts":
@@ -387,7 +386,7 @@ POST ((SITE_URL))/v1beta/{model=models/*}:streamGenerateContent
 
 用于生成补全项的模型名称。
 
-格式：`models/{model}`，例如 `models/gemini-3-pro-preview`
+格式：`models/{model}`，例如 `models/gemini-3.8-flash`
 
 ### 请求体参数
 
@@ -814,7 +813,7 @@ POST ((SITE_URL))/v1beta/{model=models/*}:streamGenerateContent
       }
     ]
   },
-  "modelVersion": "gemini-3-pro-preview",
+  "modelVersion": "gemini-3.8-flash",
   "responseId": "response-12345"
 }
 ```

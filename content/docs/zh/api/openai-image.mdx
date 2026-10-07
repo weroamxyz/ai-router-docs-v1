@@ -19,8 +19,6 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 | 模型 | 描述 |
 | --- | --- |
-| **gpt-image-1** | GPT-Image-1 图像生成模型 |
-| **gpt-image-1.5** | GPT-Image-1.5 图像生成和编辑模型 |
 | **gpt-image-2** | GPT-Image-2 图像生成和编辑模型，支持多图片编辑功能，能够基于多个输入图像创建新的组合图像 |
 | **gpt-image-2.5-sunburst** | 功能最强大的 GPT-Image-2.5 模型，针对精确的图像生成和编辑进行了优化。同时支持日期快照 `gpt-image-2.5-sunburst-2026-09-08`。 |
 | **gpt-image-2.5-flare** | 快速的 GPT-Image-2.5 模型，适用于高质量的日常图像生成和编辑。同时支持日期快照 `gpt-image-2.5-flare-2026-09-08`。 |
@@ -189,7 +187,7 @@ Authorization: Bearer $API_KEY
 | 参数 | 类型 | 必需 | 说明 |
 |------|------|------|------|
 | `prompt` | 字符串 | 是 | 期望生成图片的文本描述。最大长度为 32000 字符。 |
-| `model` | 字符串 | 是 | 用于图像生成的模型，例如 `gpt-image-1`、`gpt-image-1.5`、`gpt-image-2`、`gpt-image-2.5-sunburst` 或 `gpt-image-2.5-flare`。同时支持以 `-2026-09-08` 结尾的 GPT Image 2.5 日期快照。 |
+| `model` | 字符串 | 是 | 用于图像生成的模型，例如 `gpt-image-2`、`gpt-image-2.5-sunburst` 或 `gpt-image-2.5-flare`。同时支持以 `-2026-09-08` 结尾的 GPT Image 2.5 日期快照。 |
 | `n` | 整数 | 否 | 要生成的图片数量（1–10）。默认值：`1`。 |
 | `size` | 字符串 | 否 | 生成图片的尺寸。标准可选值：`1024x1024`、`1536x1024`（横版）、`1024x1536`（竖版）、`auto`。`gpt-image-2` 和两个 GPT Image 2.5 变体还支持自定义 `宽度x高度` 字符串；请参阅[自定义尺寸](#自定义尺寸)。默认值：`auto`。 |
 | `quality` | 字符串 | 否 | GPT Image 模型的图像质量可选值为 `low`、`medium`、`high`、`auto`。GPT Image 2.5 Sunburst 和 Flare 还支持 `xhigh` 和 `max`。默认值：`auto`。 |
@@ -215,7 +213,7 @@ Authorization: Bearer $API_KEY
 | `image` | 文件或文件数组 | 是 | 要编辑的图片。每个图片应为 PNG、WEBP 或 JPG 文件，小于 25MB。最多可提供 16 张图片作为数组。 |
 | `prompt` | 字符串 | 是 | 期望编辑的文本描述。最大长度为 32000 字符。 |
 | `mask` | 文件 | 否 | 额外的 PNG 图片，其完全透明区域（alpha 为零）指示应该编辑的位置。必须小于 4MB 且与 image 尺寸相同。 |
-| `model` | 字符串 | 是 | 用于图像编辑的模型，例如 `gpt-image-1`、`gpt-image-1.5`、`gpt-image-2`、`gpt-image-2.5-sunburst` 或 `gpt-image-2.5-flare`。同时支持以 `-2026-09-08` 结尾的 GPT Image 2.5 日期快照。 |
+| `model` | 字符串 | 是 | 用于图像编辑的模型，例如 `gpt-image-2`、`gpt-image-2.5-sunburst` 或 `gpt-image-2.5-flare`。同时支持以 `-2026-09-08` 结尾的 GPT Image 2.5 日期快照。 |
 | `n` | 整数 | 否 | 要生成的图片数量（1–10）。默认值：`1`。 |
 | `size` | 字符串 | 否 | 生成图片的尺寸。标准可选值：`1024x1024`、`1536x1024`（横版）、`1024x1536`（竖版）、`auto`。`gpt-image-2` 和两个 GPT Image 2.5 变体还支持自定义 `宽度x高度` 字符串；请参阅[自定义尺寸](#自定义尺寸)。默认值：`auto`。 |
 | `quality` | 字符串 | 否 | GPT Image 模型的图像质量可选值为 `low`、`medium`、`high`、`auto`。GPT Image 2.5 Sunburst 和 Flare 还支持 `xhigh` 和 `max`。默认值：`auto`。 |

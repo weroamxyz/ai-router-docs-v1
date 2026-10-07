@@ -19,22 +19,21 @@ Currently supported models include:
 
 | Model | Description |
 | --- | --- |
-| **gemini-2.5-flash** | Best price-performance model for low-latency, high-volume tasks that require reasoning |
-| **gemini-2.5-pro** | Most advanced 2.5-family model for complex tasks, with deep reasoning and coding capabilities |
 | **gemini-3-flash-preview** | Frontier-class performance rivaling larger models at a fraction of the cost (preview) |
 | **gemini-3.1-flash-lite** | Frontier-class performance rivaling larger models at a fraction of the cost |
 | **gemini-3.1-pro-preview** | Advanced intelligence, complex problem-solving, and powerful agentic and vibe coding capabilities (preview) |
 | **gemini-3.5-flash-lite** | Fastest, most cost-effective 3.5 model, built for high-throughput execution |
 | **gemini-3.5-flash** | Legacy Flash model providing baseline speed and foundational performance for routine, high-throughput workloads |
 | **gemini-3.6-flash** | Previous-generation Flash model balancing speed and multimodal capabilities across general agentic and everyday tasks |
-| **gemini-3.7-flash** | Latest and most capable Flash model, built for complex coding, agentic workflows, and reliable multi-step execution |
+| **gemini-3.7-flash** | Intelligent everyday driver, built for complex coding, agentic workflows, and reliable multi-step execution |
+| **gemini-3.8-flash** | Most intelligent Flash model yet, built for long-horizon coding and autonomous agents |
 
 ## 💡 Request Examples
 
 ### Basic Text Chat ✅
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -72,7 +71,7 @@ cat > "$TEMP_JSON" << EOF
 }
 EOF
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d "@$TEMP_JSON"
@@ -112,7 +111,7 @@ cat > tools.json << EOF
 } 
 EOF
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -d @<(echo '
   {
@@ -140,7 +139,7 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
 ### JSON Schema Response ✅
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
 -H 'Content-Type: application/json' \
 -d '{
     "contents": [{
@@ -178,7 +177,7 @@ else
 fi
 AUDIO_B64=$(base64 $B64FLAGS "$AUDIO_PATH")
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -206,7 +205,7 @@ else
 fi
 VIDEO_B64=$(base64 $B64FLAGS "$VIDEO_PATH")
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -236,7 +235,7 @@ PDF_B64=$(base64 $B64FLAGS "$PDF_PATH")
 
 echo $MIME_TYPE
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -252,7 +251,7 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
 ### Chat Dialog ✅
 
 ```bash
-curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
+curl ((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -273,7 +272,7 @@ curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KE
 ### Streaming Response ✅
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=sse&key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:streamGenerateContent?alt=sse&key=$API_KEY" \
     -H 'Content-Type: application/json' \
     --no-buffer \
     -d '{
@@ -286,7 +285,7 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=
 ### Code Execution ✅
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -302,7 +301,7 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
 ### Generation Config ✅
 
 ```bash
-curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
+curl ((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -335,7 +334,7 @@ echo '{
         "parts":[{
             "text": "'I support Martians Soccer Club and I think Jupiterians Football Club sucks! Write a ironic phrase about them.'"}]}]}' > request.json
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d @request.json
@@ -344,7 +343,7 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
 ### System Instruction ✅
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
 -H 'Content-Type: application/json' \
 -d '{ "system_instruction": {
     "parts":
@@ -387,7 +386,7 @@ Where `$API_KEY` is your Google AI API key.
 
 The name of the model to generate completions for.
 
-Format: `models/{model}`, e.g. `models/gemini-3-pro-preview`
+Format: `models/{model}`, e.g. `models/gemini-3.8-flash`
 
 ### Request Body Parameters
 
@@ -814,7 +813,7 @@ Answer from models that support multiple candidate answers. The system reports s
       }
     ]
   },
-  "modelVersion": "gemini-3-pro-preview",
+  "modelVersion": "gemini-3.8-flash",
   "responseId": "response-12345"
 }
 ```

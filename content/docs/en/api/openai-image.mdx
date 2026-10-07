@@ -19,8 +19,6 @@ Currently supported models include:
 
 | Model | Description |
 | --- | --- |
-| **gpt-image-1** | GPT-Image-1 image generation model |
-| **gpt-image-1.5** | GPT-Image-1.5 image generation and editing model |
 | **gpt-image-2** | GPT-Image-2 image generation and editing model, supporting multi-image editing capabilities, able to create new composite images based on multiple input images |
 | **gpt-image-2.5-sunburst** | Most capable GPT-Image-2.5 model, optimized for precise image generation and editing. The dated snapshot `gpt-image-2.5-sunburst-2026-09-08` is also supported. |
 | **gpt-image-2.5-flare** | Fast GPT-Image-2.5 model for high-quality everyday image generation and editing. The dated snapshot `gpt-image-2.5-flare-2026-09-08` is also supported. |
@@ -189,7 +187,7 @@ Where `$API_KEY` is your API key.
 | Parameter | Type | Required | Description |
 |------|------|------|------|
 | `prompt` | string | Yes | Text description of the desired image. Maximum 32000 characters. |
-| `model` | string | Yes | Image generation model, such as `gpt-image-1`, `gpt-image-1.5`, `gpt-image-2`, `gpt-image-2.5-sunburst`, or `gpt-image-2.5-flare`. Dated GPT Image 2.5 snapshots ending in `-2026-09-08` are also supported. |
+| `model` | string | Yes | Image generation model, such as `gpt-image-2`, `gpt-image-2.5-sunburst`, or `gpt-image-2.5-flare`. Dated GPT Image 2.5 snapshots ending in `-2026-09-08` are also supported. |
 | `n` | integer | No | Number of images to generate (1–10). Default: `1`. |
 | `size` | string | No | Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` and both GPT Image 2.5 variants also accept custom `WIDTHxHEIGHT` strings; see [Custom dimensions](#custom-dimensions). Default: `auto`. |
 | `quality` | string | No | Quality of the generated image. Options for GPT Image models: `low`, `medium`, `high`, `auto`. GPT Image 2.5 Sunburst and Flare additionally support `xhigh` and `max`. Default: `auto`. |
@@ -215,7 +213,7 @@ Before use, a platform administrator must enable image URL delivery in the curre
 | `image` | file or file[] | Yes | Image(s) to edit. Each must be a PNG, WEBP, or JPG file, less than 25MB. Up to 16 images can be provided as an array. |
 | `prompt` | string | Yes | Text description of the desired edit. Maximum 32000 characters. |
 | `mask` | file | No | PNG image whose transparent areas (alpha = 0) indicate the positions to edit. Must be less than 4MB and the same size as the image. |
-| `model` | string | Yes | Image editing model, such as `gpt-image-1`, `gpt-image-1.5`, `gpt-image-2`, `gpt-image-2.5-sunburst`, or `gpt-image-2.5-flare`. Dated GPT Image 2.5 snapshots ending in `-2026-09-08` are also supported. |
+| `model` | string | Yes | Image editing model, such as `gpt-image-2`, `gpt-image-2.5-sunburst`, or `gpt-image-2.5-flare`. Dated GPT Image 2.5 snapshots ending in `-2026-09-08` are also supported. |
 | `n` | integer | No | Number of images to generate (1–10). Default: `1`. |
 | `size` | string | No | Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` and both GPT Image 2.5 variants also accept custom `WIDTHxHEIGHT` strings; see [Custom dimensions](#custom-dimensions). Default: `auto`. |
 | `quality` | string | No | Quality of the generated image. Options for GPT Image models: `low`, `medium`, `high`, `auto`. GPT Image 2.5 Sunburst and Flare additionally support `xhigh` and `max`. Default: `auto`. |

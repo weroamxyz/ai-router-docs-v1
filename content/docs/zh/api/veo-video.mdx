@@ -14,10 +14,8 @@ Veo 是 Google 开发的高质量文本到视频生成模型,本文档描述了�
 
 | 模型 | 描述 |
 | --- | --- |
-| **veo-3.0-generate-001** | Veo 3.0 文本到视频生成模型 |
-| **veo-3.0-fast-generate-001** | Veo 3.0 快速文本到视频生成模型 |
-| **veo-3.1-generate-preview** | Veo 3.1 文本到视频生成模型 |
-| **veo-3.1-fast-generate-preview** | Veo 3.1 快速文本到视频生成模型 |
+| **veo-3.1-generate-preview** | Veo 3.1 视频生成模型 |
+| **veo-3.1-fast-generate-preview** | Veo 3.1 快速视频生成模型 |
 
 ---
 
@@ -66,7 +64,7 @@ queued → in_progress → succeeded
 
 ```json
 {
-  "model": "veo-3.0-generate-001",
+  "model": "veo-3.1-generate-preview",
   "prompt": "A cat playing piano in a beautiful garden",
   "metadata": {
     "aspectRatio": "16:9",
@@ -84,7 +82,7 @@ queued → in_progress → succeeded
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| model | string | 是 | 模型名称，如 veo-3.0-generate-001 |
+| model | string | 是 | 模型名称，如 veo-3.1-generate-preview |
 | prompt | string | 是 | 文本提示词，描述要生成的视频内容 |
 | metadata | object | 否 | 扩展参数对象 |
 
@@ -133,7 +131,7 @@ POST /v1/video/generations
   "id": "TASK_ID",
   "task_id": "TASK_ID",
   "object": "video",
-  "model": "veo-3.0-generate-001",
+  "model": "veo-3.1-generate-preview",
   "status": "",
   "progress": 0,
   "created_at": 1764616538
