@@ -1,10 +1,9 @@
 ---
-title: Qwen 对话格式（Text Generation）
+title: Qwen 对话
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Qwen 对话格式（Text Generation）
 
 <Callout type="info" title="官方文档">
 [Qwen Text Generation API](https://www.alibabacloud.com/help/en/model-studio/text-generation)
@@ -102,78 +101,132 @@ Authorization: Bearer $API_KEY
 
 ### 请求体参数
 
-#### `model`
+<ParameterTree>
+  <ParameterField id="qwen-chat-heading-model-23" name="model" type="unknown">
 
-- 类型：字符串
-- 必需：是
+    - 类型：字符串
+    - 必需：是
 
-要使用的模型 ID。例如：`qwen-plus`、`qwen-turbo` 等。
+    要使用的模型 ID。例如：`qwen-plus`、`qwen-turbo` 等。
+  </ParameterField>
+  <ParameterField id="qwen-chat-heading-input-24" name="input" type="unknown">
 
-#### `input`
+    - 类型：对象
+    - 必需：是
 
-- 类型：对象
-- 必需：是
+    包含输入消息的对象。
 
-包含输入消息的对象。
+    **input 属性：**
 
-**input 属性：**
+    <ParameterChildren>
+      <ParameterField id="qwen-chat-table-messages-1" name="messages" type="数组">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `messages` | 数组 | 是 | 包含对话的消息列表。 |
+        包含对话的消息列表。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-#### `input.messages`
+    <ParameterChildren>
+      <ParameterField id="qwen-chat-heading-input-messages-25" name="messages" type="unknown">
 
-- 类型：数组
-- 必需：是
+        - 类型：数组
+        - 必需：是
 
-到目前为止包含对话的消息列表。
+        到目前为止包含对话的消息列表。
 
-**消息类型：**
+        **消息类型：**
 
-| 消息类型 | 描述 |
-|---------|------|
-| **System message** | 系统消息，用于设置助手的行为和角色。 |
-| **User message** | 由终端用户发送的消息，包含提示或额外的上下文信息。 |
-| **Assistant message** | 模型响应用户消息发送的消息。 |
+        | 消息类型 | 描述 |
+        |---------|------|
+        | **System message** | 系统消息，用于设置助手的行为和角色。 |
+        | **User message** | 由终端用户发送的消息，包含提示或额外的上下文信息。 |
+        | **Assistant message** | 模型响应用户消息发送的消息。 |
 
-**System message 属性：**
+        **System message 属性：**
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `role` | 字符串 | 是 | 消息作者的角色，此处为 `system`。 |
-| `content` | 字符串 | 是 | 系统消息的内容。 |
+        <ParameterChildren>
+          <ParameterField id="qwen-chat-table-role-2" name="role" type="字符串">
 
-**User message 属性：**
+            消息作者的角色，此处为 `system`。
+            **必需:** 是
+          </ParameterField>
+          <ParameterField id="qwen-chat-table-content-3" name="content" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `role` | 字符串 | 是 | 消息作者的角色，此处为 `user`。 |
-| `content` | 字符串 | 是 | 用户消息的内容。 |
+            系统消息的内容。
+            **必需:** 是
+          </ParameterField>
+        </ParameterChildren>
 
-**Assistant message 属性：**
+        **User message 属性：**
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `role` | 字符串 | 是 | 消息作者的角色，此处为 `assistant`。 |
-| `content` | 字符串 | 否 | 助手消息的内容。 |
+        <ParameterChildren>
+          <ParameterField id="qwen-chat-table-role-4" name="role" type="字符串">
 
-#### `parameters`
+            消息作者的角色，此处为 `user`。
+            **必需:** 是
+          </ParameterField>
+          <ParameterField id="qwen-chat-table-content-5" name="content" type="字符串">
 
-- 类型：对象
-- 必需：否
+            用户消息的内容。
+            **必需:** 是
+          </ParameterField>
+        </ParameterChildren>
 
-生成参数配置。
+        **Assistant message 属性：**
 
-**parameters 属性：**
+        <ParameterChildren>
+          <ParameterField id="qwen-chat-table-role-6" name="role" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `result_format` | 字符串 | 否 | 响应格式。可选值：`message`、`text`。默认为 `message`。 |
-| `temperature` | 数字 | 否 | 采样温度，控制输出的随机性。范围通常在 0 到 2 之间。 |
-| `top_p` | 数字 | 否 | 核采样参数，控制采样的概率质量。 |
-| `max_tokens` | 整数 | 否 | 生成的最大标记数。 |
-| `stop` | 字符串或数组 | 否 | 停止序列，当模型生成这些序列时停止生成。 |
+            消息作者的角色，此处为 `assistant`。
+            **必需:** 是
+          </ParameterField>
+          <ParameterField id="qwen-chat-table-content-7" name="content" type="字符串">
+
+            助手消息的内容。
+            **必需:** 否
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="qwen-chat-heading-parameters-26" name="parameters" type="unknown">
+
+    - 类型：对象
+    - 必需：否
+
+    生成参数配置。
+
+    **parameters 属性：**
+
+    <ParameterChildren>
+      <ParameterField id="qwen-chat-table-result-format-8" name="result_format" type="字符串">
+
+        响应格式。可选值：`message`、`text`。默认为 `message`。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-temperature-9" name="temperature" type="数字">
+
+        采样温度，控制输出的随机性。范围通常在 0 到 2 之间。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-top-p-10" name="top_p" type="数字">
+
+        核采样参数，控制采样的概率质量。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-max-tokens-11" name="max_tokens" type="整数">
+
+        生成的最大标记数。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-stop-12" name="stop" type="字符串或数组">
+
+        停止序列，当模型生成这些序列时停止生成。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 响应
 
@@ -181,60 +234,99 @@ Authorization: Bearer $API_KEY
 
 返回一个文本生成对象。
 
-#### `output`
+<ParameterTree>
+  <ParameterField id="qwen-chat-heading-output-27" name="output" type="unknown">
 
-- 类型：对象
-- 说明：输出对象，包含生成的文本和选择项。
+    - 类型：对象
+    - 说明：输出对象，包含生成的文本和选择项。
 
-**output 属性：**
+    **output 属性：**
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| `text` | 字符串 | 生成的文本内容。 |
-| `finish_reason` | 字符串 | 生成完成的原因。 |
-| `choices` | 数组 | 生成的选择项列表。 |
+    <ParameterChildren>
+      <ParameterField id="qwen-chat-table-text-13" name="text" type="字符串">
 
-#### `output.choices`
+        生成的文本内容。
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-finish-reason-14" name="finish_reason" type="字符串">
 
-- 类型：数组
-- 说明：包含生成的回复选项列表。
+        生成完成的原因。
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-choices-15" name="choices" type="数组">
 
-**choice 属性：**
+        生成的选择项列表。
+      </ParameterField>
+    </ParameterChildren>
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| `finish_reason` | 字符串 | 模型停止生成标记的原因。可能的值：`stop`（自然停止）、`length`（达到最大长度）等。 |
-| `message` | 对象 | 模型生成的消息。 |
-| `message.role` | 字符串 | 消息作者的角色，通常为 `assistant`。 |
-| `message.content` | 字符串 | 消息的内容。 |
+    <ParameterChildren>
+      <ParameterField id="qwen-chat-heading-output-choices-28" name="choices" type="unknown">
 
-#### `usage`
+        - 类型：数组
+        - 说明：包含生成的回复选项列表。
 
-- 类型：对象
-- 说明：补全请求的使用统计信息。
+        **choice 属性：**
 
-**usage 属性：**
+        <ParameterChildren>
+          <ParameterField id="qwen-chat-table-finish-reason-16" name="finish_reason" type="字符串">
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| `input_tokens` | 整数 | 输入中的标记数。 |
-| `output_tokens` | 整数 | 生成的补全中的标记数。 |
-| `total_tokens` | 整数 | 请求中使用的标记总数（输入 + 输出）。 |
+            模型停止生成标记的原因。可能的值：`stop`（自然停止）、`length`（达到最大长度）等。
+          </ParameterField>
+          <ParameterField id="qwen-chat-table-message-17" name="message" type="对象">
 
-#### `code`
+            模型生成的消息。
 
-- 类型：字符串
-- 说明：响应代码，通常为空字符串表示成功。
+            <ParameterChildren>
+              <ParameterField id="qwen-chat-table-message-role-18" name="role" type="字符串">
 
-#### `message`
+                消息作者的角色，通常为 `assistant`。
+              </ParameterField>
+              <ParameterField id="qwen-chat-table-message-content-19" name="content" type="字符串">
 
-- 类型：字符串
-- 说明：响应消息，通常为空字符串表示成功。
+                消息的内容。
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="qwen-chat-heading-usage-29" name="usage" type="unknown">
 
-#### `request_id`
+    - 类型：对象
+    - 说明：补全请求的使用统计信息。
 
-- 类型：字符串
-- 说明：请求的唯一标识符。
+    **usage 属性：**
+
+    <ParameterChildren>
+      <ParameterField id="qwen-chat-table-input-tokens-20" name="input_tokens" type="整数">
+
+        输入中的标记数。
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-output-tokens-21" name="output_tokens" type="整数">
+
+        生成的补全中的标记数。
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-total-tokens-22" name="total_tokens" type="整数">
+
+        请求中使用的标记总数（输入 + 输出）。
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="qwen-chat-heading-code-30" name="code" type="unknown">
+
+    - 类型：字符串
+    - 说明：响应代码，通常为空字符串表示成功。
+  </ParameterField>
+  <ParameterField id="qwen-chat-heading-message-31" name="message" type="unknown">
+
+    - 类型：字符串
+    - 说明：响应消息，通常为空字符串表示成功。
+  </ParameterField>
+  <ParameterField id="qwen-chat-heading-request-id-32" name="request_id" type="unknown">
+
+    - 类型：字符串
+    - 说明：请求的唯一标识符。
+  </ParameterField>
+</ParameterTree>
 
 #### 文本生成对象响应示例
 

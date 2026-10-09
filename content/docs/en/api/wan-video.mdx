@@ -1,169 +1,343 @@
 ---
-title: Wan Model Text-to-Video API Documentation
+title: Wan Video Generation
+sectionLayout: api
 ---
 
-# Wan Model Text-to-Video API Documentation
-
-Wan/Alibaba Cloud provides high-quality text-to-video generation models. This document describes the complete API interface specification for using Wan/Alibaba Cloud models for text-to-video generation.
+Wan provides text-to-video, image-to-video, first-and-last-frame, and reference-video generation through the same asynchronous video API.
 
 ---
 
 ## Supported Models
 
-Currently supported models include:
-
-| Model | Description |
-| --- | --- |
-| **wan2.5-t2v-preview** | Wan 2.5 text-to-video generation model (preview) |
-| **wan2.6-t2v** | Wan 2.6 text-to-video generation model |
-| **wan2.7-t2v** | Wan 2.7 text-to-video generation model |
+| Model | Mode | Description |
+| --- | --- | --- |
+| **wan2.5-t2v-preview** | Text-to-video | Wan 2.5 preview model |
+| **wan2.6-t2v** | Text-to-video | Wan 2.6 model |
+| **wan2.7-t2v** | Text-to-video | Wan 2.7 model |
+| **wan2.5-i2v-preview** | Image-to-video | Wan 2.5 preview model |
+| **wan2.6-i2v** | Image-to-video | Wan 2.6 model |
+| **wan2.1-kf2v-plus** | First/last frames | Wan 2.1 keyframe model |
+| **wan2.6-r2v** | Reference-to-video | Wan 2.6 character-reference model |
 
 ---
 
 ## Overview
 
-The Wan model text-to-video feature provides an asynchronous task processing mechanism:
+All modes use `POST /v1/video/generations`. Select a mode with the model and its input fields: text-to-video uses a prompt alone, image-to-video adds `input_reference`, first-and-last-frame generation uses two URLs under `metadata.input`, and reference-to-video uses `metadata.input.reference_video_urls`.
 
-1. Submit Task: Send a text prompt to create a video generation task
-2. Query Status: Query generation progress and status through task ID
-3. Get Results: Retrieve the generated video file after task completion
+Generation is asynchronous: submit a task, poll it by ID, and retrieve the result URL when it succeeds.
 
 ### Task Status Flow
 
 ```
 queued → in_progress → completed
                 ↓
-            failed
+              failed
 ```
-
-- queued: Task has been submitted and is waiting to be processed
-- in_progress: Task is being processed
-- completed: Task completed successfully, video has been generated
-- failed: Task failed
 
 ---
 
 ## API List
 
 | Method | Path | Description |
-|------|------|------|
-| POST | /v1/video/generations | Submit video generation task |
-| GET | /v1/video/generations/\{task_id\} | Query task status |
+| --- | --- | --- |
+| POST | [/v1/video/generations](#1-submit-video-generation-task-v1videogenerations) | Submit a video generation task |
+| GET | [/v1/video/generations/\{task_id\}](#2-query-task-status-v1videogenerationstask_id) | Query task status and retrieve its result |
 
-## Usage Examples
+## Model and Mode Differences
 
-### Request Body
+| Capability | Text-to-video | Image-to-video | First/last frames | Reference-to-video |
+| --- | --- | --- | --- | --- |
+| Input | Prompt | First-frame URL or data URI | First- and last-frame URLs | 1–3 reference-video URLs |
+| Resolution field | `parameters.size` | `parameters.resolution` | Fixed at `720P` | `parameters.size` |
+| Duration | `5`, `10`; `15` on 2.6 | `5`, `10`; `15` on 2.6 | Fixed at `5` | `5` or `10` |
+| Audio | Wan 2.5/2.6 | Wan 2.5/2.6 | Not supported | Character voice from references |
+| Multi-shot | Wan 2.6 with prompt extension | Wan 2.6 with prompt extension | Not supported | Supported |
 
-```json
-{
-  "prompt": "A large hand-shaped marble statue with vines growing on it, on a platform in the middle of a shallow pool of water.",
-  "model": "wan2.5-t2v-preview",
-  "metadata": {
-    "input": {
-      "negative_prompt": "trees, animals, outdoors"
-    },
-    "parameters": {
-      "size": "1280*720"
+## 1. Submit Video Generation Task (/v1/video/generations)
+
+Choose the example matching your input assets and model family.
+
+### Usage Examples
+
+<ExampleTabs
+  items={[
+    'Text-to-video',
+    'Image-to-video',
+    'First/last frames',
+    'Single reference',
+    'Multiple references',
+  ]}
+>
+  <ExampleTab id="wan-text-to-video-example">
+    ```json
+    {
+      "prompt": "A marble hand statue stands in a shallow pool as vines move in the breeze.",
+      "model": "wan2.6-t2v",
+      "metadata": {
+        "input": {
+          "negative_prompt": "trees, animals"
+        },
+        "parameters": {
+          "size": "1920*1080",
+          "duration": 10,
+          "audio": true,
+          "prompt_extend": true
+        }
+      }
     }
-  }
-}
-```
+    ```
+  </ExampleTab>
 
-**Complete Request:**
+  <ExampleTab id="wan-image-to-video-example">
+    Provide the first frame as an HTTP(S) URL or an image data URI in
+    `input_reference`. Plain, unprefixed base64 is not accepted.
+
+    ```json
+    {
+      "prompt": "The light turns red and water begins overflowing around the statue.",
+      "model": "wan2.5-i2v-preview",
+      "input_reference": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+      "metadata": {
+        "input": {
+          "negative_prompt": "blurry, low quality, distorted"
+        },
+        "parameters": {
+          "resolution": "1080P",
+          "duration": 5,
+          "audio": true,
+          "watermark": false
+        }
+      }
+    }
+    ```
+  </ExampleTab>
+
+  <ExampleTab id="wan-first-last-frame-example">
+    `wan2.1-kf2v-plus` accepts URL inputs only. Resolution is fixed at `720P`,
+    duration at five seconds, and audio and shot controls are unavailable.
+
+    ```json
+    {
+      "prompt": "The hand-shaped statue cracks and collapses into the water.",
+      "model": "wan2.1-kf2v-plus",
+      "metadata": {
+        "input": {
+          "first_frame_url": "https://example.com/first-frame.png",
+          "last_frame_url": "https://example.com/last-frame.png",
+          "negative_prompt": "blurry, low quality"
+        },
+        "parameters": {
+          "watermark": false,
+          "prompt_extend": false,
+          "seed": 12345
+        }
+      }
+    }
+    ```
+  </ExampleTab>
+
+  <ExampleTab id="wan-single-reference-example">
+    Reference a character's appearance and voice with one video. In the prompt,
+    refer to it as `character1`.
+
+    ```json
+    {
+      "prompt": "character1 drinks bubble tea while dancing to the music.",
+      "model": "wan2.6-r2v",
+      "metadata": {
+        "input": {
+          "reference_video_urls": [
+            "https://example.com/reference-video.mp4"
+          ]
+        },
+        "parameters": {
+          "size": "1280*720",
+          "duration": 5,
+          "shot_type": "multi"
+        }
+      }
+    }
+    ```
+  </ExampleTab>
+
+  <ExampleTab id="wan-multiple-references-example">
+    Reference videos map by array position to `character1`, `character2`, and
+    `character3` in the prompt.
+
+    ```json
+    {
+      "prompt": "character1 and character2 talk to each other in an office.",
+      "model": "wan2.6-r2v",
+      "metadata": {
+        "input": {
+          "reference_video_urls": [
+            "https://example.com/character1.mp4",
+            "https://example.com/character2.mp4"
+          ],
+          "negative_prompt": "white walls"
+        },
+        "parameters": {
+          "size": "1280*720",
+          "duration": 10,
+          "shot_type": "multi",
+          "watermark": true
+        }
+      }
+    }
+    ```
+  </ExampleTab>
+</ExampleTabs>
+
+### Complete Request
 
 ```bash
 curl -X POST "((SITE_URL))/v1/video/generations" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer API_KEY" \
-  -d '{
-    "prompt": "A large hand-shaped marble statue with vines growing on it, on a platform in the middle of a shallow pool of water.",
-    "model": "wan2.5-t2v-preview",
-    "metadata": {
-      "input": {
-        "negative_prompt": "trees, animals, outdoors"
-      },
-      "parameters": {
-        "size": "1920*1080"
-      }
-    }
-  }'
+  -d @request-body.json
 ```
 
-### Request Parameters:
+### Request Headers
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| model | string | Yes | Model name, e.g., wan2.5-t2v-preview |
-| prompt | string | Yes | Text prompt describing the video content to be generated |
-| metadata | object | No | Metadata object containing `input` and `parameters` sub-objects for specifying optional fields from the official Wan request format |
+| Header | Required | Value |
+| --- | --- | --- |
+| `Content-Type` | Yes | `application/json` |
+| `Authorization` | Yes | `Bearer API_KEY` |
 
-#### metadata.input Parameters:
+### Request Body Fields
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| negative_prompt | string | No | Negative prompt text to exclude certain elements from the video |
-| audio_url | string | No | URL of custom audio file for audio-visual synchronization. When provided, the `parameters.audio` parameter is ignored. **Supported models: wan2.5, wan2.6** |
+<ParameterTree>
+  <ParameterField id="wan-request-model" name="model" type="string" required>
+    Select a supported model whose suffix matches the intended mode: `t2v`,
+    `i2v`, `kf2v`, or `r2v`.
+  </ParameterField>
+  <ParameterField id="wan-request-prompt" name="prompt" type="string" required>
+    Description of the output video. Reference-video prompts can use
+    `character1` through `character3` to identify videos by array position.
+  </ParameterField>
+  <ParameterField id="wan-request-input-reference" name="input_reference" type="string">
+    First-frame image for image-to-video. Accepts an HTTP(S) URL or a data URI
+    such as `data:image/png;base64,...`.
+  </ParameterField>
+  <ParameterField id="wan-request-metadata" name="metadata" type="object">
+    Container for fields from the native Wan request format.
+    <ParameterChildren>
+      <ParameterField id="wan-request-input" name="input" type="object">
+        Input assets and prompt controls.
+        <ParameterChildren>
+          <ParameterField id="wan-input-negative-prompt" name="negative_prompt" type="string">
+            Content or visual qualities to exclude.
+          </ParameterField>
+          <ParameterField id="wan-input-audio-url" name="audio_url" type="string">
+            Custom audio URL for synchronization. Supported by Wan 2.5 and 2.6
+            text/image models. When present, it overrides `parameters.audio`.
+          </ParameterField>
+          <ParameterField id="wan-input-img-url" name="img_url" type="string">
+            Alternative first-frame URL for image-to-video. The top-level
+            `input_reference` field is generally simpler.
+          </ParameterField>
+          <ParameterField id="wan-input-first-frame" name="first_frame_url" type="string">
+            Required first-frame URL for `wan2.1-kf2v-plus`. Base64 is not
+            supported in this mode.
+          </ParameterField>
+          <ParameterField id="wan-input-last-frame" name="last_frame_url" type="string">
+            Required last-frame URL for `wan2.1-kf2v-plus`. Base64 is not
+            supported in this mode.
+          </ParameterField>
+          <ParameterField id="wan-input-reference-videos" name="reference_video_urls" type="string[]">
+            One to three HTTP(S) MP4 or MOV URLs for `wan2.6-r2v`. Each video
+            must contain one character, last 2–30 seconds, and be no larger than
+            100 MB. Array order maps to character identifiers in the prompt.
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+      <ParameterField id="wan-request-parameters" name="parameters" type="object">
+        Output and generation controls.
+        <ParameterChildren>
+          <ParameterField id="wan-parameters-prompt-extend" name="prompt_extend" type="boolean">
+            Enable intelligent prompt rewriting.
+          </ParameterField>
+          <ParameterField id="wan-parameters-watermark" name="watermark" type="boolean">
+            Add a watermark to the output video.
+          </ParameterField>
+          <ParameterField id="wan-parameters-seed" name="seed" type="integer">
+            Random seed from `0` to `2147483647`. A fixed seed improves, but
+            does not guarantee, reproducibility.
+          </ParameterField>
+          <ParameterField id="wan-parameters-size" name="size" type="string">
+            Output dimensions for text-to-video and reference-to-video.
 
-#### metadata.parameters Parameters:
+            - 480P (Wan 2.5 text only): `832*480`, `480*832`, `624*624`
+            - 720P: `1280*720`, `720*1280`, `960*960`, `1088*832`, `832*1088`
+            - 1080P: `1920*1080`, `1080*1920`, `1440*1440`, `1632*1248`,
+              `1248*1632`
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| prompt_extend | boolean | No | Enable intelligent prompt rewriting |
-| watermark | boolean | No | Add watermark to the video |
-| seed | integer | No | Random seed for generation reproducibility. Same seed can produce similar results |
-| size | string | No | Video resolution. **Note: 480P is not available for wan2.6**. Options by resolution tier:<br /><br />**480P tier** (**wan2.5 only**):<br />- `"832*480"` (16:9)<br />- `"480*832"` (9:16)<br />- `"624*624"` (1:1)<br /><br />**720P tier**:<br />- `"1280*720"` (16:9)<br />- `"720*1280"` (9:16)<br />- `"960*960"` (1:1)<br />- `"1088*832"` (4:3)<br />- `"832*1088"` (3:4)<br /><br />**1080P tier**:<br />- `"1920*1080"` (16:9)<br />- `"1080*1920"` (9:16)<br />- `"1440*1440"` (1:1)<br />- `"1632*1248"` (4:3)<br />- `"1248*1632"` (3:4) |
-| duration | integer | No | Video duration in seconds. Options: `5`, `10`, `15` (**15 seconds: wan2.6 only**) |
-| audio | boolean | No | Enable automatic dubbing/background audio generation. When `input.audio_url` is not provided, setting to `true` will automatically generate matching background audio or music. **Supported models: wan2.5, wan2.6**. Note: wan2.2 and earlier versions output only silent videos |
-| shot_type | string | No | Specifies the shot type of the generated video, i.e., whether the video consists of a single continuous shot or multiple switched shots. Options: `"single"` (default, outputs a single-shot video) or `"multi"` (outputs a multi-shot video). **wan2.6 only**. Note: This parameter takes effect only when `prompt_extend` is set to `true`. Parameter priority: `shot_type > prompt` |
+            Reference-to-video defaults to `1920*1080`.
+          </ParameterField>
+          <ParameterField id="wan-parameters-resolution" name="resolution" type="string">
+            Image-to-video resolution: `480P` on Wan 2.5, or `720P`/`1080P` on
+            supported models. First-and-last-frame output is fixed at `720P`.
+          </ParameterField>
+          <ParameterField id="wan-parameters-duration" name="duration" type="integer">
+            Output duration. Text/image modes accept `5` or `10`, plus `15` on
+            Wan 2.6. Reference-to-video accepts `5` or `10`; keyframe mode is
+            fixed at `5`.
+          </ParameterField>
+          <ParameterField id="wan-parameters-audio" name="audio" type="boolean">
+            Generate matching audio when no `audio_url` is provided. Supported
+            by Wan 2.5 and 2.6 text/image models; unavailable in keyframe mode.
+          </ParameterField>
+          <ParameterField id="wan-parameters-shot-type" name="shot_type" type="string">
+            `single` or `multi`. Supported by Wan 2.6 text/image models when
+            `prompt_extend` is enabled, and by `wan2.6-r2v`. Unavailable in
+            keyframe mode.
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
-**Audio Parameter Notes:**
+> Audio priority is `metadata.input.audio_url` over `metadata.parameters.audio`. Omit both (or set `audio` to `false`) for silent video, set `audio` to `true` for generated audio, or provide `audio_url` for custom synchronized audio.
 
-Audio behavior is controlled by `input.audio_url` and `parameters.audio` parameters. Priority: `audio_url > audio`. Three modes are supported:
-
-1. **Generate silent video**: Do not pass `audio_url`, and set `audio` to `false`
-2. **Automatically generate audio**: Do not pass `audio_url`, and set `audio` to `true` (the model automatically generates matching background audio or music based on the prompt and video content)
-3. **Use custom audio**: Pass `audio_url` (the `audio` parameter is ignored, and the video content attempts to align with the audio content, such as lip movements and rhythm)
-
-## 1. Submit Video Generation Task
-
-### Endpoint:
-
-```
-POST /v1/video/generations
-```
-
-### Request Headers:
-
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| Content-Type | string | Yes | application/json |
-| Authorization | string | Yes | Bearer API_KEY |
-
-### Response Example:
+### Response Example
 
 ```json
 {
-  "id": "...",
+  "id": "TASK_ID",
   "object": "video",
-  "model": "wan2.5-t2v-preview",
+  "model": "wan2.6-t2v",
   "status": "queued",
   "progress": 0,
   "created_at": 1765328779
 }
 ```
 
-### Response Field Descriptions:
+### Response Body Fields
 
-| Field | Type | Description |
-|------|------|------|
-| id | string | Task ID for subsequent task status queries |
-| object | string | Object type, fixed as "video" |
-| model | string | Model used to generate the video |
-| status | string | Task status, initially "queued" |
-| progress | integer | Task progress, 0-100 |
-| created_at | integer | Task creation timestamp |
+<ParameterTree requiredLabel="Always" optionalLabel="Conditional">
+  <ParameterField id="wan-submit-id" name="id" type="string" required>
+    Task ID for subsequent status queries.
+  </ParameterField>
+  <ParameterField id="wan-submit-object" name="object" type="string" required>
+    Object type. Always `video`.
+  </ParameterField>
+  <ParameterField id="wan-submit-model" name="model" type="string" required>
+    Model used for generation.
+  </ParameterField>
+  <ParameterField id="wan-submit-status" name="status" type="string" required>
+    Initial status, normally `queued`.
+  </ParameterField>
+  <ParameterField id="wan-submit-progress" name="progress" type="integer" required>
+    Initial progress value, normally `0`.
+  </ParameterField>
+  <ParameterField id="wan-submit-created" name="created_at" type="integer" required>
+    Unix task-creation timestamp.
+  </ParameterField>
+</ParameterTree>
 
-## 2. Query Task Status
+## 2. Query Task Status (/v1/video/generations/\{task_id\})
 
 ### Complete Request
 
@@ -172,142 +346,226 @@ curl -X GET "((SITE_URL))/v1/video/generations/TASK_ID" \
   -H "Authorization: Bearer API_KEY"
 ```
 
-### Endpoint:
+### Request Headers
 
-```
-GET /v1/video/generations/{task_id}
-```
+| Header | Required | Value |
+| --- | --- | --- |
+| `Authorization` | Yes | `Bearer API_KEY` |
 
-### Request Headers:
+### Path Parameters
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| Authorization | string | Yes | Bearer API_KEY |
+<ParameterTree>
+  <ParameterField id="wan-video-table-task-id-1" name="task_id" type="string" required>
 
-### Path Parameters:
+    Task ID returned when generation was submitted
+  </ParameterField>
+</ParameterTree>
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| task_id | string | Yes | Task ID |
+### Response Examples
 
-### Response Example (Processing):
-
-```json
-{
-  "code": "success",
-  "message": "",
-  "data": {
-    "task_id": "...",
-    "action": "textGenerate",
-    "status": "IN_PROGRESS",
-    "fail_reason": "",
-    "submit_time": 1765328779,
-    "start_time": 1765328794,
-    "finish_time": 0,
-    "progress": "30%",
-    "data": {
-      "output": {
-        "scheduled_time": "2025-12-10 09:06:19.749",
-        "submit_time": "2025-12-10 09:06:19.731",
-        "task_id": "...",
-        "task_status": "RUNNING"
-      },
-      "request_id": "..."
-    }
-  }
-}
-```
-
-### Response Example (Success):
-
-> **Note:** When the task succeeds, the `data.fail_reason` field will contain the video download URL instead of an error message — this is a known behavior of the upstream Wan API. The recommended way to retrieve the video URL is via `data.data.output.video_url`.
-
-```json
-{
-  "code": "success",
-  "message": "",
-  "data": {
-    "task_id": "...",
-    "action": "textGenerate",
-    "status": "SUCCESS",
-    "fail_reason": "<OUTPUT_URL>",
-    "submit_time": 1765328779,
-    "start_time": 1765328794,
-    "finish_time": 1765328947,
-    "progress": "100%",
-    "data": {
-      "output": {
-        "actual_prompt": "<EDITED_PROMPT>",
-        "end_time": "2025-12-10 09:08:53.863",
-        "orig_prompt": "A large hand-shaped marble statue with vines growing on it, on a platform in the middle of a shallow pool of water.",
-        "scheduled_time": "2025-12-10 09:06:19.749",
-        "submit_time": "2025-12-10 09:06:19.731",
-        "task_id": "...",
-        "task_status": "SUCCEEDED",
-        "video_url": "<OUTPUT_URL>"
-      },
-      "request_id": "...",
-      "usage": {
-        "video_count": 1,
-        "video_duration": 5,
-        "video_ratio": "1920*1080"
+<ExampleTabs items={['Processing', 'Success', 'Failed']}>
+  <ExampleTab id="wan-processing-response">
+    ```json
+    {
+      "code": "success",
+      "message": "",
+      "data": {
+        "task_id": "TASK_ID",
+        "action": "textGenerate",
+        "status": "IN_PROGRESS",
+        "fail_reason": "",
+        "submit_time": 1765328779,
+        "start_time": 1765328794,
+        "finish_time": 0,
+        "progress": "30%",
+        "data": {
+          "output": {
+            "task_id": "TASK_ID",
+            "task_status": "RUNNING"
+          },
+          "request_id": "REQUEST_ID"
+        }
       }
     }
-  }
-}
-```
+    ```
+  </ExampleTab>
 
-You can retrieve the video URL from the `data.data.output.video_url` field.
-
-### Response Example (Failed):
-
-```json
-{
-  "code": "success",
-  "message": "",
-  "data": {
-    "task_id": "...",
-    "action": "textGenerate",
-    "status": "FAILURE",
-    "fail_reason": "task failed, code: InvalidParameter , message: image_url must provided",
-    "submit_time": 1765407269,
-    "start_time": 1765407278,
-    "finish_time": 1765407294,
-    "progress": "100%",
-    "data": {
-      "output": {
-        "code": "InvalidParameter",
-        "end_time": "2025-12-11 06:54:49.934",
-        "message": "image_url must provided",
-        "scheduled_time": "2025-12-11 06:54:29.557",
-        "submit_time": "2025-12-11 06:54:29.529",
-        "task_id": "...",
-        "task_status": "FAILED"
-      },
-      "request_id": "..."
+  <ExampleTab id="wan-success-response">
+    ```json
+    {
+      "code": "success",
+      "message": "",
+      "data": {
+        "task_id": "TASK_ID",
+        "action": "textGenerate",
+        "status": "SUCCESS",
+        "fail_reason": "<OUTPUT_URL>",
+        "submit_time": 1765328779,
+        "start_time": 1765328794,
+        "finish_time": 1765328947,
+        "progress": "100%",
+        "data": {
+          "output": {
+            "actual_prompt": "<EDITED_PROMPT>",
+            "orig_prompt": "<ORIGINAL_PROMPT>",
+            "task_id": "TASK_ID",
+            "task_status": "SUCCEEDED",
+            "video_url": "<OUTPUT_URL>"
+          },
+          "request_id": "REQUEST_ID",
+          "usage": {
+            "video_count": 1,
+            "video_duration": 10,
+            "video_ratio": "1920*1080"
+          }
+        }
+      }
     }
-  }
-}
-```
+    ```
 
-### Response Field Descriptions:
+    Prefer `data.data.output.video_url` when retrieving the result. The upstream
+    API also places the URL in `data.fail_reason` on success.
+  </ExampleTab>
 
-| Field | Type | Description |
-|------|------|------|
-| code | string | Response status code, "success" indicates success |
-| message | string | Response message |
-| data | object | Task data object |
-| data.task_id | string | Task ID |
-| data.status | string | Task status: IN_PROGRESS, SUCCESS, FAILURE |
-| data.progress | string | Task progress percentage |
-| data.data.output.video_url | string | Video access URL (when task succeeds) |
-| data.data.output.task_status | string | Task status: RUNNING, SUCCEEDED, FAILED |
-| data.data.usage | object | Usage statistics (when task succeeds) |
-| data.data.usage.video_count | integer | Number of videos generated |
-| data.data.usage.video_duration | integer | Video duration (seconds) |
-| data.data.usage.video_ratio | string | Video resolution |
+  <ExampleTab id="wan-failed-response">
+    ```json
+    {
+      "code": "success",
+      "message": "",
+      "data": {
+        "task_id": "TASK_ID",
+        "action": "textGenerate",
+        "status": "FAILURE",
+        "fail_reason": "task failed, code: InvalidParameter",
+        "progress": "100%",
+        "data": {
+          "output": {
+            "code": "InvalidParameter",
+            "message": "The request parameters are invalid.",
+            "task_id": "TASK_ID",
+            "task_status": "FAILED"
+          },
+          "request_id": "REQUEST_ID"
+        }
+      }
+    }
+    ```
+  </ExampleTab>
+</ExampleTabs>
+
+### Response Body Fields
+
+<ParameterTree requiredLabel="Always" optionalLabel="Conditional">
+  <ParameterField id="wan-status-code" name="code" type="string" required>
+    Wrapper status. `success` means the status query completed.
+  </ParameterField>
+  <ParameterField id="wan-status-message" name="message" type="string" required>
+    Wrapper message, normally empty for a successful query.
+  </ParameterField>
+  <ParameterField id="wan-status-data" name="data" type="object" required>
+    Normalized task data and the native Wan response.
+    <ParameterChildren>
+      <ParameterField id="wan-status-task-id" name="task_id" type="string" required>
+        Generation task ID.
+      </ParameterField>
+      <ParameterField id="wan-status-action" name="action" type="string" required>
+        Internal generation action.
+      </ParameterField>
+      <ParameterField id="wan-status-state" name="status" type="string" required>
+        Normalized status: `IN_PROGRESS`, `SUCCESS`, or `FAILURE`.
+      </ParameterField>
+      <ParameterField id="wan-status-fail-reason" name="fail_reason" type="string" required>
+        Empty while processing, a video URL on success, or an error message on
+        failure.
+      </ParameterField>
+      <ParameterField id="wan-status-submit-time" name="submit_time" type="integer">
+        Unix submission timestamp.
+      </ParameterField>
+      <ParameterField id="wan-status-start-time" name="start_time" type="integer">
+        Unix processing-start timestamp.
+      </ParameterField>
+      <ParameterField id="wan-status-finish-time" name="finish_time" type="integer">
+        Unix completion timestamp; zero until the task finishes.
+      </ParameterField>
+      <ParameterField id="wan-status-progress" name="progress" type="string" required>
+        Completion percentage, such as `30%` or `100%`.
+      </ParameterField>
+      <ParameterField id="wan-status-provider-data" name="data" type="object" required>
+        Native Wan response details.
+        <ParameterChildren>
+          <ParameterField id="wan-status-output" name="output" type="object" required>
+            Provider task state and result.
+            <ParameterChildren>
+              <ParameterField id="wan-output-task-id" name="task_id" type="string" required>
+                Provider task ID.
+              </ParameterField>
+              <ParameterField id="wan-output-task-status" name="task_status" type="string" required>
+                Provider status: `RUNNING`, `SUCCEEDED`, or `FAILED`.
+              </ParameterField>
+              <ParameterField id="wan-output-video-url" name="video_url" type="string">
+                Generated video URL. The link is valid for 24 hours.
+              </ParameterField>
+              <ParameterField id="wan-output-orig-prompt" name="orig_prompt" type="string">
+                Original input prompt.
+              </ParameterField>
+              <ParameterField id="wan-output-actual-prompt" name="actual_prompt" type="string">
+                Prompt after intelligent rewriting.
+              </ParameterField>
+              <ParameterField id="wan-output-code" name="code" type="string">
+                Provider error code on failure.
+              </ParameterField>
+              <ParameterField id="wan-output-message" name="message" type="string">
+                Provider error message on failure.
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField id="wan-status-request-id" name="request_id" type="string" required>
+            Provider request ID.
+          </ParameterField>
+          <ParameterField id="wan-status-usage" name="usage" type="object">
+            Usage and billing measurements returned on success.
+            <ParameterChildren>
+              <ParameterField id="wan-usage-video-count" name="video_count" type="integer">
+                Number of generated videos, normally `1`.
+              </ParameterField>
+              <ParameterField id="wan-usage-video-duration" name="video_duration" type="number">
+                Generated video duration in seconds.
+              </ParameterField>
+              <ParameterField id="wan-usage-video-ratio" name="video_ratio" type="string">
+                Output dimensions, such as `1920*1080`.
+              </ParameterField>
+              <ParameterField id="wan-usage-input-duration" name="input_video_duration" type="number">
+                Billable reference-video duration for reference-to-video tasks.
+              </ParameterField>
+              <ParameterField id="wan-usage-output-duration" name="output_video_duration" type="number">
+                Output duration for reference-to-video tasks.
+              </ParameterField>
+              <ParameterField id="wan-usage-total-duration" name="duration" type="number">
+                Total billable reference-to-video duration: input plus output.
+              </ParameterField>
+              <ParameterField id="wan-usage-resolution" name="SR" type="integer">
+                Numeric output resolution, such as `720`.
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
+
+## Important Notes
+
+1. Image data in `input_reference` must be an HTTP(S) URL or a complete data URI; plain base64 is not accepted.
+2. `wan2.1-kf2v-plus` first/last-frame inputs accept URLs only.
+3. Task IDs and output URLs are retained for 24 hours.
+4. Reference-to-video accepts one to three reference videos. Each should contain one character; array order defines `character1`, `character2`, and `character3`.
+5. Reference-to-video billing uses the combined input and output duration. Truncated input durations contribute at most five billable seconds, and failed generations are not billed.
+6. Prompts, input assets, and output videos undergo content moderation.
 
 ## Related Links
 
-- [Alibaba Cloud Text-to-Video API Official Documentation](https://www.alibabacloud.com/help/en/model-studio/text-to-video-api-reference)
-
+- [Alibaba Cloud text-to-video API](https://www.alibabacloud.com/help/en/model-studio/text-to-video-api-reference)
+- [Alibaba Cloud image-to-video API](https://www.alibabacloud.com/help/en/model-studio/image-to-video-api-reference)
+- [Alibaba Cloud first-and-last-frame API](https://www.alibabacloud.com/help/en/model-studio/image-to-video-by-first-and-last-frame-api-reference)
+- [Alibaba Cloud reference-to-video API](https://www.alibabacloud.com/help/en/model-studio/wan-video-to-video-api-reference)

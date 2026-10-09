@@ -1,10 +1,9 @@
 ---
-title: OpenAI 嵌入格式（Embeddings）
+title: OpenAI 嵌入
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# OpenAI 嵌入格式（Embeddings）
 
 <Callout type="info" title="官方文档">
 [OpenAI Embeddings](https://platform.openai.com/docs/api-reference/embeddings)
@@ -33,7 +32,9 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 ## 💡 请求示例
 
-### 创建文本嵌入 ✅
+<ExampleTabs items={["创建文本嵌入","批量创建嵌入"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 curl ((SITE_URL))/v1/embeddings \
@@ -71,7 +72,10 @@ curl ((SITE_URL))/v1/embeddings \
 }
 ```
 
-### 批量创建嵌入 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 curl ((SITE_URL))/v1/embeddings \
@@ -115,6 +119,10 @@ curl ((SITE_URL))/v1/embeddings \
 }
 ```
 
+</ExampleTab>
+
+</ExampleTabs>
+
 ## 📮 请求
 
 ### 端点
@@ -137,41 +145,44 @@ Authorization: Bearer $API_KEY
 
 ### 请求体参数
 
-#### `input`
+<ParameterTree>
+  <ParameterField id="openai-embedding-heading-input-1" name="input" type="unknown">
 
-- 类型：字符串或数组
-- 必需：是
+    - 类型：字符串或数组
+    - 必需：是
 
-要嵌入的输入文本,编码为字符串或 token 数组。要在单个请求中嵌入多个输入,请传递字符串数组或 token 数组的数组。输入不得超过模型的最大输入 token 数(text-embedding-ada-002 为 8192 个 token),不能为空字符串,任何数组的维度必须小于等于 2048。
+    要嵌入的输入文本,编码为字符串或 token 数组。要在单个请求中嵌入多个输入,请传递字符串数组或 token 数组的数组。输入不得超过模型的最大输入 token 数(text-embedding-ada-002 为 8192 个 token),不能为空字符串,任何数组的维度必须小于等于 2048。
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-model-2" name="model" type="unknown">
 
-#### `model`
+    - 类型：字符串
+    - 必需：是
 
-- 类型：字符串
-- 必需：是
+    要使用的模型 ID。您可以使用 List models API 查看所有可用模型,或查看模型概述了解它们的描述。
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-encoding-format-3" name="encoding_format" type="unknown">
 
-要使用的模型 ID。您可以使用 List models API 查看所有可用模型,或查看模型概述了解它们的描述。
+    - 类型：字符串
+    - 必需：否
+    - 默认值：float
 
-#### `encoding_format`
+    返回嵌入的格式。可以是 float 或 base64。
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-dimensions-4" name="dimensions" type="unknown">
 
-- 类型：字符串
-- 必需：否
-- 默认值：float
+    - 类型：整数
+    - 必需：否
 
-返回嵌入的格式。可以是 float 或 base64。
+    生成的输出嵌入应具有的维度数。仅在 text-embedding-3 及更高版本的模型中支持。
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-user-5" name="user" type="unknown">
 
-#### `dimensions`
+    - 类型：字符串
+    - 必需：否
 
-- 类型：整数
-- 必需：否
-
-生成的输出嵌入应具有的维度数。仅在 text-embedding-3 及更高版本的模型中支持。
-
-#### `user`
-
-- 类型：字符串
-- 必需：否
-
-代表您的最终用户的唯一标识符,可以帮助 OpenAI 监控和检测滥用行为。[了解更多](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids)。
+    代表您的最终用户的唯一标识符,可以帮助 OpenAI 监控和检测滥用行为。[了解更多](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids)。
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 响应
 
@@ -179,32 +190,35 @@ Authorization: Bearer $API_KEY
 
 返回嵌入对象列表。
 
-#### `object`
+<ParameterTree>
+  <ParameterField id="openai-embedding-heading-object-6" name="object" type="unknown">
 
-- 类型：字符串
-- 说明：对象类型,值为 "list"
+    - 类型：字符串
+    - 说明：对象类型,值为 "list"
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-data-7" name="data" type="unknown">
 
-#### `data`
+    - 类型：数组
+    - 说明：包含嵌入对象的数组
+    - 属性:
+      - `object`: 对象类型,值为 "embedding"
+      - `embedding`: 嵌入向量,浮点数列表。向量长度取决于模型
+      - `index`: 嵌入在列表中的索引
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-model-8" name="model" type="unknown">
 
-- 类型：数组
-- 说明：包含嵌入对象的数组
-- 属性:
-  - `object`: 对象类型,值为 "embedding"
-  - `embedding`: 嵌入向量,浮点数列表。向量长度取决于模型
-  - `index`: 嵌入在列表中的索引
+    - 类型：字符串
+    - 说明：使用的模型名称
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-usage-9" name="usage" type="unknown">
 
-#### `model`
-
-- 类型：字符串
-- 说明：使用的模型名称
-
-#### `usage`
-
-- 类型：对象
-- 说明：token 使用统计
-- 属性:
-  - `prompt_tokens`: 提示使用的 token 数
-  - `total_tokens`: 总 token 数
+    - 类型：对象
+    - 说明：token 使用统计
+    - 属性:
+      - `prompt_tokens`: 提示使用的 token 数
+      - `total_tokens`: 总 token 数
+  </ParameterField>
+</ParameterTree>
 
 ### 嵌入对象
 
@@ -223,20 +237,23 @@ Authorization: Bearer $API_KEY
 }
 ```
 
-#### `index`
+<ParameterTree>
+  <ParameterField id="openai-embedding-heading-index-10" name="index" type="unknown">
 
-- 类型：整数
-- 说明：嵌入在列表中的索引
+    - 类型：整数
+    - 说明：嵌入在列表中的索引
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-embedding-11" name="embedding" type="unknown">
 
-#### `embedding` 
+    - 类型：数组
+    - 说明：嵌入向量,浮点数列表。向量长度取决于模型,具体请参阅嵌入指南
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-object-12" name="object" type="unknown">
 
-- 类型：数组
-- 说明：嵌入向量,浮点数列表。向量长度取决于模型,具体请参阅嵌入指南
-
-#### `object`
-
-- 类型：字符串
-- 说明：对象类型,始终为 "embedding" 
+    - 类型：字符串
+    - 说明：对象类型,始终为 "embedding"
+  </ParameterField>
+</ParameterTree>
 
 ### 错误响应
 

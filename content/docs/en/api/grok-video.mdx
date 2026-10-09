@@ -1,8 +1,7 @@
 ---
-title: Grok Video API Documentation
+title: Grok Video Generation
+sectionLayout: api
 ---
-
-# Grok Video API Documentation
 
 xAI's Grok Imagine provides video generation models. This document describes the API interface for using Grok video models for video generation. All video generation calls use the same `/v1/video/generations` endpoint, with different parameters depending on the use case.
 
@@ -41,7 +40,7 @@ queued → in_progress → completed
 - completed: Task completed successfully, video has been generated
 - failed: Task failed
 
-> **Note:** Grok video does not support push callbacks. Poll [2. Query Task Status](#2-query-task-status) until the task reaches a terminal status.
+> **Note:** Grok video does not support push callbacks. Poll [2. Query Task Status](#2-query-task-status-v1videogenerationstask_id) until the task reaches a terminal status.
 
 ---
 
@@ -49,109 +48,218 @@ queued → in_progress → completed
 
 | Method | Path | Description |
 |------|------|------|
-| POST | /v1/video/generations | Submit video generation task |
-| GET | /v1/video/generations/\{task_id\} | Query task status |
+| POST | [/v1/video/generations](#1-submit-video-generation-task-v1videogenerations) | Submit video generation task |
+| GET | [/v1/video/generations/\{task_id\}](#2-query-task-status-v1videogenerationstask_id) | Query task status |
 
-## Usage Examples
+## 1. Submit Video Generation Task (/v1/video/generations)
 
-### 1. Text-to-Video
+Choose the example that matches how you want to generate the video, then adjust its request body for your scenario.
 
-Text-to-video uses `prompt` and `model` only — no `images`. Optional top-level fields include `duration` and `size`. `aspect_ratio` is set via `metadata`.
+### Usage Examples
 
-**Request body:**
+<ExampleTabs
+  items={['Text-to-video', 'Image-to-video', 'Reference-to-video']}
+>
+  <ExampleTab id="text-to-video-example">
+    Text-to-video uses `prompt` and `model` only—no `images`. Optional
+    top-level fields include `duration` and `size`. `aspect_ratio` is set via
+    `metadata`.
 
-```json
-{
-    "prompt": "A glowing crystal-powered rocket launching from the red dunes of Mars",
-    "model": "grok-imagine-video",
-    "duration": 10,
-    "size": "720p",
-    "metadata": {
+    **Request body:**
+
+    ```json
+    {
+      "prompt": "A glowing crystal-powered rocket launching from the red dunes of Mars",
+      "model": "grok-imagine-video",
+      "duration": 10,
+      "size": "720p",
+      "metadata": {
         "aspect_ratio": "16:9"
+      }
     }
-}
-```
+    ```
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| prompt | string | Yes | Text prompt for the video |
-| model | string | Yes | Model name: `grok-imagine-video` |
-| duration | integer | Yes | Allowed: integers from `1` to `15`, inclusive |
-| size | string | No | Default `480p`. Allowed: `480p`, `720p`, `1080p` |
-| metadata | object | No | Extra metadata |
-| metadata.aspect_ratio | string | No | Default `16:9` (applied by xAI when omitted). Allowed: `1:1`, `16:9`, `9:16`, `4:3`, `3:4`, `3:2`, `2:3` |
+    **Request parameters:**
 
-### 2. Image-to-Video
+    <ParameterTree>
+      <ParameterField id="text-prompt" name="prompt" type="string" required>
+        Text prompt for the video.
+      </ParameterField>
+      <ParameterField id="text-model" name="model" type="string" required>
+        Model name. Use `grok-imagine-video`.
+      </ParameterField>
+      <ParameterField id="text-duration" name="duration" type="integer" required>
+        Video duration in seconds. Accepts integers from `1` to `15`, inclusive.
+      </ParameterField>
+      <ParameterField id="text-size" name="size" type="string">
+        Output resolution. Defaults to `480p`; accepts `480p`, `720p`, or
+        `1080p`.
+      </ParameterField>
+      <ParameterField id="text-metadata" name="metadata" type="object">
+        Extra metadata for the generation request.
+        <ParameterChildren>
+          <ParameterField
+            id="text-metadata-aspect-ratio"
+            name="aspect_ratio"
+            type="string"
+          >
+            Video aspect ratio. xAI applies `16:9` when omitted. Accepts `1:1`,
+            `16:9`, `9:16`, `4:3`, `3:4`, `3:2`, or `2:3`.
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterTree>
+  </ExampleTab>
 
-Provide one or more image URLs (or base64 data URIs) in `images` with `metadata.imageMode` omitted or set to `"keyframe"` (the default). Only the **first** image in the array is used — it becomes the video's locked first frame; any additional images are ignored.
+  <ExampleTab id="image-to-video-example">
+    Provide one or more image URLs (or base64 data URIs) in `images` with
+    `metadata.imageMode` omitted or set to `"keyframe"` (the default). Only the
+    **first** image in the array is used—it becomes the video's locked first
+    frame; any additional images are ignored.
 
-**Request body:**
+    **Request body:**
 
-```json
-{
-    "prompt": "The rocket's engines ignite and it lifts off in a cloud of dust",
-    "model": "grok-imagine-video",
-    "images": [
-        "https://example.com/rocket-on-launchpad.jpg"
-    ],
-    "duration": 8,
-    "size": "720p",
-    "metadata": {
+    ```json
+    {
+      "prompt": "The rocket's engines ignite and it lifts off in a cloud of dust",
+      "model": "grok-imagine-video",
+      "images": ["https://example.com/rocket-on-launchpad.jpg"],
+      "duration": 8,
+      "size": "720p",
+      "metadata": {
         "aspect_ratio": "16:9"
+      }
     }
-}
-```
+    ```
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| prompt | string | Yes | Text prompt describing how the image should animate |
-| model | string | Yes | Model name: `grok-imagine-video` |
-| images | array of string | Yes | One or more image URLs or base64 data URIs; only the **first** is used, becoming the locked first frame |
-| duration | integer | Yes | Allowed: integers from `1` to `15`, inclusive |
-| size | string | No | Default `480p`. Allowed: `480p`, `720p`, `1080p` |
-| metadata | object | No | Extra metadata |
-| metadata.imageMode | string | No | Default `keyframe`. Must be `keyframe` (or omitted) for this mode |
-| metadata.aspect_ratio | string | No | Default `16:9`. Allowed: `1:1`, `16:9`, `9:16`, `4:3`, `3:4`, `3:2`, `2:3` |
+    **Request parameters:**
 
-> **Note:** Image-to-video does not support a separate last-frame image. To use multiple images without locking a frame, set `metadata.imageMode` to `"reference"` — see [3. Reference-to-Video](#3-reference-to-video).
+    <ParameterTree>
+      <ParameterField id="image-prompt" name="prompt" type="string" required>
+        Text prompt describing how the image should animate.
+      </ParameterField>
+      <ParameterField id="image-model" name="model" type="string" required>
+        Model name. Use `grok-imagine-video`.
+      </ParameterField>
+      <ParameterField id="image-images" name="images" type="string[]" required>
+        One or more image URLs or base64 data URIs. Only the **first** image is
+        used, becoming the locked first frame.
+      </ParameterField>
+      <ParameterField id="image-duration" name="duration" type="integer" required>
+        Video duration in seconds. Accepts integers from `1` to `15`, inclusive.
+      </ParameterField>
+      <ParameterField id="image-size" name="size" type="string">
+        Output resolution. Defaults to `480p`; accepts `480p`, `720p`, or
+        `1080p`.
+      </ParameterField>
+      <ParameterField id="image-metadata" name="metadata" type="object">
+        Extra metadata for the generation request.
+        <ParameterChildren>
+          <ParameterField
+            id="image-metadata-image-mode"
+            name="imageMode"
+            type="string"
+          >
+            Image handling mode. Defaults to `keyframe`; use `keyframe` or omit
+            this field for image-to-video.
+          </ParameterField>
+          <ParameterField
+            id="image-metadata-aspect-ratio"
+            name="aspect_ratio"
+            type="string"
+          >
+            Video aspect ratio. Defaults to `16:9`; accepts `1:1`, `16:9`,
+            `9:16`, `4:3`, `3:4`, `3:2`, or `2:3`.
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterTree>
 
-### 3. Reference-to-Video
+    > **Note:** Image-to-video does not support a separate last-frame image. To
+    > use multiple images without locking a frame, choose the
+    > **Reference-to-video** tab.
+  </ExampleTab>
 
-Set `metadata.imageMode` to `"reference"` so every URL in `images` is treated as a **reference image** that influences the video without locking any frame. Reference images by position in the prompt with tags such as `<IMAGE_1>`, `<IMAGE_2>`, … in the same order as `images`.
+  <ExampleTab id="reference-to-video-example">
+    Set `metadata.imageMode` to `"reference"` so every URL in `images` is treated
+    as a **reference image** that influences the video without locking any
+    frame. Reference images by position in the prompt with tags such as
+    `<IMAGE_1>`, `<IMAGE_2>`, … in the same order as `images`.
 
-**Request body:**
+    **Request body:**
 
-```json
-{
-    "prompt": "The model from <IMAGE_1> walks the runway wearing the shirt from <IMAGE_2>",
-    "model": "grok-imagine-video",
-    "images": [
+    ```json
+    {
+      "prompt": "The model from <IMAGE_1> walks the runway wearing the shirt from <IMAGE_2>",
+      "model": "grok-imagine-video",
+      "images": [
         "https://example.com/model-reference.jpg",
         "https://example.com/shirt-reference.jpg"
-    ],
-    "duration": 10,
-    "size": "720p",
-    "metadata": {
+      ],
+      "duration": 10,
+      "size": "720p",
+      "metadata": {
         "imageMode": "reference",
         "aspect_ratio": "16:9"
+      }
     }
-}
-```
+    ```
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| prompt | string | Yes | Text prompt; use `<IMAGE_1>` … `<IMAGE_N>` to refer to images in order |
-| model | string | Yes | Model name: `grok-imagine-video` |
-| images | array of string | Yes | Reference image URLs or base64 data URIs (one or more) |
-| duration | integer | Yes | Allowed: integers from `1` to `15`, inclusive |
-| size | string | No | Default `480p`. Allowed: `480p`, `720p`, `1080p` |
-| metadata | object | No | Must include `imageMode` for this mode |
-| metadata.imageMode | string | Yes (this mode) | Set to `reference` |
-| metadata.aspect_ratio | string | No | Default `16:9`. Allowed: `1:1`, `16:9`, `9:16`, `4:3`, `3:4`, `3:2`, `2:3` |
+    **Request parameters:**
 
-## 1. Submit Video Generation Task
-
-Use the JSON bodies in [Usage Examples](#usage-examples) above; adjust fields for your scenario.
+    <ParameterTree>
+      <ParameterField id="reference-prompt" name="prompt" type="string" required>
+        Text prompt. Use `<IMAGE_1>` through `<IMAGE_N>` to refer to images in
+        array order.
+      </ParameterField>
+      <ParameterField id="reference-model" name="model" type="string" required>
+        Model name. Use `grok-imagine-video`.
+      </ParameterField>
+      <ParameterField
+        id="reference-images"
+        name="images"
+        type="string[]"
+        required
+      >
+        One or more reference image URLs or base64 data URIs.
+      </ParameterField>
+      <ParameterField
+        id="reference-duration"
+        name="duration"
+        type="integer"
+        required
+      >
+        Video duration in seconds. Accepts integers from `1` to `15`, inclusive.
+      </ParameterField>
+      <ParameterField id="reference-size" name="size" type="string">
+        Output resolution. Defaults to `480p`; accepts `480p`, `720p`, or
+        `1080p`.
+      </ParameterField>
+      <ParameterField id="reference-metadata" name="metadata" type="object">
+        Metadata for reference-image handling. `imageMode` is required for this
+        mode.
+        <ParameterChildren>
+          <ParameterField
+            id="reference-metadata-image-mode"
+            name="imageMode"
+            type="string"
+            required
+          >
+            Set to `reference`.
+          </ParameterField>
+          <ParameterField
+            id="reference-metadata-aspect-ratio"
+            name="aspect_ratio"
+            type="string"
+          >
+            Video aspect ratio. Defaults to `16:9`; accepts `1:1`, `16:9`,
+            `9:16`, `4:3`, `3:4`, `3:2`, or `2:3`.
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterTree>
+  </ExampleTab>
+</ExampleTabs>
 
 ### Complete Request:
 
@@ -170,10 +278,16 @@ POST /v1/video/generations
 
 ### Request Headers:
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| Content-Type | string | Yes | application/json |
-| Authorization | string | Yes | Bearer API_KEY |
+<ParameterTree>
+  <ParameterField id="grok-video-table-content-type-1" name="Content-Type" type="string" required>
+
+    application/json
+  </ParameterField>
+  <ParameterField id="grok-video-table-authorization-2" name="Authorization" type="string" required>
+
+    Bearer API_KEY
+  </ParameterField>
+</ParameterTree>
 
 ### Response Example:
 
@@ -189,19 +303,58 @@ POST /v1/video/generations
 }
 ```
 
-### Response Field Descriptions:
+### Response Body Fields:
 
-| Field | Type | Description |
-|------|------|------|
-| id | string | Task ID for subsequent task status queries |
-| task_id | string | Same as `id`; kept for backward compatibility |
-| object | string | Always `video` |
-| model | string | Model used for this task |
-| status | string | Always `queued` immediately after submission |
-| progress | integer | Always `0` immediately after submission |
-| created_at | integer | Unix timestamp (seconds) when the task was created |
+<ParameterTree requiredLabel="Always" optionalLabel="Conditional">
+  <ParameterField id="submit-response-id" name="id" type="string" required>
+    Task ID for subsequent status queries.
+  </ParameterField>
+  <ParameterField
+    id="submit-response-task-id"
+    name="task_id"
+    type="string"
+    required
+  >
+    Same value as `id`; retained for backward compatibility.
+  </ParameterField>
+  <ParameterField
+    id="submit-response-object"
+    name="object"
+    type="string"
+    required
+  >
+    Object type. Always `video`.
+  </ParameterField>
+  <ParameterField id="submit-response-model" name="model" type="string" required>
+    Model used for the task.
+  </ParameterField>
+  <ParameterField
+    id="submit-response-status"
+    name="status"
+    type="string"
+    required
+  >
+    Initial task status. Always `queued` immediately after submission.
+  </ParameterField>
+  <ParameterField
+    id="submit-response-progress"
+    name="progress"
+    type="integer"
+    required
+  >
+    Initial progress value. Always `0` immediately after submission.
+  </ParameterField>
+  <ParameterField
+    id="submit-response-created-at"
+    name="created_at"
+    type="integer"
+    required
+  >
+    Unix timestamp, in seconds, when the task was created.
+  </ParameterField>
+</ParameterTree>
 
-## 2. Query Task Status
+## 2. Query Task Status (/v1/video/generations/\{task_id\})
 
 ### Complete Request:
 
@@ -218,23 +371,31 @@ GET /v1/video/generations/{task_id}
 
 ### Request Headers:
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| Authorization | string | Yes | Bearer API_KEY |
+<ParameterTree>
+  <ParameterField id="grok-video-table-authorization-3" name="Authorization" type="string" required>
+
+    Bearer API_KEY
+  </ParameterField>
+</ParameterTree>
 
 ### Path Parameters:
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| task_id | string | Yes | Task ID |
+<ParameterTree>
+  <ParameterField id="grok-video-table-task-id-4" name="task_id" type="string" required>
 
-### Response Example (Processing):
+    Task ID
+  </ParameterField>
+</ParameterTree>
 
-```json
-{
-    "code": "success",
-    "message": "",
-    "data": {
+### Response Examples:
+
+<ExampleTabs items={['Processing', 'Success']}>
+  <ExampleTab id="processing-response-example">
+    ```json
+    {
+      "code": "success",
+      "message": "",
+      "data": {
         "task_id": "<TASK_ID>",
         "action": "generate",
         "status": "IN_PROGRESS",
@@ -244,22 +405,24 @@ GET /v1/video/generations/{task_id}
         "finish_time": 0,
         "progress": "50%",
         "data": {
-            "status": "pending",
-            "model": "grok-imagine-video"
+          "status": "pending",
+          "model": "grok-imagine-video"
         }
+      }
     }
-}
-```
+    ```
+  </ExampleTab>
 
-### Response Example (Success):
+  <ExampleTab id="success-response-example">
+    > **Note:** When the task succeeds, `data.fail_reason` contains the video
+    > download URL instead of an error message. Prefer
+    > `data.data.video.url` when retrieving the generated video.
 
-> **Note:** When the task succeeds, the `data.fail_reason` field will contain the video download URL instead of an error message. The recommended way to retrieve the video URL is via `data.data.video.url`.
-
-```json
-{
-    "code": "success",
-    "message": "",
-    "data": {
+    ```json
+    {
+      "code": "success",
+      "message": "",
+      "data": {
         "task_id": "<TASK_ID>",
         "action": "generate",
         "status": "SUCCESS",
@@ -269,31 +432,207 @@ GET /v1/video/generations/{task_id}
         "finish_time": 1776717962,
         "progress": "100%",
         "data": {
-            "status": "done",
-            "model": "grok-imagine-video",
-            "video": {
-                "url": "<VIDEO_URL>",
-                "duration": 8,
-                "respect_moderation": true
-            },
-            "usage": {
-                "cost_in_usd_ticks": 2500000000
-            }
+          "status": "done",
+          "model": "grok-imagine-video",
+          "video": {
+            "url": "<VIDEO_URL>",
+            "duration": 8,
+            "respect_moderation": true
+          },
+          "usage": {
+            "cost_in_usd_ticks": 2500000000
+          }
         }
+      }
     }
-}
-```
+    ```
+  </ExampleTab>
+</ExampleTabs>
 
-### Response Field Descriptions:
+### Response Body Fields:
 
-| Field | Type | Description |
-|------|------|------|
-| data.status | string | Normalized task status: `QUEUED`, `IN_PROGRESS`, `SUCCESS`, `FAILURE` |
-| data.action | string | `textGenerate` (text-to-video), `generate` (image-to-video), or `referenceGenerate` (reference-to-video) |
-| data.fail_reason | string | On success: the video URL (see note above). On failure: the error message |
-| data.progress | string | Percentage string, e.g. `"50%"`, `"100%"` |
-| data.data.status | string | Raw xAI status: `pending`, `done`, `expired`, `failed` |
-| data.data.video.url | string | Direct URL to the generated video (present once `data.data.status` is `done`) |
-| data.data.video.duration | number | Actual duration of the generated video, in seconds |
-| data.data.usage.cost_in_usd_ticks | integer | Exact cost xAI charged for this task, in USD ticks (10,000,000,000 ticks = $1) |
-| data.data.error.message | string | Error message (present when `data.data.status` is `failed` or `expired`) |
+<ParameterTree requiredLabel="Always" optionalLabel="Conditional">
+  <ParameterField id="status-response-code" name="code" type="string" required>
+    Wrapper status. `success` indicates that the status query completed.
+  </ParameterField>
+  <ParameterField
+    id="status-response-message"
+    name="message"
+    type="string"
+    required
+  >
+    Wrapper message. Usually empty for a successful query.
+  </ParameterField>
+  <ParameterField id="status-response-data" name="data" type="object" required>
+    Normalized task information and the provider response.
+    <ParameterChildren>
+      <ParameterField
+        id="status-response-data-task-id"
+        name="task_id"
+        type="string"
+        required
+      >
+        Task ID returned when the generation was submitted.
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-action"
+        name="action"
+        type="string"
+        required
+      >
+        Generation mode: `textGenerate` for text-to-video, `generate` for
+        image-to-video, or `referenceGenerate` for reference-to-video.
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-status"
+        name="status"
+        type="string"
+        required
+      >
+        Normalized task status: `QUEUED`, `IN_PROGRESS`, `SUCCESS`, or `FAILURE`.
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-fail-reason"
+        name="fail_reason"
+        type="string"
+        required
+      >
+        Contains the video URL on success, an error message on failure, or an
+        empty string while processing.
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-submit-time"
+        name="submit_time"
+        type="integer"
+        required
+      >
+        Unix timestamp, in seconds, when the task was submitted.
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-start-time"
+        name="start_time"
+        type="integer"
+        required
+      >
+        Unix timestamp, in seconds, when processing started. May be `0` before
+        processing begins.
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-finish-time"
+        name="finish_time"
+        type="integer"
+        required
+      >
+        Unix timestamp, in seconds, when processing finished. `0` until the task
+        reaches a terminal state.
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-progress"
+        name="progress"
+        type="string"
+        required
+      >
+        Completion percentage, such as `"50%"` or `"100%"`.
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-provider-data"
+        name="data"
+        type="object"
+        required
+      >
+        Raw task details returned by xAI.
+        <ParameterChildren>
+          <ParameterField
+            id="status-response-data-provider-data-status"
+            name="status"
+            type="string"
+            required
+          >
+            Raw xAI status: `pending`, `done`, `expired`, or `failed`.
+          </ParameterField>
+          <ParameterField
+            id="status-response-data-provider-data-model"
+            name="model"
+            type="string"
+            required
+          >
+            Model used for the generation.
+          </ParameterField>
+          <ParameterField
+            id="status-response-data-provider-data-video"
+            name="video"
+            type="object"
+          >
+            Generated video details. Present when the raw status is `done`.
+            <ParameterChildren>
+              <ParameterField
+                id="status-response-data-provider-data-video-url"
+                name="url"
+                type="string"
+                required
+              >
+                Direct URL to the generated video.
+              </ParameterField>
+              <ParameterField
+                id="status-response-data-provider-data-video-duration"
+                name="duration"
+                type="number"
+                required
+              >
+                Actual duration of the generated video, in seconds.
+              </ParameterField>
+              <ParameterField
+                id="status-response-data-provider-data-video-moderation"
+                name="respect_moderation"
+                type="boolean"
+                required
+              >
+                Whether moderation requirements were applied to the output.
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField
+            id="status-response-data-provider-data-usage"
+            name="usage"
+            type="object"
+          >
+            Provider billing details. Present when usage information is
+            available.
+            <ParameterChildren>
+              <ParameterField
+                id="status-response-data-provider-data-usage-cost"
+                name="cost_in_usd_ticks"
+                type="integer"
+                required
+              >
+                Exact cost charged by xAI in USD ticks. `10,000,000,000` ticks
+                equals `$1`.
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField
+            id="status-response-data-provider-data-error"
+            name="error"
+            type="object"
+          >
+            Error details. Present when the raw status is `failed` or `expired`.
+            <ParameterChildren>
+              <ParameterField
+                id="status-response-data-provider-data-error-message"
+                name="message"
+                type="string"
+                required
+              >
+                Provider error message.
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
+
+## Related Links
+
+- [xAI Video API Reference](https://docs.x.ai/developers/rest-api-reference/inference/videos)

@@ -100,3 +100,25 @@ body {
   margin-top: 0;
   margin-bottom: 0;
 }
+
+/* Opt-in hierarchy for subsections on long API reference pages. */
+.prose .api-subsection {
+  margin-block: 1.75rem;
+  padding-inline-start: 1rem;
+  border-inline-start: 2px solid
+    color-mix(in srgb, var(--color-fd-primary) 45%, var(--color-fd-border));
+}
+
+.prose .api-subsection > h3 {
+  margin-top: 0;
+}
+
+.prose .api-subsection:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .prose .api-subsection {
+    padding-inline-start: 0.5rem;
+  }
+}

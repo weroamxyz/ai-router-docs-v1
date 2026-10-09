@@ -1,10 +1,9 @@
 ---
-title: Seedream Image Format (Image)
+title: Seedream Image Generation
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Seedream Image Format (Image)
 
 <Callout type="info" title="Official Documentation">
 [VolcEngine Seedream Image Generation API](https://www.volcengine.com/docs/82379/1541523)
@@ -25,7 +24,9 @@ Currently supported models include:
 
 ## 💡 Request Examples
 
-### Text-to-Image ✅
+<ExampleTabs items={["Text-to-Image","Image-to-Image (Reference Image)","Generate Image Set (Sequential Generation)","Multi-Image Composition"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 curl ((SITE_URL))/v1/images/generations \
@@ -59,7 +60,10 @@ curl ((SITE_URL))/v1/images/generations \
 }
 ```
 
-### Image-to-Image (Reference Image) ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 curl ((SITE_URL))/v1/images/generations \
@@ -73,7 +77,10 @@ curl ((SITE_URL))/v1/images/generations \
   }'
 ```
 
-### Generate Image Set (Sequential Generation) ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-3">
+
 
 ```bash
 curl ((SITE_URL))/v1/images/generations \
@@ -111,7 +118,10 @@ curl ((SITE_URL))/v1/images/generations \
 }
 ```
 
-### Multi-Image Composition ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-4">
+
 
 ```bash
 curl ((SITE_URL))/v1/images/generations \
@@ -127,6 +137,10 @@ curl ((SITE_URL))/v1/images/generations \
     ]
   }'
 ```
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ## 📮 Request
 
@@ -151,15 +165,36 @@ Where `$API_KEY` is your API key.
 
 ### Request Body Parameters
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| `model` | string | Yes | Model ID, e.g. `doubao-seedream-5-0-260128` |
-| `prompt` | string | Yes | Text prompt for image generation. Supports Chinese and English. |
-| `image` | string \| string[] | No | Reference image(s) as data URLs (`data:image/<format>;base64,...`). Single image = string, multiple = array. Maximum 14 images. |
-| `size` | string | No | Output resolution. Options: `2K`, `3K`, `4K`, or explicit `<width>x<height>` (e.g. `2048x2048`). See [size values](#size-values) for details. Default determined by model. |
-| `response_format` | string | No | `"url"` (default) or `"b64_json"`. |
-| `watermark` | boolean | No | Whether to add an "AI Generated" watermark. Default: `true`. |
-| `extra_fields` | object | No | Seedream-specific extended parameters. See [Seedream `extra_fields` Reference](#seedream-extra_fields-reference) below. |
+<ParameterTree>
+  <ParameterField id="seedream-image-table-model-1" name="model" type="string" required>
+
+    Model ID, e.g. `doubao-seedream-5-0-260128`
+  </ParameterField>
+  <ParameterField id="seedream-image-table-prompt-2" name="prompt" type="string" required>
+
+    Text prompt for image generation. Supports Chinese and English.
+  </ParameterField>
+  <ParameterField id="seedream-image-table-image-3" name="image" type="string \| string[]">
+
+    Reference image(s) as data URLs (`data:image/<format>;base64,...`). Single image = string, multiple = array. Maximum 14 images.
+  </ParameterField>
+  <ParameterField id="seedream-image-table-size-4" name="size" type="string">
+
+    Output resolution. Options: `2K`, `3K`, `4K`, or explicit `<width>x<height>` (e.g. `2048x2048`). See [size values](#size-values) for details. Default determined by model.
+  </ParameterField>
+  <ParameterField id="seedream-image-table-response-format-5" name="response_format" type="string">
+
+    `"url"` (default) or `"b64_json"`.
+  </ParameterField>
+  <ParameterField id="seedream-image-table-watermark-6" name="watermark" type="boolean">
+
+    Whether to add an "AI Generated" watermark. Default: `true`.
+  </ParameterField>
+  <ParameterField id="seedream-image-table-extra-fields-7" name="extra_fields" type="object">
+
+    Seedream-specific extended parameters. See [Seedream `extra_fields` Reference](#seedream-extra_fields-reference) below.
+  </ParameterField>
+</ParameterTree>
 
 #### Size Values
 
@@ -176,16 +211,62 @@ The following parameters are supported in the `extra_fields` object for Seedream
 
 ### `extra_fields` Parameters
 
-| Field | Type | Default | Description | Models |
-|---|---|---|---|---|
-| `sequential_image_generation` | string | `"disabled"` | `"auto"`: model decides how many images to return as a set. `"disabled"`: single image only. | 5.0, 4.5, 4.0 |
-| `sequential_image_generation_options` | object | — | Configuration for image set generation. Only effective when `sequential_image_generation` is `"auto"`. | 5.0, 4.5, 4.0 |
-| `sequential_image_generation_options.max_images` | integer | `15` | Maximum number of images to generate in the set. Range: 1–15. Note: input reference images + generated images ≤ 15. | 5.0, 4.5, 4.0 |
-| `tools` | array | — | Enable optional tools. Pass `[{ "type": "web_search" }]` to let the model search the web for timely content (e.g. current events, products). Increases latency. Actual search count returned in `usage.tool_usage.web_search`. | **5.0 only** |
-| `stream` | boolean | `false` | Enable streaming output. Each image is returned as soon as it is ready rather than waiting for the full set. Note: response-side streaming is not currently handled by this router; the upstream will stream but the router responds non-streamingly. | 5.0, 4.5, 4.0 |
-| `output_format` | string | `"jpeg"` | Output file format: `"jpeg"` or `"png"`. | **5.0 only** |
-| `optimize_prompt_options` | object | — | Prompt optimization configuration. | 5.0, 4.5, 4.0 |
-| `optimize_prompt_options.mode` | string | `"standard"` | `"standard"`: higher quality, slower. `"fast"`: lower quality, faster. Note: `"fast"` is **not** supported on 5.0 or 4.5. | 5.0, 4.5, 4.0 |
+<ParameterTree>
+  <ParameterField id="seedream-image-table-sequential-image-generation-8" name="sequential_image_generation" type="string">
+
+    `"auto"`: model decides how many images to return as a set. `"disabled"`: single image only.
+    **Default:** `"disabled"`
+    **Models:** 5.0, 4.5, 4.0
+  </ParameterField>
+  <ParameterField id="seedream-image-table-sequential-image-generation-options-9" name="sequential_image_generation_options" type="object">
+
+    Configuration for image set generation. Only effective when `sequential_image_generation` is `"auto"`.
+    **Default:** —
+    **Models:** 5.0, 4.5, 4.0
+
+    <ParameterChildren>
+      <ParameterField id="seedream-image-table-sequential-image-generation-options-max-images-10" name="max_images" type="integer">
+
+        Maximum number of images to generate in the set. Range: 1–15. Note: input reference images + generated images ≤ 15.
+        **Default:** `15`
+        **Models:** 5.0, 4.5, 4.0
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="seedream-image-table-tools-11" name="tools" type="array">
+
+    Enable optional tools. Pass `[{ "type": "web_search" }]` to let the model search the web for timely content (e.g. current events, products). Increases latency. Actual search count returned in `usage.tool_usage.web_search`.
+    **Default:** —
+    **Models:** **5.0 only**
+  </ParameterField>
+  <ParameterField id="seedream-image-table-stream-12" name="stream" type="boolean">
+
+    Enable streaming output. Each image is returned as soon as it is ready rather than waiting for the full set. Note: response-side streaming is not currently handled by this router; the upstream will stream but the router responds non-streamingly.
+    **Default:** `false`
+    **Models:** 5.0, 4.5, 4.0
+  </ParameterField>
+  <ParameterField id="seedream-image-table-output-format-13" name="output_format" type="string">
+
+    Output file format: `"jpeg"` or `"png"`.
+    **Default:** `"jpeg"`
+    **Models:** **5.0 only**
+  </ParameterField>
+  <ParameterField id="seedream-image-table-optimize-prompt-options-14" name="optimize_prompt_options" type="object">
+
+    Prompt optimization configuration.
+    **Default:** —
+    **Models:** 5.0, 4.5, 4.0
+
+    <ParameterChildren>
+      <ParameterField id="seedream-image-table-optimize-prompt-options-mode-15" name="mode" type="string">
+
+        `"standard"`: higher quality, slower. `"fast"`: lower quality, faster. Note: `"fast"` is **not** supported on 5.0 or 4.5.
+        **Default:** `"standard"`
+        **Models:** 5.0, 4.5, 4.0
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 Response
 
@@ -193,30 +274,60 @@ The following parameters are supported in the `extra_fields` object for Seedream
 
 The endpoint returns a response with the following top-level fields:
 
-| Field | Type | Description |
-|------|------|------|
-| `model` | string | The model ID used for generation |
-| `created` | integer | Unix timestamp (in seconds) of when the image was created |
-| `data` | array | List of generated image objects |
-| `usage` | object | Token usage for the API call |
+<ParameterTree>
+  <ParameterField id="seedream-image-table-model-16" name="model" type="string">
+
+    The model ID used for generation
+  </ParameterField>
+  <ParameterField id="seedream-image-table-created-17" name="created" type="integer">
+
+    Unix timestamp (in seconds) of when the image was created
+  </ParameterField>
+  <ParameterField id="seedream-image-table-data-18" name="data" type="array">
+
+    List of generated image objects
+  </ParameterField>
+  <ParameterField id="seedream-image-table-usage-19" name="usage" type="object">
+
+    Token usage for the API call
+  </ParameterField>
+</ParameterTree>
 
 #### `usage` Fields
 
-| Field | Type | Description |
-|------|------|------|
-| `generated_images` | integer | Number of images generated |
-| `output_tokens` | integer | Tokens used for output |
-| `total_tokens` | integer | Total tokens used |
+<ParameterTree>
+  <ParameterField id="seedream-image-table-generated-images-20" name="generated_images" type="integer">
+
+    Number of images generated
+  </ParameterField>
+  <ParameterField id="seedream-image-table-output-tokens-21" name="output_tokens" type="integer">
+
+    Tokens used for output
+  </ParameterField>
+  <ParameterField id="seedream-image-table-total-tokens-22" name="total_tokens" type="integer">
+
+    Total tokens used
+  </ParameterField>
+</ParameterTree>
 
 ### Image Object
 
 Each object in the `data` array contains:
 
-| Field | Type | Description |
-|------|------|------|
-| `url` | string | URL of the generated image. Returned when `response_format` is `"url"` (default). |
-| `b64_json` | string | Base64-encoded image data. Returned when `response_format` is `"b64_json"`. |
-| `size` | string | Actual dimensions of the generated image (e.g. `"2048x2048"`). |
+<ParameterTree>
+  <ParameterField id="seedream-image-table-url-23" name="url" type="string">
+
+    URL of the generated image. Returned when `response_format` is `"url"` (default).
+  </ParameterField>
+  <ParameterField id="seedream-image-table-b64-json-24" name="b64_json" type="string">
+
+    Base64-encoded image data. Returned when `response_format` is `"b64_json"`.
+  </ParameterField>
+  <ParameterField id="seedream-image-table-size-25" name="size" type="string">
+
+    Actual dimensions of the generated image (e.g. `"2048x2048"`).
+  </ParameterField>
+</ParameterTree>
 
 Example image object:
 ```json

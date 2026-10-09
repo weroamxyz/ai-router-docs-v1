@@ -1,10 +1,9 @@
 ---
-title: OpenAI Embeddings Format
+title: OpenAI Embeddings
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# OpenAI Embeddings Format
 
 <Callout type="info" title="Official Documentation">
 [OpenAI Embeddings](https://platform.openai.com/docs/api-reference/embeddings)
@@ -33,7 +32,9 @@ Currently supported models include:
 
 ## 💡 Request Examples
 
-### Create Text Embeddings ✅
+<ExampleTabs items={["Create Text Embeddings","Batch Create Embeddings"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 curl ((SITE_URL))/v1/embeddings \
@@ -71,7 +72,10 @@ curl ((SITE_URL))/v1/embeddings \
 }
 ```
 
-### Batch Create Embeddings ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 curl ((SITE_URL))/v1/embeddings \
@@ -115,6 +119,10 @@ curl ((SITE_URL))/v1/embeddings \
 }
 ```
 
+</ExampleTab>
+
+</ExampleTabs>
+
 ## 📮 Request
 
 ### Endpoint
@@ -137,41 +145,30 @@ Where `$API_KEY` is your API key.
 
 ### Request Body Parameters
 
-#### `input`
+<ParameterTree>
+  <ParameterField id="openai-embedding-heading-input-1" name="input" type="String or array" required>
 
-- Type: String or array
-- Required: Yes
+    The input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or an array of token arrays. Input must not exceed the model's maximum input token count (8192 tokens for text-embedding-ada-002), cannot be an empty string, and any array must have dimensions less than or equal to 2048.
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-model-2" name="model" type="String" required>
 
-The input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or an array of token arrays. Input must not exceed the model's maximum input token count (8192 tokens for text-embedding-ada-002), cannot be an empty string, and any array must have dimensions less than or equal to 2048.
+    The ID of the model to use. You can use the List models API to see all available models, or see the model overview for their descriptions.
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-encoding-format-3" name="encoding_format" type="String">
 
-#### `model`
+    - Default: float
 
-- Type: String
-- Required: Yes
+    The format to return the embeddings in. Can be float or base64.
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-dimensions-4" name="dimensions" type="Integer">
 
-The ID of the model to use. You can use the List models API to see all available models, or see the model overview for their descriptions.
+    The number of dimensions the generated output embeddings should have. Only supported in text-embedding-3 and newer models.
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-user-5" name="user" type="String">
 
-#### `encoding_format`
-
-- Type: String
-- Required: No
-- Default: float
-
-The format to return the embeddings in. Can be float or base64.
-
-#### `dimensions`
-
-- Type: Integer
-- Required: No
-
-The number of dimensions the generated output embeddings should have. Only supported in text-embedding-3 and newer models.
-
-#### `user`
-
-- Type: String
-- Required: No
-
-A unique identifier representing your end user, which can help OpenAI monitor and detect abuse. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids).
+    A unique identifier representing your end user, which can help OpenAI monitor and detect abuse. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids).
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 Response
 
@@ -179,32 +176,31 @@ A unique identifier representing your end user, which can help OpenAI monitor an
 
 Returns a list of embedding objects.
 
-#### `object`
+<ParameterTree>
+  <ParameterField id="openai-embedding-heading-object-6" name="object" type="String">
 
-- Type: String
-- Description: Object type, value is "list"
+    Object type, value is "list"
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-data-7" name="data" type="Array">
 
-#### `data`
+    Array containing embedding objects
+    - Properties:
+      - `object`: Object type, value is "embedding"
+      - `embedding`: Embedding vector, list of floating point numbers. Vector length depends on the model
+      - `index`: Index of the embedding in the list
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-model-8" name="model" type="String">
 
-- Type: Array
-- Description: Array containing embedding objects
-- Properties:
-  - `object`: Object type, value is "embedding"
-  - `embedding`: Embedding vector, list of floating point numbers. Vector length depends on the model
-  - `index`: Index of the embedding in the list
+    Name of the model used
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-usage-9" name="usage" type="Object">
 
-#### `model`
-
-- Type: String
-- Description: Name of the model used
-
-#### `usage`
-
-- Type: Object
-- Description: Token usage statistics
-- Properties:
-  - `prompt_tokens`: Number of tokens used for prompt
-  - `total_tokens`: Total number of tokens
+    Token usage statistics
+    - Properties:
+      - `prompt_tokens`: Number of tokens used for prompt
+      - `total_tokens`: Total number of tokens
+  </ParameterField>
+</ParameterTree>
 
 ### Embedding Object
 
@@ -223,20 +219,20 @@ Represents an embedding vector returned by the embeddings endpoint.
 }
 ```
 
-#### `index`
+<ParameterTree>
+  <ParameterField id="openai-embedding-heading-index-10" name="index" type="Integer">
 
-- Type: Integer
-- Description: Index of the embedding in the list
+    Index of the embedding in the list
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-embedding-11" name="embedding" type="Array">
 
-#### `embedding` 
+    Embedding vector, list of floating point numbers. Vector length depends on the model, see embeddings guide for details
+  </ParameterField>
+  <ParameterField id="openai-embedding-heading-object-12" name="object" type="String">
 
-- Type: Array
-- Description: Embedding vector, list of floating point numbers. Vector length depends on the model, see embeddings guide for details
-
-#### `object`
-
-- Type: String
-- Description: Object type, always "embedding" 
+    Object type, always "embedding"
+  </ParameterField>
+</ParameterTree>
 
 ### Error Response
 

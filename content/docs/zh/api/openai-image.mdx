@@ -1,10 +1,9 @@
 ---
-title: OpenAI 图像格式（Image）
+title: OpenAI 图像生成
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# OpenAI 图像格式（Image）
 
 <Callout type="info" title="官方文档">
 [OpenAI Images](https://platform.openai.com/docs/api-reference/images)
@@ -25,7 +24,9 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 ## 💡 请求示例
 
-### 创建图片 ✅
+<ExampleTabs items={["创建图片","编辑图片"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 # 生成图片并返回临时 URL
@@ -90,7 +91,10 @@ curl ((SITE_URL))/v1/images/generations \
 }
 ```
 
-### 编辑图片 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 # GPT Image 2.5 图片编辑
@@ -136,6 +140,10 @@ curl ((SITE_URL))/v1/images/edits \
   }
 }
 ```
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ## 📮 请求
 
@@ -184,21 +192,73 @@ Authorization: Bearer $API_KEY
 
 #### 创建图片 (`/v1/images/generations`)
 
-| 参数 | 类型 | 必需 | 说明 |
-|------|------|------|------|
-| `prompt` | 字符串 | 是 | 期望生成图片的文本描述。最大长度为 32000 字符。 |
-| `model` | 字符串 | 是 | 用于图像生成的模型，例如 `gpt-image-2`、`gpt-image-2.5-sunburst` 或 `gpt-image-2.5-flare`。同时支持以 `-2026-09-08` 结尾的 GPT Image 2.5 日期快照。 |
-| `n` | 整数 | 否 | 要生成的图片数量（1–10）。默认值：`1`。 |
-| `size` | 字符串 | 否 | 生成图片的尺寸。标准可选值：`1024x1024`、`1536x1024`（横版）、`1024x1536`（竖版）、`auto`。`gpt-image-2` 和两个 GPT Image 2.5 变体还支持自定义 `宽度x高度` 字符串；请参阅[自定义尺寸](#自定义尺寸)。默认值：`auto`。 |
-| `quality` | 字符串 | 否 | GPT Image 模型的图像质量可选值为 `low`、`medium`、`high`、`auto`。GPT Image 2.5 Sunburst 和 Flare 还支持 `xhigh` 和 `max`。默认值：`auto`。 |
-| `background` | 字符串 | 否 | 生成图片的背景。可选值：`transparent`、`opaque`、`auto`。透明背景要求 `output_format` 为 `png` 或 `webp`。默认值：`auto`。 |
-| `output_format` | 字符串 | 否 | 返回图片的文件格式。可选值：`png`、`jpeg`、`webp`。默认值：`png`。 |
-| `output_compression` | 整数 | 否 | `jpeg` 与 `webp` 输出的压缩级别（0–100）。默认值：`100`。 |
-| `moderation` | 字符串 | 否 | 生成图片的内容审核强度。可选值：`low`、`auto`。默认值：`auto`。 |
-| `response_format` | 字符串 | 否 | 响应图片格式。`url` 请求图片 URL，`b64_json` 返回 Base64 数据。不传时保留模型或上游渠道的默认行为。 |
-| `stream` | 布尔值 | 否 | 以流式模式生成图片。默认值：`false`。 |
-| `partial_images` | 整数 | 否 | 流式响应中发送的部分图片数量（0–3）。仅在 `stream` 为 `true` 时有效。 |
-| `user` | 字符串 | 否 | 代表最终用户的唯一标识符，可帮助 OpenAI 监控和检测滥用行为。 |
+<ParameterTree>
+  <ParameterField id="openai-image-table-prompt-1" name="prompt" type="字符串">
+
+    期望生成图片的文本描述。最大长度为 32000 字符。
+    **必需:** 是
+  </ParameterField>
+  <ParameterField id="openai-image-table-model-2" name="model" type="字符串">
+
+    用于图像生成的模型，例如 `gpt-image-2`、`gpt-image-2.5-sunburst` 或 `gpt-image-2.5-flare`。同时支持以 `-2026-09-08` 结尾的 GPT Image 2.5 日期快照。
+    **必需:** 是
+  </ParameterField>
+  <ParameterField id="openai-image-table-n-3" name="n" type="整数">
+
+    要生成的图片数量（1–10）。默认值：`1`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-size-4" name="size" type="字符串">
+
+    生成图片的尺寸。标准可选值：`1024x1024`、`1536x1024`（横版）、`1024x1536`（竖版）、`auto`。`gpt-image-2` 和两个 GPT Image 2.5 变体还支持自定义 `宽度x高度` 字符串；请参阅[自定义尺寸](#自定义尺寸)。默认值：`auto`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-quality-5" name="quality" type="字符串">
+
+    GPT Image 模型的图像质量可选值为 `low`、`medium`、`high`、`auto`。GPT Image 2.5 Sunburst 和 Flare 还支持 `xhigh` 和 `max`。默认值：`auto`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-background-6" name="background" type="字符串">
+
+    生成图片的背景。可选值：`transparent`、`opaque`、`auto`。透明背景要求 `output_format` 为 `png` 或 `webp`。默认值：`auto`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-output-format-7" name="output_format" type="字符串">
+
+    返回图片的文件格式。可选值：`png`、`jpeg`、`webp`。默认值：`png`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-output-compression-8" name="output_compression" type="整数">
+
+    `jpeg` 与 `webp` 输出的压缩级别（0–100）。默认值：`100`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-moderation-9" name="moderation" type="字符串">
+
+    生成图片的内容审核强度。可选值：`low`、`auto`。默认值：`auto`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-response-format-10" name="response_format" type="字符串">
+
+    响应图片格式。`url` 请求图片 URL，`b64_json` 返回 Base64 数据。不传时保留模型或上游渠道的默认行为。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-stream-11" name="stream" type="布尔值">
+
+    以流式模式生成图片。默认值：`false`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-partial-images-12" name="partial_images" type="整数">
+
+    流式响应中发送的部分图片数量（0–3）。仅在 `stream` 为 `true` 时有效。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-user-13" name="user" type="字符串">
+
+    代表最终用户的唯一标识符，可帮助 OpenAI 监控和检测滥用行为。
+    **必需:** 否
+  </ParameterField>
+</ParameterTree>
 
 <Callout type="info" title="URL 响应">
 对于本身只返回 Base64 的 GPT Image 模型，API 会在 URL 交付功能可用时将生成结果保存到对象存储，并返回临时签名 URL。该参数由本 API 兼容层处理，不要求上游模型原生支持 `response_format`。
@@ -208,24 +268,88 @@ Authorization: Bearer $API_KEY
 
 #### 编辑图片 (`/v1/images/edits`)
 
-| 参数 | 类型 | 必需 | 说明 |
-|------|------|------|------|
-| `image` | 文件或文件数组 | 是 | 要编辑的图片。每个图片应为 PNG、WEBP 或 JPG 文件，小于 25MB。最多可提供 16 张图片作为数组。 |
-| `prompt` | 字符串 | 是 | 期望编辑的文本描述。最大长度为 32000 字符。 |
-| `mask` | 文件 | 否 | 额外的 PNG 图片，其完全透明区域（alpha 为零）指示应该编辑的位置。必须小于 4MB 且与 image 尺寸相同。 |
-| `model` | 字符串 | 是 | 用于图像编辑的模型，例如 `gpt-image-2`、`gpt-image-2.5-sunburst` 或 `gpt-image-2.5-flare`。同时支持以 `-2026-09-08` 结尾的 GPT Image 2.5 日期快照。 |
-| `n` | 整数 | 否 | 要生成的图片数量（1–10）。默认值：`1`。 |
-| `size` | 字符串 | 否 | 生成图片的尺寸。标准可选值：`1024x1024`、`1536x1024`（横版）、`1024x1536`（竖版）、`auto`。`gpt-image-2` 和两个 GPT Image 2.5 变体还支持自定义 `宽度x高度` 字符串；请参阅[自定义尺寸](#自定义尺寸)。默认值：`auto`。 |
-| `quality` | 字符串 | 否 | GPT Image 模型的图像质量可选值为 `low`、`medium`、`high`、`auto`。GPT Image 2.5 Sunburst 和 Flare 还支持 `xhigh` 和 `max`。默认值：`auto`。 |
-| `background` | 字符串 | 否 | 生成图片的背景。可选值：`transparent`、`opaque`、`auto`。透明背景要求 `output_format` 为 `png` 或 `webp`。默认值：`auto`。 |
-| `output_format` | 字符串 | 否 | 返回图片的文件格式。可选值：`png`、`jpeg`、`webp`。默认值：`png`。 |
-| `output_compression` | 整数 | 否 | `jpeg` 与 `webp` 输出的压缩级别（0–100）。默认值：`100`。 |
-| `input_fidelity` | 字符串 | 否 | 控制输出与输入图片的契合程度。可选值：`high`、`low`。 |
-| `moderation` | 字符串 | 否 | 生成图片的内容审核强度。可选值：`low`、`auto`。默认值：`auto`。 |
-| `response_format` | 字符串 | 否 | 响应图片格式。`url` 请求图片 URL，`b64_json` 返回 Base64 数据。不传时保留模型或上游渠道的默认行为。 |
-| `stream` | 布尔值 | 否 | 以流式模式生成图片。默认值：`false`。 |
-| `partial_images` | 整数 | 否 | 流式响应中发送的部分图片数量（0–3）。仅在 `stream` 为 `true` 时有效。 |
-| `user` | 字符串 | 否 | 代表最终用户的唯一标识符，可帮助 OpenAI 监控和检测滥用行为。 |
+<ParameterTree>
+  <ParameterField id="openai-image-table-image-14" name="image" type="文件或文件数组">
+
+    要编辑的图片。每个图片应为 PNG、WEBP 或 JPG 文件，小于 25MB。最多可提供 16 张图片作为数组。
+    **必需:** 是
+  </ParameterField>
+  <ParameterField id="openai-image-table-prompt-15" name="prompt" type="字符串">
+
+    期望编辑的文本描述。最大长度为 32000 字符。
+    **必需:** 是
+  </ParameterField>
+  <ParameterField id="openai-image-table-mask-16" name="mask" type="文件">
+
+    额外的 PNG 图片，其完全透明区域（alpha 为零）指示应该编辑的位置。必须小于 4MB 且与 image 尺寸相同。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-model-17" name="model" type="字符串">
+
+    用于图像编辑的模型，例如 `gpt-image-2`、`gpt-image-2.5-sunburst` 或 `gpt-image-2.5-flare`。同时支持以 `-2026-09-08` 结尾的 GPT Image 2.5 日期快照。
+    **必需:** 是
+  </ParameterField>
+  <ParameterField id="openai-image-table-n-18" name="n" type="整数">
+
+    要生成的图片数量（1–10）。默认值：`1`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-size-19" name="size" type="字符串">
+
+    生成图片的尺寸。标准可选值：`1024x1024`、`1536x1024`（横版）、`1024x1536`（竖版）、`auto`。`gpt-image-2` 和两个 GPT Image 2.5 变体还支持自定义 `宽度x高度` 字符串；请参阅[自定义尺寸](#自定义尺寸)。默认值：`auto`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-quality-20" name="quality" type="字符串">
+
+    GPT Image 模型的图像质量可选值为 `low`、`medium`、`high`、`auto`。GPT Image 2.5 Sunburst 和 Flare 还支持 `xhigh` 和 `max`。默认值：`auto`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-background-21" name="background" type="字符串">
+
+    生成图片的背景。可选值：`transparent`、`opaque`、`auto`。透明背景要求 `output_format` 为 `png` 或 `webp`。默认值：`auto`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-output-format-22" name="output_format" type="字符串">
+
+    返回图片的文件格式。可选值：`png`、`jpeg`、`webp`。默认值：`png`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-output-compression-23" name="output_compression" type="整数">
+
+    `jpeg` 与 `webp` 输出的压缩级别（0–100）。默认值：`100`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-input-fidelity-24" name="input_fidelity" type="字符串">
+
+    控制输出与输入图片的契合程度。可选值：`high`、`low`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-moderation-25" name="moderation" type="字符串">
+
+    生成图片的内容审核强度。可选值：`low`、`auto`。默认值：`auto`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-response-format-26" name="response_format" type="字符串">
+
+    响应图片格式。`url` 请求图片 URL，`b64_json` 返回 Base64 数据。不传时保留模型或上游渠道的默认行为。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-stream-27" name="stream" type="布尔值">
+
+    以流式模式生成图片。默认值：`false`。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-partial-images-28" name="partial_images" type="整数">
+
+    流式响应中发送的部分图片数量（0–3）。仅在 `stream` 为 `true` 时有效。
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="openai-image-table-user-29" name="user" type="字符串">
+
+    代表最终用户的唯一标识符，可帮助 OpenAI 监控和检测滥用行为。
+    **必需:** 否
+  </ParameterField>
+</ParameterTree>
 
 ### 自定义尺寸
 
@@ -244,34 +368,76 @@ Authorization: Bearer $API_KEY
 
 两个端点都返回包含图片对象列表的响应。
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `created` | 整数 | 图片创建的 Unix 时间戳（秒） |
-| `data` | 数组 | 生成的图片对象列表 |
-| `background` | 字符串 | 实际使用的背景设置（`transparent` 或 `opaque`） |
-| `output_format` | 字符串 | 实际使用的输出格式（`png`、`webp` 或 `jpeg`） |
-| `quality` | 字符串 | 实际使用的质量级别（根据模型不同，可以是 `low`、`medium`、`high`、`xhigh` 或 `max`） |
-| `size` | 字符串 | 生成图片的实际尺寸 |
-| `usage` | 对象 | API 调用的令牌使用情况 |
+<ParameterTree>
+  <ParameterField id="openai-image-table-created-30" name="created" type="整数">
+
+    图片创建的 Unix 时间戳（秒）
+  </ParameterField>
+  <ParameterField id="openai-image-table-data-31" name="data" type="数组">
+
+    生成的图片对象列表
+  </ParameterField>
+  <ParameterField id="openai-image-table-background-32" name="background" type="字符串">
+
+    实际使用的背景设置（`transparent` 或 `opaque`）
+  </ParameterField>
+  <ParameterField id="openai-image-table-output-format-33" name="output_format" type="字符串">
+
+    实际使用的输出格式（`png`、`webp` 或 `jpeg`）
+  </ParameterField>
+  <ParameterField id="openai-image-table-quality-34" name="quality" type="字符串">
+
+    实际使用的质量级别（根据模型不同，可以是 `low`、`medium`、`high`、`xhigh` 或 `max`）
+  </ParameterField>
+  <ParameterField id="openai-image-table-size-35" name="size" type="字符串">
+
+    生成图片的实际尺寸
+  </ParameterField>
+  <ParameterField id="openai-image-table-usage-36" name="usage" type="对象">
+
+    API 调用的令牌使用情况
+  </ParameterField>
+</ParameterTree>
 
 #### `usage` 字段
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `total_tokens` | 整数 | 使用的总令牌数 |
-| `input_tokens` | 整数 | 输入使用的令牌数 |
-| `output_tokens` | 整数 | 输出使用的令牌数 |
-| `input_tokens_details` | 对象 | 输入令牌的详细分类：`text_tokens` 和 `image_tokens` |
+<ParameterTree>
+  <ParameterField id="openai-image-table-total-tokens-37" name="total_tokens" type="整数">
+
+    使用的总令牌数
+  </ParameterField>
+  <ParameterField id="openai-image-table-input-tokens-38" name="input_tokens" type="整数">
+
+    输入使用的令牌数
+  </ParameterField>
+  <ParameterField id="openai-image-table-output-tokens-39" name="output_tokens" type="整数">
+
+    输出使用的令牌数
+  </ParameterField>
+  <ParameterField id="openai-image-table-input-tokens-details-40" name="input_tokens_details" type="对象">
+
+    输入令牌的详细分类：`text_tokens` 和 `image_tokens`
+  </ParameterField>
+</ParameterTree>
 
 ### 图片对象
 
 `data` 数组中的每个对象包含：
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `url` | 字符串 | 图片地址。当请求 `response_format=url` 时返回；可能是上游原生 URL，也可能是 Base64 转存后生成的临时签名 URL。 |
-| `b64_json` | 字符串 | Base64 编码的图片数据。当请求 `response_format=b64_json`、使用上游默认 Base64 行为，或 URL 交付发生允许回退的故障时返回。 |
-| `revised_prompt` | 字符串 | 如果提示有任何修改，则包含用于生成图片的修改后的提示 |
+<ParameterTree>
+  <ParameterField id="openai-image-table-url-41" name="url" type="字符串">
+
+    图片地址。当请求 `response_format=url` 时返回；可能是上游原生 URL，也可能是 Base64 转存后生成的临时签名 URL。
+  </ParameterField>
+  <ParameterField id="openai-image-table-b64-json-42" name="b64_json" type="字符串">
+
+    Base64 编码的图片数据。当请求 `response_format=b64_json`、使用上游默认 Base64 行为，或 URL 交付发生允许回退的故障时返回。
+  </ParameterField>
+  <ParameterField id="openai-image-table-revised-prompt-43" name="revised_prompt" type="字符串">
+
+    如果提示有任何修改，则包含用于生成图片的修改后的提示
+  </ParameterField>
+</ParameterTree>
 
 每个图片对象会包含 `url` 或 `b64_json`，调用方不应假定两个字段同时存在。URL 响应示例：
 

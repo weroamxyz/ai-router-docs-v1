@@ -1,10 +1,9 @@
 ---
 title: OpenAI Realtime API
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# OpenAI Realtime API
 
 <Callout type="info" title="Official Documentation">
 - [OpenAI Realtime WebRTC](https://platform.openai.com/docs/guides/realtime-webrtc)
@@ -178,7 +177,9 @@ sequenceDiagram
 
 ### WebSocket Connection ✅
 
-#### Node.js (ws module)
+<ExampleTabs items={["Node.js (ws module)","Python (websocket-client)","Browser (Standard WebSocket)","Message Send/Receive Example","WebSocket Python Audio Example"]}>
+<ExampleTab id="request-example-1">
+
 ```javascript
 import WebSocket from "ws";
 
@@ -199,7 +200,10 @@ ws.on("message", function incoming(message) {
 });
 ```
 
-#### Python (websocket-client)
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 ```python
 # Requires websocket-client library:
 # pip install websocket-client
@@ -233,7 +237,10 @@ ws = websocket.WebSocketApp(
 ws.run_forever()
 ```
 
-#### Browser (Standard WebSocket)
+</ExampleTab>
+
+<ExampleTab id="request-example-3">
+
 ```javascript
 /*
 Note: In browser and other client environments, we recommend using WebRTC.
@@ -264,7 +271,10 @@ ws.on("message", function incoming(message) {
 });
 ```
 
-#### Message Send/Receive Example
+</ExampleTab>
+
+<ExampleTab id="request-example-4">
+
 
 ##### Node.js/Browser
 ```javascript
@@ -307,7 +317,10 @@ def on_message(ws, message):
     print("Received event:", json.dumps(data, indent=2))
 ```
 
-#### WebSocket Python Audio Example
+</ExampleTab>
+
+<ExampleTab id="request-example-5">
+
 
 ##### Example Documentation
 
@@ -833,6 +846,10 @@ if __name__ == "__main__":
 
 ```
 
+</ExampleTab>
+
+</ExampleTabs>
+
 ## ⚠️ Error Handling
 
 ### Common Errors
@@ -872,119 +889,355 @@ All events need to include the following request headers:
 
 Update the default configuration for the session.
 
-| Parameter | Type | Required | Description | Example Value/Optional Values |
-|-----------|------|----------|-------------|------------------------------|
-| event_id | String | No | Client-generated event identifier | event_123 |
-| type | String | No | Event type | session.update |
-| modalities | String array | No | Modality types the model can respond with | ["text", "audio"] |
-| instructions | String | No | System instructions prepended to model calls | "Your knowledge cutoff is 2023-10..." |
-| voice | String | No | Voice type used by the model | alloy, echo, shimmer |
-| input_audio_format | String | No | Input audio format | pcm16, g711_ulaw, g711_alaw |
-| output_audio_format | String | No | Output audio format | pcm16, g711_ulaw, g711_alaw |
-| input_audio_transcription.model | String | No | Model used for transcription | whisper-1 |
-| turn_detection.type | String | No | Voice detection type | server_vad |
-| turn_detection.threshold | Number | No | VAD activation threshold (0.0-1.0) | 0.8 |
-| turn_detection.prefix_padding_ms | Integer | No | Audio duration included before speech starts | 500 |
-| turn_detection.silence_duration_ms | Integer | No | Silence duration to detect speech stop | 1000 |
-| tools | Array | No | List of tools available to the model | [] |
-| tool_choice | String | No | How the model chooses tools | auto/none/required |
-| temperature | Number | No | Model sampling temperature | 0.8 |
-| max_output_tokens | String/Integer | No | Maximum tokens per response | "inf"/4096 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-1" name="event_id" type="String">
+
+    Client-generated event identifier
+    **Example Value/Optional Values:** event_123
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-2" name="type" type="String">
+
+    Event type
+    **Example Value/Optional Values:** session.update
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-modalities-3" name="modalities" type="String array">
+
+    Modality types the model can respond with
+    **Example Value/Optional Values:** ["text", "audio"]
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-instructions-4" name="instructions" type="String">
+
+    System instructions prepended to model calls
+    **Example Value/Optional Values:** "Your knowledge cutoff is 2023-10..."
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-voice-5" name="voice" type="String">
+
+    Voice type used by the model
+    **Example Value/Optional Values:** alloy, echo, shimmer
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-input-audio-format-6" name="input_audio_format" type="String">
+
+    Input audio format
+    **Example Value/Optional Values:** pcm16, g711_ulaw, g711_alaw
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-audio-format-7" name="output_audio_format" type="String">
+
+    Output audio format
+    **Example Value/Optional Values:** pcm16, g711_ulaw, g711_alaw
+  </ParameterField>
+  <ParameterField id="openai-realtime-nested-1-group-input-audio-transcription" name="input_audio_transcription" type="object">
+    <ParameterChildren>
+      <ParameterField id="openai-realtime-table-input-audio-transcription-model-8" name="model" type="String">
+
+        Model used for transcription
+        **Example Value/Optional Values:** whisper-1
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-realtime-nested-1-group-turn-detection" name="turn_detection" type="object">
+    <ParameterChildren>
+      <ParameterField id="openai-realtime-table-turn-detection-type-9" name="type" type="String">
+
+        Voice detection type
+        **Example Value/Optional Values:** server_vad
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-turn-detection-threshold-10" name="threshold" type="Number">
+
+        VAD activation threshold (0.0-1.0)
+        **Example Value/Optional Values:** 0.8
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-turn-detection-prefix-padding-ms-11" name="prefix_padding_ms" type="Integer">
+
+        Audio duration included before speech starts
+        **Example Value/Optional Values:** 500
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-turn-detection-silence-duration-ms-12" name="silence_duration_ms" type="Integer">
+
+        Silence duration to detect speech stop
+        **Example Value/Optional Values:** 1000
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-tools-13" name="tools" type="Array">
+
+    List of tools available to the model
+    **Example Value/Optional Values:** []
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-tool-choice-14" name="tool_choice" type="String">
+
+    How the model chooses tools
+    **Example Value/Optional Values:** auto/none/required
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-temperature-15" name="temperature" type="Number">
+
+    Model sampling temperature
+    **Example Value/Optional Values:** 0.8
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-max-output-tokens-16" name="max_output_tokens" type="String/Integer">
+
+    Maximum tokens per response
+    **Example Value/Optional Values:** "inf"/4096
+  </ParameterField>
+</ParameterTree>
 
 #### input_audio_buffer.append
 
 Append audio data to the input audio buffer.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Client-generated event identifier | event_456 |
-| type | String | No | Event type | input_audio_buffer.append |
-| audio | String | No | Base64-encoded audio data | Base64EncodedAudioData |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-17" name="event_id" type="String">
+
+    Client-generated event identifier
+    **Example Value:** event_456
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-18" name="type" type="String">
+
+    Event type
+    **Example Value:** input_audio_buffer.append
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-audio-19" name="audio" type="String">
+
+    Base64-encoded audio data
+    **Example Value:** Base64EncodedAudioData
+  </ParameterField>
+</ParameterTree>
 
 #### input_audio_buffer.commit
 
 Commit the audio data in the buffer as a user message.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Client-generated event identifier | event_789 |
-| type | String | No | Event type | input_audio_buffer.commit |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-20" name="event_id" type="String">
+
+    Client-generated event identifier
+    **Example Value:** event_789
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-21" name="type" type="String">
+
+    Event type
+    **Example Value:** input_audio_buffer.commit
+  </ParameterField>
+</ParameterTree>
 
 #### input_audio_buffer.clear
 
 Clear all audio data from the input audio buffer.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Client-generated event identifier | event_012 |
-| type | String | No | Event type | input_audio_buffer.clear |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-22" name="event_id" type="String">
+
+    Client-generated event identifier
+    **Example Value:** event_012
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-23" name="type" type="String">
+
+    Event type
+    **Example Value:** input_audio_buffer.clear
+  </ParameterField>
+</ParameterTree>
 
 #### conversation.item.create
 
 Add a new conversation item to the conversation.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Client-generated event identifier | event_345 |
-| type | String | No | Event type | conversation.item.create |
-| previous_item_id | String | No | New item will be inserted after this ID | null |
-| item.id | String | No | Unique identifier for the conversation item | msg_001 |
-| item.type | String | No | Type of conversation item | message/function_call/function_call_output |
-| item.status | String | No | Status of conversation item | completed/in_progress/incomplete |
-| item.role | String | No | Role of message sender | user/assistant/system |
-| item.content | Array | No | Message content | [text/audio/transcript] |
-| item.call_id | String | No | ID of function call | call_001 |
-| item.name | String | No | Name of called function | function_name |
-| item.arguments | String | No | Arguments for function call | \{"param": "value"\} |
-| item.output | String | No | Output result of function call | \{"result": "value"\} |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-24" name="event_id" type="String">
+
+    Client-generated event identifier
+    **Example Value:** event_345
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-25" name="type" type="String">
+
+    Event type
+    **Example Value:** conversation.item.create
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-previous-item-id-26" name="previous_item_id" type="String">
+
+    New item will be inserted after this ID
+    **Example Value:** null
+  </ParameterField>
+  <ParameterField id="openai-realtime-nested-5-group-item" name="item" type="object">
+    <ParameterChildren>
+      <ParameterField id="openai-realtime-table-item-id-27" name="id" type="String">
+
+        Unique identifier for the conversation item
+        **Example Value:** msg_001
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-type-28" name="type" type="String">
+
+        Type of conversation item
+        **Example Value:** message/function_call/function_call_output
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-status-29" name="status" type="String">
+
+        Status of conversation item
+        **Example Value:** completed/in_progress/incomplete
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-role-30" name="role" type="String">
+
+        Role of message sender
+        **Example Value:** user/assistant/system
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-content-31" name="content" type="Array">
+
+        Message content
+        **Example Value:** [text/audio/transcript]
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-call-id-32" name="call_id" type="String">
+
+        ID of function call
+        **Example Value:** call_001
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-name-33" name="name" type="String">
+
+        Name of called function
+        **Example Value:** function_name
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-arguments-34" name="arguments" type="String">
+
+        Arguments for function call
+        **Example Value:** \{"param": "value"\}
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-output-35" name="output" type="String">
+
+        Output result of function call
+        **Example Value:** \{"result": "value"\}
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 #### conversation.item.truncate
 
 Truncate audio content in assistant messages.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Client-generated event identifier | event_678 |
-| type | String | No | Event type | conversation.item.truncate |
-| item_id | String | No | ID of assistant message item to truncate | msg_002 |
-| content_index | Integer | No | Index of content part to truncate | 0 |
-| audio_end_ms | Integer | No | End time point for audio truncation | 1500 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-36" name="event_id" type="String">
+
+    Client-generated event identifier
+    **Example Value:** event_678
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-37" name="type" type="String">
+
+    Event type
+    **Example Value:** conversation.item.truncate
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-38" name="item_id" type="String">
+
+    ID of assistant message item to truncate
+    **Example Value:** msg_002
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-content-index-39" name="content_index" type="Integer">
+
+    Index of content part to truncate
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-audio-end-ms-40" name="audio_end_ms" type="Integer">
+
+    End time point for audio truncation
+    **Example Value:** 1500
+  </ParameterField>
+</ParameterTree>
 
 #### conversation.item.delete
 
 Delete the specified conversation item from conversation history.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Client-generated event identifier | event_901 |
-| type | String | No | Event type | conversation.item.delete |
-| item_id | String | No | ID of conversation item to delete | msg_003 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-41" name="event_id" type="String">
+
+    Client-generated event identifier
+    **Example Value:** event_901
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-42" name="type" type="String">
+
+    Event type
+    **Example Value:** conversation.item.delete
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-43" name="item_id" type="String">
+
+    ID of conversation item to delete
+    **Example Value:** msg_003
+  </ParameterField>
+</ParameterTree>
 
 #### response.create
 
 Trigger response generation.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Client-generated event identifier | event_234 |
-| type | String | No | Event type | response.create |
-| response.modalities | String array | No | Modality types for response | ["text", "audio"] |
-| response.instructions | String | No | Instructions for the model | "Please assist the user." |
-| response.voice | String | No | Voice type used by the model | alloy/echo/shimmer |
-| response.output_audio_format | String | No | Output audio format | pcm16 |
-| response.tools | Array | No | List of tools available to the model | ["type", "name", "description"] |
-| response.tool_choice | String | No | How the model chooses tools | auto |
-| response.temperature | Number | No | Sampling temperature | 0.7 |
-| response.max_output_tokens | Integer/String | No | Maximum output tokens | 150/"inf" |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-44" name="event_id" type="String">
+
+    Client-generated event identifier
+    **Example Value:** event_234
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-45" name="type" type="String">
+
+    Event type
+    **Example Value:** response.create
+  </ParameterField>
+  <ParameterField id="openai-realtime-nested-8-group-response" name="response" type="object">
+    <ParameterChildren>
+      <ParameterField id="openai-realtime-table-response-modalities-46" name="modalities" type="String array">
+
+        Modality types for response
+        **Example Value:** ["text", "audio"]
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-instructions-47" name="instructions" type="String">
+
+        Instructions for the model
+        **Example Value:** "Please assist the user."
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-voice-48" name="voice" type="String">
+
+        Voice type used by the model
+        **Example Value:** alloy/echo/shimmer
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-output-audio-format-49" name="output_audio_format" type="String">
+
+        Output audio format
+        **Example Value:** pcm16
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-tools-50" name="tools" type="Array">
+
+        List of tools available to the model
+        **Example Value:** ["type", "name", "description"]
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-tool-choice-51" name="tool_choice" type="String">
+
+        How the model chooses tools
+        **Example Value:** auto
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-temperature-52" name="temperature" type="Number">
+
+        Sampling temperature
+        **Example Value:** 0.7
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-max-output-tokens-53" name="max_output_tokens" type="Integer/String">
+
+        Maximum output tokens
+        **Example Value:** 150/"inf"
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 #### response.cancel
 
 Cancel ongoing response generation.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Client-generated event identifier | event_567 |
-| type | String | No | Event type | response.cancel |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-54" name="event_id" type="String">
+
+    Client-generated event identifier
+    **Example Value:** event_567
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-55" name="type" type="String">
+
+    Event type
+    **Example Value:** response.cancel
+  </ParameterField>
+</ParameterTree>
 
 ### Server Events
 
@@ -992,289 +1245,889 @@ Cancel ongoing response generation.
 
 Event returned when an error occurs.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String array | No | Unique identifier for server event | ["event_890"] |
-| type | String | No | Event type | error |
-| error.type | String | No | Error type | invalid_request_error/server_error |
-| error.code | String | No | Error code | invalid_event |
-| error.message | String | No | Human-readable error message | "The 'type' field is missing." |
-| error.param | String | No | Parameter related to error | null |
-| error.event_id | String | No | ID of related event | event_567 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-56" name="event_id" type="String array">
+
+    Unique identifier for server event
+    **Example Value:** ["event_890"]
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-57" name="type" type="String">
+
+    Event type
+    **Example Value:** error
+  </ParameterField>
+  <ParameterField id="openai-realtime-nested-10-group-error" name="error" type="object">
+    <ParameterChildren>
+      <ParameterField id="openai-realtime-table-error-type-58" name="type" type="String">
+
+        Error type
+        **Example Value:** invalid_request_error/server_error
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-error-code-59" name="code" type="String">
+
+        Error code
+        **Example Value:** invalid_event
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-error-message-60" name="message" type="String">
+
+        Human-readable error message
+        **Example Value:** "The 'type' field is missing."
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-error-param-61" name="param" type="String">
+
+        Parameter related to error
+        **Example Value:** null
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-error-event-id-62" name="event_id" type="String">
+
+        ID of related event
+        **Example Value:** event_567
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 #### conversation.item.input_audio_transcription.completed
 
 Returned when input audio transcription is enabled and transcription succeeds.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_2122 |
-| type | String | No | Event type | conversation.item.input_audio_transcription.completed |
-| item_id | String | No | ID of user message item | msg_003 |
-| content_index | Integer | No | Index of content part containing audio | 0 |
-| transcript | String | No | Transcribed text content | "Hello, how are you?" |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-63" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_2122
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-64" name="type" type="String">
+
+    Event type
+    **Example Value:** conversation.item.input_audio_transcription.completed
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-65" name="item_id" type="String">
+
+    ID of user message item
+    **Example Value:** msg_003
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-content-index-66" name="content_index" type="Integer">
+
+    Index of content part containing audio
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-transcript-67" name="transcript" type="String">
+
+    Transcribed text content
+    **Example Value:** "Hello, how are you?"
+  </ParameterField>
+</ParameterTree>
 
 #### conversation.item.input_audio_transcription.failed
 
 Returned when input audio transcription is configured but transcription request for user message fails.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_2324 |
-| type | String array | No | Event type | ["conversation.item.input_audio_transcription.failed"] |
-| item_id | String | No | ID of user message item | msg_003 |
-| content_index | Integer | No | Index of content part containing audio | 0 |
-| error.type | String | No | Error type | transcription_error |
-| error.code | String | No | Error code | audio_unintelligible |
-| error.message | String | No | Human-readable error message | "The audio could not be transcribed." |
-| error.param | String | No | Parameter related to error | null |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-68" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_2324
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-69" name="type" type="String array">
+
+    Event type
+    **Example Value:** ["conversation.item.input_audio_transcription.failed"]
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-70" name="item_id" type="String">
+
+    ID of user message item
+    **Example Value:** msg_003
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-content-index-71" name="content_index" type="Integer">
+
+    Index of content part containing audio
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-nested-12-group-error" name="error" type="object">
+    <ParameterChildren>
+      <ParameterField id="openai-realtime-table-error-type-72" name="type" type="String">
+
+        Error type
+        **Example Value:** transcription_error
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-error-code-73" name="code" type="String">
+
+        Error code
+        **Example Value:** audio_unintelligible
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-error-message-74" name="message" type="String">
+
+        Human-readable error message
+        **Example Value:** "The audio could not be transcribed."
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-error-param-75" name="param" type="String">
+
+        Parameter related to error
+        **Example Value:** null
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 #### conversation.item.truncated
 
 Returned when client truncates previous assistant audio message item.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_2526 |
-| type | String | No | Event type | conversation.item.truncated |
-| item_id | String | No | ID of truncated assistant message item | msg_004 |
-| content_index | Integer | No | Index of truncated content part | 0 |
-| audio_end_ms | Integer | No | Time point when audio was truncated (milliseconds) | 1500 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-76" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_2526
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-77" name="type" type="String">
+
+    Event type
+    **Example Value:** conversation.item.truncated
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-78" name="item_id" type="String">
+
+    ID of truncated assistant message item
+    **Example Value:** msg_004
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-content-index-79" name="content_index" type="Integer">
+
+    Index of truncated content part
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-audio-end-ms-80" name="audio_end_ms" type="Integer">
+
+    Time point when audio was truncated (milliseconds)
+    **Example Value:** 1500
+  </ParameterField>
+</ParameterTree>
 
 #### conversation.item.deleted
 
 Returned when an item in the conversation is deleted.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_2728 |
-| type | String | No | Event type | conversation.item.deleted |
-| item_id | String | No | ID of deleted conversation item | msg_005 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-81" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_2728
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-82" name="type" type="String">
+
+    Event type
+    **Example Value:** conversation.item.deleted
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-83" name="item_id" type="String">
+
+    ID of deleted conversation item
+    **Example Value:** msg_005
+  </ParameterField>
+</ParameterTree>
 
 #### input_audio_buffer.committed
 
 Returned when audio buffer data is committed.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_1121 |
-| type | String | No | Event type | input_audio_buffer.committed |
-| previous_item_id | String | No | New conversation item will be inserted after this ID | msg_001 |
-| item_id | String | No | ID of user message item to be created | msg_002 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-84" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_1121
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-85" name="type" type="String">
+
+    Event type
+    **Example Value:** input_audio_buffer.committed
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-previous-item-id-86" name="previous_item_id" type="String">
+
+    New conversation item will be inserted after this ID
+    **Example Value:** msg_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-87" name="item_id" type="String">
+
+    ID of user message item to be created
+    **Example Value:** msg_002
+  </ParameterField>
+</ParameterTree>
 
 #### input_audio_buffer.cleared
 
 Returned when client clears input audio buffer.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_1314 |
-| type | String | No | Event type | input_audio_buffer.cleared |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-88" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_1314
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-89" name="type" type="String">
+
+    Event type
+    **Example Value:** input_audio_buffer.cleared
+  </ParameterField>
+</ParameterTree>
 
 #### input_audio_buffer.speech_started
 
 In server voice detection mode, returned when voice input is detected.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_1516 |
-| type | String | No | Event type | input_audio_buffer.speech_started |
-| audio_start_ms | Integer | No | Milliseconds from session start to voice detection | 1000 |
-| item_id | String | No | ID of user message item to be created when voice stops | msg_003 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-90" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_1516
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-91" name="type" type="String">
+
+    Event type
+    **Example Value:** input_audio_buffer.speech_started
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-audio-start-ms-92" name="audio_start_ms" type="Integer">
+
+    Milliseconds from session start to voice detection
+    **Example Value:** 1000
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-93" name="item_id" type="String">
+
+    ID of user message item to be created when voice stops
+    **Example Value:** msg_003
+  </ParameterField>
+</ParameterTree>
 
 #### input_audio_buffer.speech_stopped
 
 In server voice detection mode, returned when voice input stops.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_1718 |
-| type | String | No | Event type | input_audio_buffer.speech_stopped |
-| audio_start_ms | Integer | No | Milliseconds from session start to voice stop detection | 2000 |
-| item_id | String | No | ID of user message item to be created | msg_003 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-94" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_1718
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-95" name="type" type="String">
+
+    Event type
+    **Example Value:** input_audio_buffer.speech_stopped
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-audio-start-ms-96" name="audio_start_ms" type="Integer">
+
+    Milliseconds from session start to voice stop detection
+    **Example Value:** 2000
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-97" name="item_id" type="String">
+
+    ID of user message item to be created
+    **Example Value:** msg_003
+  </ParameterField>
+</ParameterTree>
 
 #### response.created
 
 Returned when a new response is created.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_2930 |
-| type | String | No | Event type | response.created |
-| response.id | String | No | Unique identifier for response | resp_001 |
-| response.object | String | No | Object type | realtime.response |
-| response.status | String | No | Status of response | in_progress |
-| response.status_details | Object | No | Additional details about status | null |
-| response.output | String array | No | List of output items generated by response | ["[]"] |
-| response.usage | Object | No | Usage statistics for response | null |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-98" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_2930
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-99" name="type" type="String">
+
+    Event type
+    **Example Value:** response.created
+  </ParameterField>
+  <ParameterField id="openai-realtime-nested-19-group-response" name="response" type="object">
+    <ParameterChildren>
+      <ParameterField id="openai-realtime-table-response-id-100" name="id" type="String">
+
+        Unique identifier for response
+        **Example Value:** resp_001
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-object-101" name="object" type="String">
+
+        Object type
+        **Example Value:** realtime.response
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-status-102" name="status" type="String">
+
+        Status of response
+        **Example Value:** in_progress
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-status-details-103" name="status_details" type="Object">
+
+        Additional details about status
+        **Example Value:** null
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-output-104" name="output" type="String array">
+
+        List of output items generated by response
+        **Example Value:** ["[]"]
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-usage-105" name="usage" type="Object">
+
+        Usage statistics for response
+        **Example Value:** null
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 #### response.done
 
 Returned when response streaming is complete.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_3132 |
-| type | String | No | Event type | response.done |
-| response.id | String | No | Unique identifier for response | resp_001 |
-| response.object | String | No | Object type | realtime.response |
-| response.status | String | No | Final status of response | completed/cancelled/failed/incomplete |
-| response.status_details | Object | No | Additional details about status | null |
-| response.output | String array | No | List of output items generated by response | ["[...]"] |
-| response.usage.total_tokens | Integer | No | Total tokens | 50 |
-| response.usage.input_tokens | Integer | No | Input tokens | 20 |
-| response.usage.output_tokens | Integer | No | Output tokens | 30 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-106" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_3132
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-107" name="type" type="String">
+
+    Event type
+    **Example Value:** response.done
+  </ParameterField>
+  <ParameterField id="openai-realtime-nested-20-group-response" name="response" type="object">
+    <ParameterChildren>
+      <ParameterField id="openai-realtime-table-response-id-108" name="id" type="String">
+
+        Unique identifier for response
+        **Example Value:** resp_001
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-object-109" name="object" type="String">
+
+        Object type
+        **Example Value:** realtime.response
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-status-110" name="status" type="String">
+
+        Final status of response
+        **Example Value:** completed/cancelled/failed/incomplete
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-status-details-111" name="status_details" type="Object">
+
+        Additional details about status
+        **Example Value:** null
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-response-output-112" name="output" type="String array">
+
+        List of output items generated by response
+        **Example Value:** ["[...]"]
+      </ParameterField>
+      <ParameterField id="openai-realtime-nested-20-group-usage" name="usage" type="object">
+        <ParameterChildren>
+          <ParameterField id="openai-realtime-table-response-usage-total-tokens-113" name="total_tokens" type="Integer">
+
+            Total tokens
+            **Example Value:** 50
+          </ParameterField>
+          <ParameterField id="openai-realtime-table-response-usage-input-tokens-114" name="input_tokens" type="Integer">
+
+            Input tokens
+            **Example Value:** 20
+          </ParameterField>
+          <ParameterField id="openai-realtime-table-response-usage-output-tokens-115" name="output_tokens" type="Integer">
+
+            Output tokens
+            **Example Value:** 30
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 #### response.output_item.added
 
 Returned when a new output item is created during response generation.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_3334 |
-| type | String | No | Event type | response.output_item.added |
-| response_id | String | No | ID of response the output item belongs to | resp_001 |
-| output_index | String | No | Index of output item in response | 0 |
-| item.id | String | No | Unique identifier for output item | msg_007 |
-| item.object | String | No | Object type | realtime.item |
-| item.type | String | No | Type of output item | message/function_call/function_call_output |
-| item.status | String | No | Status of output item | in_progress/completed |
-| item.role | String | No | Role associated with output item | assistant |
-| item.content | Array | No | Content of output item | ["type", "text", "audio", "transcript"] |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-116" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_3334
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-117" name="type" type="String">
+
+    Event type
+    **Example Value:** response.output_item.added
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-response-id-118" name="response_id" type="String">
+
+    ID of response the output item belongs to
+    **Example Value:** resp_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-index-119" name="output_index" type="String">
+
+    Index of output item in response
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-nested-21-group-item" name="item" type="object">
+    <ParameterChildren>
+      <ParameterField id="openai-realtime-table-item-id-120" name="id" type="String">
+
+        Unique identifier for output item
+        **Example Value:** msg_007
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-object-121" name="object" type="String">
+
+        Object type
+        **Example Value:** realtime.item
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-type-122" name="type" type="String">
+
+        Type of output item
+        **Example Value:** message/function_call/function_call_output
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-status-123" name="status" type="String">
+
+        Status of output item
+        **Example Value:** in_progress/completed
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-role-124" name="role" type="String">
+
+        Role associated with output item
+        **Example Value:** assistant
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-content-125" name="content" type="Array">
+
+        Content of output item
+        **Example Value:** ["type", "text", "audio", "transcript"]
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 #### response.output_item.done
 
 Returned when output item streaming is complete.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_3536 |
-| type | String | No | Event type | response.output_item.done |
-| response_id | String | No | ID of response the output item belongs to | resp_001 |
-| output_index | String | No | Index of output item in response | 0 |
-| item.id | String | No | Unique identifier for output item | msg_007 |
-| item.object | String | No | Object type | realtime.item |
-| item.type | String | No | Type of output item | message/function_call/function_call_output |
-| item.status | String | No | Final status of output item | completed/incomplete |
-| item.role | String | No | Role associated with output item | assistant |
-| item.content | Array | No | Content of output item | ["type", "text", "audio", "transcript"] |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-126" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_3536
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-127" name="type" type="String">
+
+    Event type
+    **Example Value:** response.output_item.done
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-response-id-128" name="response_id" type="String">
+
+    ID of response the output item belongs to
+    **Example Value:** resp_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-index-129" name="output_index" type="String">
+
+    Index of output item in response
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-nested-22-group-item" name="item" type="object">
+    <ParameterChildren>
+      <ParameterField id="openai-realtime-table-item-id-130" name="id" type="String">
+
+        Unique identifier for output item
+        **Example Value:** msg_007
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-object-131" name="object" type="String">
+
+        Object type
+        **Example Value:** realtime.item
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-type-132" name="type" type="String">
+
+        Type of output item
+        **Example Value:** message/function_call/function_call_output
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-status-133" name="status" type="String">
+
+        Final status of output item
+        **Example Value:** completed/incomplete
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-role-134" name="role" type="String">
+
+        Role associated with output item
+        **Example Value:** assistant
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-item-content-135" name="content" type="Array">
+
+        Content of output item
+        **Example Value:** ["type", "text", "audio", "transcript"]
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 #### response.content_part.added
 
 Returned when a new content part is added to assistant message item during response generation.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_3738 |
-| type | String | No | Event type | response.content_part.added |
-| response_id | String | No | ID of response | resp_001 |
-| item_id | String | No | ID of message item to add content part to | msg_007 |
-| output_index | Integer | No | Index of output item in response | 0 |
-| content_index | Integer | No | Index of content part in message item content array | 0 |
-| part.type | String | No | Content type | text/audio |
-| part.text | String | No | Text content | "Hello" |
-| part.audio | String | No | Base64-encoded audio data | "base64_encoded_audio_data" |
-| part.transcript | String | No | Transcribed text of audio | "Hello" |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-136" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_3738
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-137" name="type" type="String">
+
+    Event type
+    **Example Value:** response.content_part.added
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-response-id-138" name="response_id" type="String">
+
+    ID of response
+    **Example Value:** resp_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-139" name="item_id" type="String">
+
+    ID of message item to add content part to
+    **Example Value:** msg_007
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-index-140" name="output_index" type="Integer">
+
+    Index of output item in response
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-content-index-141" name="content_index" type="Integer">
+
+    Index of content part in message item content array
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-nested-23-group-part" name="part" type="object">
+    <ParameterChildren>
+      <ParameterField id="openai-realtime-table-part-type-142" name="type" type="String">
+
+        Content type
+        **Example Value:** text/audio
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-part-text-143" name="text" type="String">
+
+        Text content
+        **Example Value:** "Hello"
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-part-audio-144" name="audio" type="String">
+
+        Base64-encoded audio data
+        **Example Value:** "base64_encoded_audio_data"
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-part-transcript-145" name="transcript" type="String">
+
+        Transcribed text of audio
+        **Example Value:** "Hello"
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 #### response.content_part.done
 
 Returned when content part in assistant message item streaming is complete.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_3940 |
-| type | String | No | Event type | response.content_part.done |
-| response_id | String | No | ID of response | resp_001 |
-| item_id | String | No | ID of message item to add content part to | msg_007 |
-| output_index | Integer | No | Index of output item in response | 0 |
-| content_index | Integer | No | Index of content part in message item content array | 0 |
-| part.type | String | No | Content type | text/audio |
-| part.text | String | No | Text content | "Hello" |
-| part.audio | String | No | Base64-encoded audio data | "base64_encoded_audio_data" |
-| part.transcript | String | No | Transcribed text of audio | "Hello" |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-146" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_3940
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-147" name="type" type="String">
+
+    Event type
+    **Example Value:** response.content_part.done
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-response-id-148" name="response_id" type="String">
+
+    ID of response
+    **Example Value:** resp_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-149" name="item_id" type="String">
+
+    ID of message item to add content part to
+    **Example Value:** msg_007
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-index-150" name="output_index" type="Integer">
+
+    Index of output item in response
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-content-index-151" name="content_index" type="Integer">
+
+    Index of content part in message item content array
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-nested-24-group-part" name="part" type="object">
+    <ParameterChildren>
+      <ParameterField id="openai-realtime-table-part-type-152" name="type" type="String">
+
+        Content type
+        **Example Value:** text/audio
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-part-text-153" name="text" type="String">
+
+        Text content
+        **Example Value:** "Hello"
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-part-audio-154" name="audio" type="String">
+
+        Base64-encoded audio data
+        **Example Value:** "base64_encoded_audio_data"
+      </ParameterField>
+      <ParameterField id="openai-realtime-table-part-transcript-155" name="transcript" type="String">
+
+        Transcribed text of audio
+        **Example Value:** "Hello"
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 #### response.text.delta
 
 Returned when text value of "text" type content part is updated.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_4142 |
-| type | String | No | Event type | response.text.delta |
-| response_id | String | No | ID of response | resp_001 |
-| item_id | String | No | ID of message item | msg_007 |
-| output_index | Integer | No | Index of output item in response | 0 |
-| content_index | Integer | No | Index of content part in message item content array | 0 |
-| delta | String | No | Text delta update content | "Sure, I can h" |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-156" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_4142
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-157" name="type" type="String">
+
+    Event type
+    **Example Value:** response.text.delta
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-response-id-158" name="response_id" type="String">
+
+    ID of response
+    **Example Value:** resp_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-159" name="item_id" type="String">
+
+    ID of message item
+    **Example Value:** msg_007
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-index-160" name="output_index" type="Integer">
+
+    Index of output item in response
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-content-index-161" name="content_index" type="Integer">
+
+    Index of content part in message item content array
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-delta-162" name="delta" type="String">
+
+    Text delta update content
+    **Example Value:** "Sure, I can h"
+  </ParameterField>
+</ParameterTree>
 
 #### response.text.done
 
 Returned when "text" type content part text streaming is complete.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_4344 |
-| type | String | No | Event type | response.text.done |
-| response_id | String | No | ID of response | resp_001 |
-| item_id | String | No | ID of message item | msg_007 |
-| output_index | Integer | No | Index of output item in response | 0 |
-| content_index | Integer | No | Index of content part in message item content array | 0 |
-| delta | String | No | Final complete text content | "Sure, I can help with that." |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-163" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_4344
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-164" name="type" type="String">
+
+    Event type
+    **Example Value:** response.text.done
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-response-id-165" name="response_id" type="String">
+
+    ID of response
+    **Example Value:** resp_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-166" name="item_id" type="String">
+
+    ID of message item
+    **Example Value:** msg_007
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-index-167" name="output_index" type="Integer">
+
+    Index of output item in response
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-content-index-168" name="content_index" type="Integer">
+
+    Index of content part in message item content array
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-delta-169" name="delta" type="String">
+
+    Final complete text content
+    **Example Value:** "Sure, I can help with that."
+  </ParameterField>
+</ParameterTree>
 
 #### response.audio_transcript.delta
 
 Returned when transcription content of model-generated audio output is updated.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_4546 |
-| type | String | No | Event type | response.audio_transcript.delta |
-| response_id | String | No | ID of response | resp_001 |
-| item_id | String | No | ID of message item | msg_008 |
-| output_index | Integer | No | Index of output item in response | 0 |
-| content_index | Integer | No | Index of content part in message item content array | 0 |
-| delta | String | No | Transcription text delta update content | "Hello, how can I a" |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-170" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_4546
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-171" name="type" type="String">
+
+    Event type
+    **Example Value:** response.audio_transcript.delta
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-response-id-172" name="response_id" type="String">
+
+    ID of response
+    **Example Value:** resp_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-173" name="item_id" type="String">
+
+    ID of message item
+    **Example Value:** msg_008
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-index-174" name="output_index" type="Integer">
+
+    Index of output item in response
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-content-index-175" name="content_index" type="Integer">
+
+    Index of content part in message item content array
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-delta-176" name="delta" type="String">
+
+    Transcription text delta update content
+    **Example Value:** "Hello, how can I a"
+  </ParameterField>
+</ParameterTree>
 
 #### response.audio_transcript.done
 
 Returned when transcription of model-generated audio output streaming is complete.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_4748 |
-| type | String | No | Event type | response.audio_transcript.done |
-| response_id | String | No | ID of response | resp_001 |
-| item_id | String | No | ID of message item | msg_008 |
-| output_index | Integer | No | Index of output item in response | 0 |
-| content_index | Integer | No | Index of content part in message item content array | 0 |
-| transcript | String | No | Final complete transcribed text of audio | "Hello, how can I assist you today?" |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-177" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_4748
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-178" name="type" type="String">
+
+    Event type
+    **Example Value:** response.audio_transcript.done
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-response-id-179" name="response_id" type="String">
+
+    ID of response
+    **Example Value:** resp_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-180" name="item_id" type="String">
+
+    ID of message item
+    **Example Value:** msg_008
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-index-181" name="output_index" type="Integer">
+
+    Index of output item in response
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-content-index-182" name="content_index" type="Integer">
+
+    Index of content part in message item content array
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-transcript-183" name="transcript" type="String">
+
+    Final complete transcribed text of audio
+    **Example Value:** "Hello, how can I assist you today?"
+  </ParameterField>
+</ParameterTree>
 
 #### response.audio.delta
 
 Returned when model-generated audio content is updated.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_4950 |
-| type | String | No | Event type | response.audio.delta |
-| response_id | String | No | ID of response | resp_001 |
-| item_id | String | No | ID of message item | msg_008 |
-| output_index | Integer | No | Index of output item in response | 0 |
-| content_index | Integer | No | Index of content part in message item content array | 0 |
-| delta | String | No | Base64-encoded audio data delta | "Base64EncodedAudioDelta" |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-184" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_4950
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-185" name="type" type="String">
+
+    Event type
+    **Example Value:** response.audio.delta
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-response-id-186" name="response_id" type="String">
+
+    ID of response
+    **Example Value:** resp_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-187" name="item_id" type="String">
+
+    ID of message item
+    **Example Value:** msg_008
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-index-188" name="output_index" type="Integer">
+
+    Index of output item in response
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-content-index-189" name="content_index" type="Integer">
+
+    Index of content part in message item content array
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-delta-190" name="delta" type="String">
+
+    Base64-encoded audio data delta
+    **Example Value:** "Base64EncodedAudioDelta"
+  </ParameterField>
+</ParameterTree>
 
 #### response.audio.done
 
 Returned when model-generated audio is complete.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_5152 |
-| type | String | No | Event type | response.audio.done |
-| response_id | String | No | ID of response | resp_001 |
-| item_id | String | No | ID of message item | msg_008 |
-| output_index | Integer | No | Index of output item in response | 0 |
-| content_index | Integer | No | Index of content part in message item content array | 0 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-191" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_5152
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-192" name="type" type="String">
+
+    Event type
+    **Example Value:** response.audio.done
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-response-id-193" name="response_id" type="String">
+
+    ID of response
+    **Example Value:** resp_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-194" name="item_id" type="String">
+
+    ID of message item
+    **Example Value:** msg_008
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-index-195" name="output_index" type="Integer">
+
+    Index of output item in response
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-content-index-196" name="content_index" type="Integer">
+
+    Index of content part in message item content array
+    **Example Value:** 0
+  </ParameterField>
+</ParameterTree>
 
 ### Function Calling
 
@@ -1282,29 +2135,85 @@ Returned when model-generated audio is complete.
 
 Returned when model-generated function call arguments are updated.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_5354 |
-| type | String | No | Event type | response.function_call_arguments.delta |
-| response_id | String | No | ID of response | resp_002 |
-| item_id | String | No | ID of message item | fc_001 |
-| output_index | Integer | No | Index of output item in response | 0 |
-| call_id | String | No | ID of function call | call_001 |
-| delta | String | No | JSON format function call arguments delta | "\{\"location\": \"San\"" |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-197" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_5354
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-198" name="type" type="String">
+
+    Event type
+    **Example Value:** response.function_call_arguments.delta
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-response-id-199" name="response_id" type="String">
+
+    ID of response
+    **Example Value:** resp_002
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-200" name="item_id" type="String">
+
+    ID of message item
+    **Example Value:** fc_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-index-201" name="output_index" type="Integer">
+
+    Index of output item in response
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-call-id-202" name="call_id" type="String">
+
+    ID of function call
+    **Example Value:** call_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-delta-203" name="delta" type="String">
+
+    JSON format function call arguments delta
+    **Example Value:** "\{\"location\": \"San\""
+  </ParameterField>
+</ParameterTree>
 
 #### response.function_call_arguments.done
 
 Returned when model-generated function call arguments streaming is complete.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_5556 |
-| type | String | No | Event type | response.function_call_arguments.done |
-| response_id | String | No | ID of response | resp_002 |
-| item_id | String | No | ID of message item | fc_001 |
-| output_index | Integer | No | Index of output item in response | 0 |
-| call_id | String | No | ID of function call | call_001 |
-| arguments | String | No | Final complete function call arguments (JSON format) | "\{\"location\": \"San Francisco\"\}" |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-204" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_5556
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-205" name="type" type="String">
+
+    Event type
+    **Example Value:** response.function_call_arguments.done
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-response-id-206" name="response_id" type="String">
+
+    ID of response
+    **Example Value:** resp_002
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-id-207" name="item_id" type="String">
+
+    ID of message item
+    **Example Value:** fc_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-output-index-208" name="output_index" type="Integer">
+
+    Index of output item in response
+    **Example Value:** 0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-call-id-209" name="call_id" type="String">
+
+    ID of function call
+    **Example Value:** call_001
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-arguments-210" name="arguments" type="String">
+
+    Final complete function call arguments (JSON format)
+    **Example Value:** "\{\"location\": \"San Francisco\"\}"
+  </ParameterField>
+</ParameterTree>
 
 ### Other Status Updates
 
@@ -1312,165 +2221,420 @@ Returned when model-generated function call arguments streaming is complete.
 
 Triggered after each "response.done" event to indicate updated rate limits.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_5758 |
-| type | String | No | Event type | rate_limits.updated |
-| rate_limits | Object array | No | List of rate limit information | [\{"name": "requests_per_min", "limit": 60, "remaining": 45, "reset_seconds": 35\}] |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-211" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_5758
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-212" name="type" type="String">
+
+    Event type
+    **Example Value:** rate_limits.updated
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-rate-limits-213" name="rate_limits" type="Object array">
+
+    List of rate limit information
+    **Example Value:** [\{"name": "requests_per_min", "limit": 60, "remaining": 45, "reset_seconds": 35\}]
+  </ParameterField>
+</ParameterTree>
 
 #### conversation.created
 
 Returned when conversation is created.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_9101 |
-| type | String | No | Event type | conversation.created |
-| conversation | Object | No | Conversation resource object | \{"id": "conv_001", "object": "realtime.conversation"\} |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-214" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_9101
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-215" name="type" type="String">
+
+    Event type
+    **Example Value:** conversation.created
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-conversation-216" name="conversation" type="Object">
+
+    Conversation resource object
+    **Example Value:** \{"id": "conv_001", "object": "realtime.conversation"\}
+  </ParameterField>
+</ParameterTree>
 
 #### conversation.item.created
 
 Returned when conversation item is created.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_1920 |
-| type | String | No | Event type | conversation.item.created |
-| previous_item_id | String | No | ID of previous conversation item | msg_002 |
-| item | Object | No | Conversation item object | \{"id": "msg_003", "object": "realtime.item", "type": "message", "status": "completed", "role": "user", "content": [\{"type": "text", "text": "Hello"\}]\} |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-217" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_1920
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-218" name="type" type="String">
+
+    Event type
+    **Example Value:** conversation.item.created
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-previous-item-id-219" name="previous_item_id" type="String">
+
+    ID of previous conversation item
+    **Example Value:** msg_002
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-item-220" name="item" type="Object">
+
+    Conversation item object
+    **Example Value:** \{"id": "msg_003", "object": "realtime.item", "type": "message", "status": "completed", "role": "user", "content": [\{"type": "text", "text": "Hello"\}]\}
+  </ParameterField>
+</ParameterTree>
 
 #### session.created
 
 Returned when session is created.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_1234 |
-| type | String | No | Event type | session.created |
-| session | Object | No | Session object | \{"id": "sess_001", "object": "realtime.session", "model": "gpt-4", "modalities": ["text", "audio"]\} |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-221" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_1234
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-222" name="type" type="String">
+
+    Event type
+    **Example Value:** session.created
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-session-223" name="session" type="Object">
+
+    Session object
+    **Example Value:** \{"id": "sess_001", "object": "realtime.session", "model": "gpt-4", "modalities": ["text", "audio"]\}
+  </ParameterField>
+</ParameterTree>
 
 #### session.updated
 
 Returned when session is updated.
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | No | Unique identifier for server event | event_5678 |
-| type | String | No | Event type | session.updated |
-| session | Object | No | Updated session object | \{"id": "sess_001", "object": "realtime.session", "model": "gpt-4", "modalities": ["text", "audio"]\} |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-224" name="event_id" type="String">
+
+    Unique identifier for server event
+    **Example Value:** event_5678
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-225" name="type" type="String">
+
+    Event type
+    **Example Value:** session.updated
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-session-226" name="session" type="Object">
+
+    Updated session object
+    **Example Value:** \{"id": "sess_001", "object": "realtime.session", "model": "gpt-4", "modalities": ["text", "audio"]\}
+  </ParameterField>
+</ParameterTree>
 
 ### Rate Limit Event Parameter Table
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| name | String | Yes | Limit name | requests_per_min |
-| limit | Integer | Yes | Limit value | 60 |
-| remaining | Integer | Yes | Remaining available amount | 45 |
-| reset_seconds | Integer | Yes | Reset time (seconds) | 35 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-name-227" name="name" type="String" required>
+
+    Limit name
+    **Example Value:** requests_per_min
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-limit-228" name="limit" type="Integer" required>
+
+    Limit value
+    **Example Value:** 60
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-remaining-229" name="remaining" type="Integer" required>
+
+    Remaining available amount
+    **Example Value:** 45
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-reset-seconds-230" name="reset_seconds" type="Integer" required>
+
+    Reset time (seconds)
+    **Example Value:** 35
+  </ParameterField>
+</ParameterTree>
 
 ### Function Call Parameter Table
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| type | String | Yes | Function type | function |
-| name | String | Yes | Function name | get_weather |
-| description | String | No | Function description | Get the current weather |
-| parameters | Object | Yes | Function parameter definition | \{"type": "object", "properties": \{...\}\} |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-type-231" name="type" type="String" required>
+
+    Function type
+    **Example Value:** function
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-name-232" name="name" type="String" required>
+
+    Function name
+    **Example Value:** get_weather
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-description-233" name="description" type="String">
+
+    Function description
+    **Example Value:** Get the current weather
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-parameters-234" name="parameters" type="Object" required>
+
+    Function parameter definition
+    **Example Value:** \{"type": "object", "properties": \{...\}\}
+  </ParameterField>
+</ParameterTree>
 
 ### Audio Format Parameter Table
 
-| Parameter | Type | Description | Optional Values |
-|-----------|------|-------------|-----------------|
-| sample_rate | Integer | Sample rate | 8000, 16000, 24000, 44100, 48000 |
-| channels | Integer | Number of channels | 1 (mono), 2 (stereo) |
-| bits_per_sample | Integer | Bits per sample | 16 (pcm16), 8 (g711) |
-| encoding | String | Encoding method | pcm16, g711_ulaw, g711_alaw |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-sample-rate-235" name="sample_rate" type="Integer">
+
+    Sample rate
+    **Optional Values:** 8000, 16000, 24000, 44100, 48000
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-channels-236" name="channels" type="Integer">
+
+    Number of channels
+    **Optional Values:** 1 (mono), 2 (stereo)
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-bits-per-sample-237" name="bits_per_sample" type="Integer">
+
+    Bits per sample
+    **Optional Values:** 16 (pcm16), 8 (g711)
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-encoding-238" name="encoding" type="String">
+
+    Encoding method
+    **Optional Values:** pcm16, g711_ulaw, g711_alaw
+  </ParameterField>
+</ParameterTree>
 
 ### Voice Detection Parameter Table
 
-| Parameter | Type | Description | Default Value | Range |
-|-----------|------|-------------|---------------|-------|
-| threshold | Float | VAD activation threshold | 0.5 | 0.0-1.0 |
-| prefix_padding_ms | Integer | Voice prefix padding (milliseconds) | 500 | 0-5000 |
-| silence_duration_ms | Integer | Silence detection duration (milliseconds) | 1000 | 100-10000 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-threshold-239" name="threshold" type="Float">
+
+    VAD activation threshold
+    **Default Value:** 0.5
+    **Range:** 0.0-1.0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-prefix-padding-ms-240" name="prefix_padding_ms" type="Integer">
+
+    Voice prefix padding (milliseconds)
+    **Default Value:** 500
+    **Range:** 0-5000
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-silence-duration-ms-241" name="silence_duration_ms" type="Integer">
+
+    Silence detection duration (milliseconds)
+    **Default Value:** 1000
+    **Range:** 100-10000
+  </ParameterField>
+</ParameterTree>
 
 ### Tool Selection Parameter Table
 
-| Parameter | Type | Description | Optional Values |
-|-----------|------|-------------|-----------------|
-| tool_choice | String | Tool selection method | auto, none, required |
-| tools | Array | Available tools list | [\{type, name, description, parameters\}] |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-tool-choice-242" name="tool_choice" type="String">
+
+    Tool selection method
+    **Optional Values:** auto, none, required
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-tools-243" name="tools" type="Array">
+
+    Available tools list
+    **Optional Values:** [\{type, name, description, parameters\}]
+  </ParameterField>
+</ParameterTree>
 
 ### Model Configuration Parameter Table
 
-| Parameter | Type | Description | Range/Optional Values | Default Value |
-|-----------|------|-------------|----------------------|---------------|
-| temperature | Float | Sampling temperature | 0.0-2.0 | 1.0 |
-| max_output_tokens | Integer/String | Maximum output length | 1-4096/"inf" | "inf" |
-| modalities | String array | Response modalities | ["text", "audio"] | ["text"] |
-| voice | String | Voice type | alloy, echo, shimmer | alloy |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-temperature-244" name="temperature" type="Float">
+
+    Sampling temperature
+    **Range/Optional Values:** 0.0-2.0
+    **Default Value:** 1.0
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-max-output-tokens-245" name="max_output_tokens" type="Integer/String">
+
+    Maximum output length
+    **Range/Optional Values:** 1-4096/"inf"
+    **Default Value:** "inf"
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-modalities-246" name="modalities" type="String array">
+
+    Response modalities
+    **Range/Optional Values:** ["text", "audio"]
+    **Default Value:** ["text"]
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-voice-247" name="voice" type="String">
+
+    Voice type
+    **Range/Optional Values:** alloy, echo, shimmer
+    **Default Value:** alloy
+  </ParameterField>
+</ParameterTree>
 
 ### Event Common Parameter Table
 
-| Parameter | Type | Required | Description | Example Value |
-|-----------|------|----------|-------------|---------------|
-| event_id | String | Yes | Unique identifier for event | event_123 |
-| type | String | Yes | Event type | session.update |
-| timestamp | Integer | No | Event timestamp (milliseconds) | 1677649363000 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-event-id-248" name="event_id" type="String" required>
+
+    Unique identifier for event
+    **Example Value:** event_123
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-249" name="type" type="String" required>
+
+    Event type
+    **Example Value:** session.update
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-timestamp-250" name="timestamp" type="Integer">
+
+    Event timestamp (milliseconds)
+    **Example Value:** 1677649363000
+  </ParameterField>
+</ParameterTree>
 
 ### Session Status Parameter Table
 
-| Parameter | Type | Description | Optional Values |
-|-----------|------|-------------|-----------------|
-| status | String | Session status | active, ended, error |
-| error | Object | Error information | \{"type": "error_type", "message": "error message"\} |
-| metadata | Object | Session metadata | \{"client_id": "web", "session_type": "chat"\} |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-status-251" name="status" type="String">
+
+    Session status
+    **Optional Values:** active, ended, error
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-error-252" name="error" type="Object">
+
+    Error information
+    **Optional Values:** \{"type": "error_type", "message": "error message"\}
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-metadata-253" name="metadata" type="Object">
+
+    Session metadata
+    **Optional Values:** \{"client_id": "web", "session_type": "chat"\}
+  </ParameterField>
+</ParameterTree>
 
 ### Conversation Item Status Parameter Table
 
-| Parameter | Type | Description | Optional Values |
-|-----------|------|-------------|-----------------|
-| status | String | Conversation item status | completed, in_progress, incomplete |
-| role | String | Sender role | user, assistant, system |
-| type | String | Conversation item type | message, function_call, function_call_output |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-status-254" name="status" type="String">
+
+    Conversation item status
+    **Optional Values:** completed, in_progress, incomplete
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-role-255" name="role" type="String">
+
+    Sender role
+    **Optional Values:** user, assistant, system
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-type-256" name="type" type="String">
+
+    Conversation item type
+    **Optional Values:** message, function_call, function_call_output
+  </ParameterField>
+</ParameterTree>
 
 ### Content Type Parameter Table
 
-| Parameter | Type | Description | Optional Values |
-|-----------|------|-------------|-----------------|
-| type | String | Content type | text, audio, transcript |
-| format | String | Content format | plain, markdown, html |
-| encoding | String | Encoding method | utf-8, base64 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-type-257" name="type" type="String">
+
+    Content type
+    **Optional Values:** text, audio, transcript
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-format-258" name="format" type="String">
+
+    Content format
+    **Optional Values:** plain, markdown, html
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-encoding-259" name="encoding" type="String">
+
+    Encoding method
+    **Optional Values:** utf-8, base64
+  </ParameterField>
+</ParameterTree>
 
 ### Response Status Parameter Table
 
-| Parameter | Type | Description | Optional Values |
-|-----------|------|-------------|-----------------|
-| status | String | Response status | completed, cancelled, failed, incomplete |
-| status_details | Object | Status details | \{"reason": "user_cancelled"\} |
-| usage | Object | Usage statistics | \{"total_tokens": 50, "input_tokens": 20, "output_tokens": 30\} |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-status-260" name="status" type="String">
+
+    Response status
+    **Optional Values:** completed, cancelled, failed, incomplete
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-status-details-261" name="status_details" type="Object">
+
+    Status details
+    **Optional Values:** \{"reason": "user_cancelled"\}
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-usage-262" name="usage" type="Object">
+
+    Usage statistics
+    **Optional Values:** \{"total_tokens": 50, "input_tokens": 20, "output_tokens": 30\}
+  </ParameterField>
+</ParameterTree>
 
 ### Audio Transcription Parameter Table
 
-| Parameter | Type | Description | Example Value |
-|-----------|------|-------------|---------------|
-| enabled | Boolean | Whether transcription is enabled | true |
-| model | String | Transcription model | whisper-1 |
-| language | String | Transcription language | en, zh, auto |
-| prompt | String | Transcription prompt | "Transcript of a conversation" |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-enabled-263" name="enabled" type="Boolean">
+
+    Whether transcription is enabled
+    **Example Value:** true
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-model-264" name="model" type="String">
+
+    Transcription model
+    **Example Value:** whisper-1
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-language-265" name="language" type="String">
+
+    Transcription language
+    **Example Value:** en, zh, auto
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-prompt-266" name="prompt" type="String">
+
+    Transcription prompt
+    **Example Value:** "Transcript of a conversation"
+  </ParameterField>
+</ParameterTree>
 
 ### Audio Stream Parameter Table
 
-| Parameter | Type | Description | Optional Values |
-|-----------|------|-------------|-----------------|
-| chunk_size | Integer | Audio chunk size (bytes) | 1024, 2048, 4096 |
-| latency | String | Latency mode | low, balanced, high |
-| compression | String | Compression method | none, opus, mp3 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-chunk-size-267" name="chunk_size" type="Integer">
+
+    Audio chunk size (bytes)
+    **Optional Values:** 1024, 2048, 4096
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-latency-268" name="latency" type="String">
+
+    Latency mode
+    **Optional Values:** low, balanced, high
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-compression-269" name="compression" type="String">
+
+    Compression method
+    **Optional Values:** none, opus, mp3
+  </ParameterField>
+</ParameterTree>
 
 ### WebRTC Configuration Parameter Table
 
-| Parameter | Type | Description | Default Value |
-|-----------|------|-------------|---------------|
-| ice_servers | Array | ICE server list | [\{"urls": "stun:stun.l.google.com:19302"\}] |
-| audio_constraints | Object | Audio constraints | \{"echoCancellation": true\} |
-| connection_timeout | Integer | Connection timeout (milliseconds) | 30000 |
+<ParameterTree>
+  <ParameterField id="openai-realtime-table-ice-servers-270" name="ice_servers" type="Array">
+
+    ICE server list
+    **Default Value:** [\{"urls": "stun:stun.l.google.com:19302"\}]
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-audio-constraints-271" name="audio_constraints" type="Object">
+
+    Audio constraints
+    **Default Value:** \{"echoCancellation": true\}
+  </ParameterField>
+  <ParameterField id="openai-realtime-table-connection-timeout-272" name="connection_timeout" type="Integer">
+
+    Connection timeout (milliseconds)
+    **Default Value:** 30000
+  </ParameterField>
+</ParameterTree>

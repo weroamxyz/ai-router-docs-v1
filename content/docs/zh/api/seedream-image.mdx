@@ -1,10 +1,9 @@
 ---
-title: Seedream 图像格式（Image）
+title: Seedream 图像生成
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Seedream 图像格式（Image）
 
 <Callout type="info" title="官方文档">
 [火山引擎 Seedream 图像生成 API](https://www.volcengine.com/docs/82379/1541523)
@@ -25,7 +24,9 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 ## 💡 请求示例
 
-### 文生图 ✅
+<ExampleTabs items={["文生图","图生图（参考图）","生成组图（序列生成）","多图合成"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 curl ((SITE_URL))/v1/images/generations \
@@ -59,7 +60,10 @@ curl ((SITE_URL))/v1/images/generations \
 }
 ```
 
-### 图生图（参考图） ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 curl ((SITE_URL))/v1/images/generations \
@@ -73,7 +77,10 @@ curl ((SITE_URL))/v1/images/generations \
   }'
 ```
 
-### 生成组图（序列生成） ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-3">
+
 
 ```bash
 curl ((SITE_URL))/v1/images/generations \
@@ -111,7 +118,10 @@ curl ((SITE_URL))/v1/images/generations \
 }
 ```
 
-### 多图合成 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-4">
+
 
 ```bash
 curl ((SITE_URL))/v1/images/generations \
@@ -127,6 +137,10 @@ curl ((SITE_URL))/v1/images/generations \
     ]
   }'
 ```
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ## 📮 请求
 
@@ -151,15 +165,43 @@ Authorization: Bearer $API_KEY
 
 ### 请求体参数
 
-| 参数 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `model` | 字符串 | 是 | 模型 ID，如 `doubao-seedream-5-0-260128` |
-| `prompt` | 字符串 | 是 | 图像生成的文本提示词，支持中英文 |
-| `image` | 字符串 \| 字符串[] | 否 | 参考图片，以 data URL 格式提供（`data:image/<格式>;base64,...`）。单张图片传字符串，多张传数组，最多 14 张 |
-| `size` | 字符串 | 否 | 输出分辨率。可选值：`2K`、`3K`、`4K` 或显式尺寸 `<宽>x<高>`（如 `2048x2048`）。详见 [尺寸说明](#尺寸说明) |
-| `response_format` | 字符串 | 否 | `"url"`（默认）或 `"b64_json"` |
-| `watermark` | 布尔值 | 否 | 是否添加「AI 生成」水印，默认为 `true` |
-| `extra_fields` | 对象 | 否 | Seedream 专属扩展参数，详见下方 [Seedream `extra_fields` 参数说明](#seedream-extra_fields-参数说明) |
+<ParameterTree>
+  <ParameterField id="seedream-image-table-model-1" name="model" type="字符串">
+
+    模型 ID，如 `doubao-seedream-5-0-260128`
+    **必需:** 是
+  </ParameterField>
+  <ParameterField id="seedream-image-table-prompt-2" name="prompt" type="字符串">
+
+    图像生成的文本提示词，支持中英文
+    **必需:** 是
+  </ParameterField>
+  <ParameterField id="seedream-image-table-image-3" name="image" type="字符串 \| 字符串[]">
+
+    参考图片，以 data URL 格式提供（`data:image/<格式>;base64,...`）。单张图片传字符串，多张传数组，最多 14 张
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="seedream-image-table-size-4" name="size" type="字符串">
+
+    输出分辨率。可选值：`2K`、`3K`、`4K` 或显式尺寸 `<宽>x<高>`（如 `2048x2048`）。详见 [尺寸说明](#尺寸说明)
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="seedream-image-table-response-format-5" name="response_format" type="字符串">
+
+    `"url"`（默认）或 `"b64_json"`
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="seedream-image-table-watermark-6" name="watermark" type="布尔值">
+
+    是否添加「AI 生成」水印，默认为 `true`
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="seedream-image-table-extra-fields-7" name="extra_fields" type="对象">
+
+    Seedream 专属扩展参数，详见下方 [Seedream `extra_fields` 参数说明](#seedream-extra_fields-参数说明)
+    **必需:** 否
+  </ParameterField>
+</ParameterTree>
 
 #### 尺寸说明
 
@@ -176,16 +218,62 @@ Authorization: Bearer $API_KEY
 
 ### `extra_fields` 参数
 
-| 字段 | 类型 | 默认值 | 描述 | 支持模型 |
-|---|---|---|---|---|
-| `sequential_image_generation` | 字符串 | `"disabled"` | `"auto"`：模型自动决定生成图片数量（组图模式）。`"disabled"`：仅生成单张图片。 | 5.0、4.5、4.0 |
-| `sequential_image_generation_options` | 对象 | — | 组图生成配置，仅在 `sequential_image_generation` 为 `"auto"` 时生效 | 5.0、4.5、4.0 |
-| `sequential_image_generation_options.max_images` | 整数 | `15` | 组图中最多生成的图片数量，范围 1–15。注意：输入参考图数量 + 生成图片数量 ≤ 15 | 5.0、4.5、4.0 |
-| `tools` | 数组 | — | 启用可选工具。传入 `[{ "type": "web_search" }]` 可让模型联网搜索时效性内容（如当前事件、产品信息），会增加响应延迟。实际搜索次数通过 `usage.tool_usage.web_search` 返回 | **仅 5.0** |
-| `stream` | 布尔值 | `false` | 启用流式输出，每张图片生成后立即返回，无需等待全部完成。注意：当前路由暂不处理响应端流式传输，上游会流式输出，但路由以非流式方式响应 | 5.0、4.5、4.0 |
-| `output_format` | 字符串 | `"jpeg"` | 输出文件格式：`"jpeg"` 或 `"png"` | **仅 5.0** |
-| `optimize_prompt_options` | 对象 | — | 提示词优化配置 | 5.0、4.5、4.0 |
-| `optimize_prompt_options.mode` | 字符串 | `"standard"` | `"standard"`：质量更高，速度较慢。`"fast"`：质量稍低，速度更快。注意：`"fast"` **不支持** 5.0 和 4.5 | 5.0、4.5、4.0 |
+<ParameterTree>
+  <ParameterField id="seedream-image-table-sequential-image-generation-8" name="sequential_image_generation" type="字符串">
+
+    `"auto"`：模型自动决定生成图片数量（组图模式）。`"disabled"`：仅生成单张图片。
+    **默认值:** `"disabled"`
+    **支持模型:** 5.0、4.5、4.0
+  </ParameterField>
+  <ParameterField id="seedream-image-table-sequential-image-generation-options-9" name="sequential_image_generation_options" type="对象">
+
+    组图生成配置，仅在 `sequential_image_generation` 为 `"auto"` 时生效
+    **默认值:** —
+    **支持模型:** 5.0、4.5、4.0
+
+    <ParameterChildren>
+      <ParameterField id="seedream-image-table-sequential-image-generation-options-max-images-10" name="max_images" type="整数">
+
+        组图中最多生成的图片数量，范围 1–15。注意：输入参考图数量 + 生成图片数量 ≤ 15
+        **默认值:** `15`
+        **支持模型:** 5.0、4.5、4.0
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="seedream-image-table-tools-11" name="tools" type="数组">
+
+    启用可选工具。传入 `[{ "type": "web_search" }]` 可让模型联网搜索时效性内容（如当前事件、产品信息），会增加响应延迟。实际搜索次数通过 `usage.tool_usage.web_search` 返回
+    **默认值:** —
+    **支持模型:** **仅 5.0**
+  </ParameterField>
+  <ParameterField id="seedream-image-table-stream-12" name="stream" type="布尔值">
+
+    启用流式输出，每张图片生成后立即返回，无需等待全部完成。注意：当前路由暂不处理响应端流式传输，上游会流式输出，但路由以非流式方式响应
+    **默认值:** `false`
+    **支持模型:** 5.0、4.5、4.0
+  </ParameterField>
+  <ParameterField id="seedream-image-table-output-format-13" name="output_format" type="字符串">
+
+    输出文件格式：`"jpeg"` 或 `"png"`
+    **默认值:** `"jpeg"`
+    **支持模型:** **仅 5.0**
+  </ParameterField>
+  <ParameterField id="seedream-image-table-optimize-prompt-options-14" name="optimize_prompt_options" type="对象">
+
+    提示词优化配置
+    **默认值:** —
+    **支持模型:** 5.0、4.5、4.0
+
+    <ParameterChildren>
+      <ParameterField id="seedream-image-table-optimize-prompt-options-mode-15" name="mode" type="字符串">
+
+        `"standard"`：质量更高，速度较慢。`"fast"`：质量稍低，速度更快。注意：`"fast"` **不支持** 5.0 和 4.5
+        **默认值:** `"standard"`
+        **支持模型:** 5.0、4.5、4.0
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 响应
 
@@ -193,30 +281,60 @@ Authorization: Bearer $API_KEY
 
 接口返回包含以下顶层字段的响应：
 
-| 字段 | 类型 | 描述 |
-|------|------|------|
-| `model` | 字符串 | 用于生成的模型 ID |
-| `created` | 整数 | 图像创建时间的 Unix 时间戳（秒） |
-| `data` | 数组 | 生成的图像对象列表 |
-| `usage` | 对象 | 本次 API 调用的用量统计 |
+<ParameterTree>
+  <ParameterField id="seedream-image-table-model-16" name="model" type="字符串">
+
+    用于生成的模型 ID
+  </ParameterField>
+  <ParameterField id="seedream-image-table-created-17" name="created" type="整数">
+
+    图像创建时间的 Unix 时间戳（秒）
+  </ParameterField>
+  <ParameterField id="seedream-image-table-data-18" name="data" type="数组">
+
+    生成的图像对象列表
+  </ParameterField>
+  <ParameterField id="seedream-image-table-usage-19" name="usage" type="对象">
+
+    本次 API 调用的用量统计
+  </ParameterField>
+</ParameterTree>
 
 #### `usage` 字段
 
-| 字段 | 类型 | 描述 |
-|------|------|------|
-| `generated_images` | 整数 | 生成的图片数量 |
-| `output_tokens` | 整数 | 输出消耗的 token 数 |
-| `total_tokens` | 整数 | 总消耗 token 数 |
+<ParameterTree>
+  <ParameterField id="seedream-image-table-generated-images-20" name="generated_images" type="整数">
+
+    生成的图片数量
+  </ParameterField>
+  <ParameterField id="seedream-image-table-output-tokens-21" name="output_tokens" type="整数">
+
+    输出消耗的 token 数
+  </ParameterField>
+  <ParameterField id="seedream-image-table-total-tokens-22" name="total_tokens" type="整数">
+
+    总消耗 token 数
+  </ParameterField>
+</ParameterTree>
 
 ### 图像对象
 
 `data` 数组中的每个对象包含：
 
-| 字段 | 类型 | 描述 |
-|------|------|------|
-| `url` | 字符串 | 生成图像的 URL，当 `response_format` 为 `"url"`（默认）时返回 |
-| `b64_json` | 字符串 | Base64 编码的图像数据，当 `response_format` 为 `"b64_json"` 时返回 |
-| `size` | 字符串 | 生成图像的实际尺寸，如 `"2048x2048"` |
+<ParameterTree>
+  <ParameterField id="seedream-image-table-url-23" name="url" type="字符串">
+
+    生成图像的 URL，当 `response_format` 为 `"url"`（默认）时返回
+  </ParameterField>
+  <ParameterField id="seedream-image-table-b64-json-24" name="b64_json" type="字符串">
+
+    Base64 编码的图像数据，当 `response_format` 为 `"b64_json"` 时返回
+  </ParameterField>
+  <ParameterField id="seedream-image-table-size-25" name="size" type="字符串">
+
+    生成图像的实际尺寸，如 `"2048x2048"`
+  </ParameterField>
+</ParameterTree>
 
 响应示例：
 ```json

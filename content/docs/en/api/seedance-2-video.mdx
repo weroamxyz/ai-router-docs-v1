@@ -1,8 +1,7 @@
 ---
-title: SeeDance Video API Documentation
+title: SeeDance Video Generation
+sectionLayout: api
 ---
-
-# SeeDance Video API Documentation
 
 ByteDance Doubao SeeDance provides high-quality video generation models. This document describes the complete API interface specification for using SeeDance 2.0 and SeeDance 2.5 models for video generation. All video generation calls use the same `/v1/video/generations` endpoint, with different parameters depending on the use case.
 
@@ -52,8 +51,9 @@ queued → in_progress → completed
 
 | Method | Path | Description |
 |------|------|------|
-| POST | /v1/video/generations | Submit video generation task |
-| GET | /v1/video/generations/\{task_id\} | Query task status |
+| POST | [/v1/video/generations](#1-submit-video-generation-task-v1videogenerations) | Submit video generation task |
+| GET | [/v1/video/generations/\{task_id\}](#2-query-task-status-v1videogenerationstask_id) | Query task status |
+| POST | [Configured callback URL](#3-callback-configured-callback-url) | Receive task status callbacks |
 
 ## Model Differences
 
@@ -65,37 +65,32 @@ SeeDance 2.5 accepts the same request shape as 2.0, but raises every reference-i
 | `size` (resolution) | Default `720p`. `480p`, `720p`; `doubao-seedance-2-0-260128` and `dreamina-seedance-2-0-260128` also accept `1080p` and `4k` | Default `720p`. `480p`, `720p` |
 | `metadata.ratio` | Default `adaptive`. `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` | Same values for text-to-video and reference-to-video. First/last-frame, video editing and video extension accept `adaptive` only |
 | Reference images | Up to **9** | Up to **30** |
-| Reference videos | Up to **3**; see [constraints](#4-reference-videos) | Up to **10**; see [constraints](#4-reference-videos) |
-| Reference audio | Up to **3**; requires at least one reference image or video | Up to **10**; may be used on its own (see [Audio-Only Reference](#6-audio-only-reference-seedance-25)) |
+| Reference videos | Up to **3**; see [constraints](#reference-videos-example) | Up to **10**; see [constraints](#reference-videos-example) |
+| Reference audio | Up to **3**; requires at least one reference image or video | Up to **10**; may be used on its own (see [Audio-Only Reference](#audio-only-reference-example)) |
 | Image input formats | `jpeg`, `png`, `webp`, `bmp`, `tiff`, `gif` | Also `heic` and `heif` |
 | `metadata.output_format` | Not supported (always `mp4`) | `mp4` (default) or `mov` |
-| Video editing / extension | Not supported | Supported (see [Video Editing and Extension](#7-video-editing-and-extension-seedance-25)) |
+| Video editing / extension | Not supported | Supported (see [Video Editing and Extension](#video-editing-extension-example)) |
 
-### Additional `metadata` fields
+## 1. Submit Video Generation Task (/v1/video/generations)
 
-These optional fields are forwarded to the model as-is and apply to all SeeDance models unless noted otherwise.
+Choose the example that matches your input assets and intended workflow, then adjust the request body for your selected model family.
 
-| Field | Type | Description |
-| --- | --- | --- |
-| metadata.resolution | string | Alternative to the top-level `size` field; overrides it when both are present |
-| metadata.duration | integer | Alternative to the top-level `duration` field; overrides it when both are present |
-| metadata.generate_audio | boolean | Default `true`. When `true` the model generates voice, sound effects and background music matching the footage; `false` produces a silent video |
-| metadata.return_last_frame | boolean | Default `false`. When `true` the last frame of the generated video is also returned, as a PNG with the same pixel dimensions and no watermark |
-| metadata.watermark | boolean | Default `false`. When `true` an `AI Generated` watermark is shown in the lower-right corner |
-| metadata.output_format | string | SeeDance 2.5 only. `mp4` (default) or `mov`. `mov` uses high-colour-precision professional encoding (H.264 / YUV 4:4:4 / PCM audio) that some players cannot open; it is recommended for video editing and extension workflows |
-| metadata.priority | integer | Default `0`. Range `0`–`9`; a higher value moves the task ahead of lower-priority queued tasks |
-| metadata.execution_expires_after | integer | Default `172800` (48 hours). Range `3600`–`259200` seconds. A task still queued or running after this time is terminated |
-| metadata.safety_identifier | string | Stable, opaque per-end-user identifier, at most 64 characters. Use a hash of the user ID rather than personal data |
-| metadata.tools | array of object | Opts into upstream tooling, e.g. `[{"type": "web_search"}]`. SeeDance 2.0 and 2.5 only |
-| metadata.callback_url | string | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
-
-Metadata keys other than the ones documented here (and `imageMode`, `referenceVideos`, `referenceAudio`, which are consumed while building the request) are ignored.
-
-## Usage Examples
+### Usage Examples
 
 Examples 1–5 apply to both the 2.0 and 2.5 families; substitute any supported model name and observe the limits in [Model Differences](#model-differences). Examples 6–7 cover capabilities that only exist on SeeDance 2.5.
 
-### 1. Basic Text Prompt
+<ExampleTabs
+  items={[
+    'Text prompt',
+    'First/last frames',
+    'Reference images',
+    'Reference videos',
+    'Multimodal',
+    'Audio only (2.5)',
+    'Edit/extend (2.5)',
+  ]}
+>
+<ExampleTab id="text-prompt-example">
 
 Text-to-video uses `prompt` and `model`. Optional top-level fields include `duration` and `size`. Other options can go in `metadata` as needed.
 
@@ -114,17 +109,9 @@ Text-to-video uses `prompt` and `model`. Optional top-level fields include `dura
 }
 ```
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| prompt | string | Yes | Text prompt for the video |
-| model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
-| duration | integer | No | Default `5` (2.0) or `-1` (2.5). Allowed: integers from `4` to `15` (2.0) or `4` to `30` (2.5), inclusive, or `-1` for automatic duration selection |
-| size | string | No | Default `720p`. Allowed: `480p`, `720p`; the non-fast 2.0 models also accept `1080p` and `4k` |
-| metadata | object | No | Extra metadata |
-| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
-| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
+</ExampleTab>
 
-### 2. First/Last Frame Images
+<ExampleTab id="first-last-frame-example">
 
 Provide one or two image URLs in `images`: the first entry is the first frame; when two URLs are given, the second is the last frame. Optional top-level `duration` and `size` match **Basic Text Prompt**.
 
@@ -147,18 +134,9 @@ Provide one or two image URLs in `images`: the first entry is the first frame; w
 }
 ```
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| prompt | string | Yes | Text prompt for the video |
-| model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
-| images | array of string | Yes | One or two image URLs: first frame, and optionally last frame |
-| duration | integer | No | Default `5` (2.0) or `-1` (2.5). Allowed: integers from `4` to `15` (2.0) or `4` to `30` (2.5), inclusive, or `-1` for automatic duration selection |
-| size | string | No | Default `720p`. Allowed: `480p`, `720p`; the non-fast 2.0 models also accept `1080p` and `4k` |
-| metadata | object | No | Extra metadata |
-| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive`. **SeeDance 2.5 accepts `adaptive` only in this mode** — the output always keeps the aspect ratio of the first frame |
-| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
+</ExampleTab>
 
-### 3. Reference Images
+<ExampleTab id="reference-images-example">
 
 This flow also uses the top-level `images` array. Set `metadata.imageMode` to `reference` so each URL is treated as a **reference image** (not first/last frame). In this mode you can pass **up to nine** images on 2.0 models and **up to thirty** on 2.5 models. Optional top-level `duration` and `size` work the same as in **Basic Text Prompt**. In the prompt, reference images with tags such as `[image 1]`, `[image 2]`, … in the same order as `images`.
 
@@ -183,18 +161,6 @@ This flow also uses the top-level `images` array. Set `metadata.imageMode` to `r
 }
 ```
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| prompt | string | Yes | Text prompt; use `[image 1]` … `[image N]` to refer to images in order |
-| model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
-| images | array of string | Yes | Reference image URLs (up to **9** on 2.0, **30** on 2.5) |
-| duration | integer | No | Default `5` (2.0) or `-1` (2.5). Allowed: integers from `4` to `15` (2.0) or `4` to `30` (2.5), inclusive, or `-1` for automatic duration selection |
-| size | string | No | Default `720p`. Allowed: `480p`, `720p`; the non-fast 2.0 models also accept `1080p` and `4k` |
-| metadata | object | No | Must include `imageMode`: `reference` for reference-image mode |
-| metadata.imageMode | string | Yes (this mode) | Set to `reference` |
-| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
-| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
-
 **Constraints on each reference image:**
 
 - **Count:** up to **9** images on 2.0 models, up to **30** on 2.5 models.
@@ -203,7 +169,9 @@ This flow also uses the top-level `images` array. Set `metadata.imageMode` to `r
 - **Width and height** (pixels): each between **300** and **6000** (inclusive).
 - **File size:** each image must not exceed **30 MB**, and the whole request body must not exceed **64 MB**. Prefer URLs over base64 for large files.
 
-### 4. Reference Videos
+</ExampleTab>
+
+<ExampleTab id="reference-videos-example">
 
 Pass reference clip URLs in `metadata.referenceVideos` (up to **three** on 2.0 models, up to **ten** on 2.5 models). The prompt can refer to them in order (e.g. `[video 1]`, `[video 2]`, `[video 3]`).
 
@@ -227,17 +195,6 @@ Pass reference clip URLs in `metadata.referenceVideos` (up to **three** on 2.0 m
 }
 ```
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| prompt | string | Yes | Text prompt describing how to use the reference videos (e.g. `[video 1]`, `[video 2]`, `[video 3]` in order) |
-| model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
-| duration | integer | No | Default `5` (2.0) or `-1` (2.5). Allowed: integers from `4` to `15` (2.0) or `4` to `30` (2.5), inclusive, or `-1` for automatic duration selection |
-| size | string | No | Default `720p`. Allowed: `480p`, `720p`; the non-fast 2.0 models also accept `1080p` and `4k` |
-| metadata | object | No | Must include `referenceVideos` for this mode |
-| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive`. **SeeDance 2.5 accepts `adaptive` only** when the reference videos are edited or extended rather than used as style/content references |
-| metadata.referenceVideos | array of string | Yes (this mode) | Up to **3** video URLs on 2.0, up to **10** on 2.5 |
-| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
-
 **Constraints on each reference video (and inputs overall):**
 
 - **Count:** at most 3 URLs in `referenceVideos` on 2.0 models, at most 10 on 2.5 models.
@@ -250,9 +207,11 @@ Pass reference clip URLs in `metadata.referenceVideos` (up to **three** on 2.0 m
 - **File size:** each file must not exceed **50 MB** on 2.0 models, or **200 MB** on 2.5 models.
 - **Frame rate:** between **24** and **60** fps (inclusive).
 
-### 5. Multimodal References
+</ExampleTab>
 
-Combine **reference images** (`images` + `metadata.imageMode`: `reference`), **reference videos** (`metadata.referenceVideos`), and **reference audio** (`metadata.referenceAudio`) in one request. Prompts can reference assets by role (e.g. `[video 1]`, `[audio 1]`, `[image 1]`, `[image 2]`) as in the single-mode sections. Reference videos must still meet the [constraints in Reference Videos](#4-reference-videos).
+<ExampleTab id="multimodal-references-example">
+
+Combine **reference images** (`images` + `metadata.imageMode`: `reference`), **reference videos** (`metadata.referenceVideos`), and **reference audio** (`metadata.referenceAudio`) in one request. Prompts can reference assets by role (e.g. `[video 1]`, `[audio 1]`, `[image 1]`, `[image 2]`) as in the single-mode sections. Reference videos must still meet the [constraints in Reference Videos](#reference-videos-example).
 
 **Request body:**
 
@@ -280,20 +239,6 @@ Combine **reference images** (`images` + `metadata.imageMode`: `reference`), **r
 }
 ```
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| prompt | string | Yes | Long-form prompt referencing `[video N]`, `[audio N]`, `[image N]` as needed |
-| model | string | Yes | Model name (e.g. `doubao-seedance-2-0-fast-260128`) |
-| images | array of string | No | Reference image URLs when `metadata.imageMode` is `reference` (up to **9** on 2.0, **30** on 2.5; see [Reference Images](#3-reference-images)) |
-| duration | integer | No | Default `5` (2.0) or `-1` (2.5). Allowed: integers from `4` to `15` (2.0) or `4` to `30` (2.5), inclusive, or `-1` for automatic duration selection |
-| size | string | No | Default `720p`. Allowed: `480p`, `720p`; the non-fast 2.0 models also accept `1080p` and `4k` |
-| metadata | object | No | Combines modes below |
-| metadata.imageMode | string | When using `images` as references | Set to `reference` |
-| metadata.referenceVideos | array of string | No | Reference video URLs (up to **3** on 2.0, **10** on 2.5; constraints in [Reference Videos](#4-reference-videos)) |
-| metadata.referenceAudio | array of string | No | Reference audio URLs (up to **3** on 2.0, **10** on 2.5). On 2.0 models audio cannot be used alone — at least one reference image or video is required |
-| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
-| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
-
 **Constraints on each reference audio clip:**
 
 - **Count:** at most 3 URLs in `referenceAudio` on 2.0 models, at most 10 on 2.5 models.
@@ -304,9 +249,11 @@ Combine **reference images** (`images` + `metadata.imageMode`: `reference`), **r
 
 Generated audio is always mono, regardless of how many channels the input audio has.
 
-### 6. Audio-Only Reference (SeeDance 2.5)
+</ExampleTab>
 
-SeeDance 2.5 is the first family that accepts reference audio with no accompanying image or video. Pass the clip(s) in `metadata.referenceAudio` and describe the footage that should be generated around them; the model synchronises the visuals to the supplied audio. The same audio constraints as in [Multimodal References](#5-multimodal-references) apply.
+<ExampleTab id="audio-only-reference-example">
+
+SeeDance 2.5 is the first family that accepts reference audio with no accompanying image or video. Pass the clip(s) in `metadata.referenceAudio` and describe the footage that should be generated around them; the model synchronises the visuals to the supplied audio. The same audio constraints as in [Multimodal References](#multimodal-references-example) apply.
 
 Sending this request to a 2.0 model returns `400 invalid_request`.
 
@@ -328,18 +275,9 @@ Sending this request to a 2.0 model returns `400 invalid_request`.
 }
 ```
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| prompt | string | No | Text prompt describing the visuals; refer to the clips as `[audio 1]`, `[audio 2]`, … in order |
-| model | string | Yes | A SeeDance 2.5 model name (e.g. `doubao-seedance-2-5-260628`) |
-| duration | integer | No | Default `-1`. Allowed: integers from `4` to `30`, inclusive, or `-1` for automatic duration selection |
-| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
-| metadata | object | Yes | Must include `referenceAudio` for this mode |
-| metadata.referenceAudio | array of string | Yes (this mode) | Up to **10** audio URLs, each `wav` or `mp3`, 2–30 seconds, 30 seconds combined |
-| metadata.ratio | string | No | Default `adaptive`. Allowed: `16:9`, `4:3`, `1:1`, `3:4`, `9:16`, `21:9`, `adaptive` |
-| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
+</ExampleTab>
 
-### 7. Video Editing and Extension (SeeDance 2.5)
+<ExampleTab id="video-editing-extension-example">
 
 SeeDance 2.5 can also **edit** a source clip (restyle it, change its setting, replace its audio while keeping the original motion) or **extend** it forwards or backwards. Both flows pass the source clip in `metadata.referenceVideos` and describe the intended change in the prompt.
 
@@ -385,21 +323,158 @@ The task type is inferred from the input assets and the prompt, so write the pro
 }
 ```
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| prompt | string | Yes | Text prompt describing the edit or the continuation |
-| model | string | Yes | A SeeDance 2.5 model name (e.g. `doubao-seedance-2-5-260628`) |
-| duration | integer | No | Editing: must be `-1`. Extension: integers from `4` to `30`, inclusive, or `-1` |
-| size | string | No | Default `720p`. Allowed: `480p`, `720p` |
-| metadata | object | Yes | Must include `referenceVideos` for this mode |
-| metadata.referenceVideos | array of string | Yes (this mode) | Source video URLs; constraints in [Reference Videos](#4-reference-videos). Editing requires a clip of **4–30** seconds |
-| metadata.ratio | string | No | Must be `adaptive` (the default) in these modes |
-| metadata.output_format | string | No | `mp4` (default) or `mov`. `mov` is recommended for editing and extension |
-| metadata.callback_url | string | No | If set, attempts to send callbacks to the specified URL. See [Callback](#3-callback) documentation for more details |
+</ExampleTab>
+</ExampleTabs>
 
-## 1. Submit Video Generation Task
+### Request Body Fields
 
-Use the JSON bodies in [Usage Examples](#usage-examples) above; adjust fields for your scenario. 
+<ParameterTree requiredLabel="Required" optionalLabel="Optional / conditional">
+  <ParameterField id="submit-request-prompt" name="prompt" type="string">
+    Text instructions for the generated video. Reference supplied assets with
+    tags such as `[image 1]`, `[video 1]`, and `[audio 1]`. Optional for some
+    SeeDance 2.5 audio-only requests; required for the other documented modes.
+  </ParameterField>
+  <ParameterField id="submit-request-model" name="model" type="string" required>
+    Any model listed under [Supported Models](#supported-models). SeeDance 2.5 is
+    required for audio-only, editing, and extension workflows.
+  </ParameterField>
+  <ParameterField id="submit-request-images" name="images" type="string[]">
+    One or two first/last-frame image URLs, or reference image URLs when
+    `metadata.imageMode` is `reference`. Reference mode accepts up to **9**
+    images on 2.0 and **30** on 2.5.
+  </ParameterField>
+  <ParameterField id="submit-request-duration" name="duration" type="integer">
+    Output duration in seconds. SeeDance 2.0 defaults to `5` and accepts `4`–`15`
+    or `-1`; 2.5 defaults to `-1` and accepts `4`–`30` or `-1`. Editing accepts
+    `-1` only.
+  </ParameterField>
+  <ParameterField id="submit-request-size" name="size" type="string">
+    Output resolution. Defaults to `720p`. See [Model Differences](#model-differences)
+    for model-specific support for `480p`, `720p`, `1080p`, and `4k`.
+  </ParameterField>
+  <ParameterField id="submit-request-metadata" name="metadata" type="object">
+    Mode selection, reference assets, output options, and task controls.
+    <ParameterChildren>
+      <ParameterField
+        id="submit-request-metadata-image-mode"
+        name="imageMode"
+        type="string"
+      >
+        Set to `reference` when `images` contains reference images instead of
+        first/last frames.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-ratio"
+        name="ratio"
+        type="string"
+      >
+        Output aspect ratio. Defaults to `adaptive`; accepts `16:9`, `4:3`,
+        `1:1`, `3:4`, `9:16`, `21:9`, or `adaptive`. Some SeeDance 2.5 modes
+        accept `adaptive` only.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-reference-videos"
+        name="referenceVideos"
+        type="string[]"
+      >
+        Reference or source video URLs. Accepts up to **3** videos on 2.0 and
+        **10** on 2.5; required for video editing and extension.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-reference-audio"
+        name="referenceAudio"
+        type="string[]"
+      >
+        Reference audio URLs. Accepts up to **3** clips on 2.0 and **10** on
+        2.5. SeeDance 2.0 also requires at least one reference image or video.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-resolution"
+        name="resolution"
+        type="string"
+      >
+        Alternative to top-level `size`; takes precedence when both are present.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-duration"
+        name="duration"
+        type="integer"
+      >
+        Alternative to top-level `duration`; takes precedence when both are
+        present.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-generate-audio"
+        name="generate_audio"
+        type="boolean"
+      >
+        Defaults to `true`. Set to `false` to produce a silent video.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-return-last-frame"
+        name="return_last_frame"
+        type="boolean"
+      >
+        Defaults to `false`. When enabled, also returns the final frame as a PNG.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-watermark"
+        name="watermark"
+        type="boolean"
+      >
+        Defaults to `false`. When enabled, adds an `AI Generated` watermark.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-output-format"
+        name="output_format"
+        type="string"
+      >
+        SeeDance 2.5 only. Accepts `mp4` (default) or high-colour-precision `mov`.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-priority"
+        name="priority"
+        type="integer"
+      >
+        Queue priority from `0` to `9`. Defaults to `0`; higher values run ahead
+        of lower-priority queued tasks.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-expires"
+        name="execution_expires_after"
+        type="integer"
+      >
+        Maximum queued/running time in seconds. Defaults to `172800`; accepts
+        `3600`–`259200`.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-safety-identifier"
+        name="safety_identifier"
+        type="string"
+      >
+        Stable, opaque end-user identifier of at most 64 characters. Do not send
+        personal data.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-tools"
+        name="tools"
+        type="object[]"
+      >
+        Optional upstream tools, for example `[{"type": "web_search"}]`.
+      </ParameterField>
+      <ParameterField
+        id="submit-request-metadata-callback-url"
+        name="callback_url"
+        type="string"
+      >
+        URL that receives task updates. See
+        [Callback](#3-callback-configured-callback-url).
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
+
+Metadata keys not documented above are ignored.
 
 ### Complete Request:
 
@@ -418,10 +493,16 @@ POST /v1/video/generations
 
 ### Request Headers:
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| Content-Type | string | Yes | application/json |
-| Authorization | string | Yes | Bearer API_KEY |
+<ParameterTree>
+  <ParameterField id="seedance-2-video-table-content-type-1" name="Content-Type" type="string" required>
+
+    application/json
+  </ParameterField>
+  <ParameterField id="seedance-2-video-table-authorization-2" name="Authorization" type="string" required>
+
+    Bearer API_KEY
+  </ParameterField>
+</ParameterTree>
 
 ### Response Example:
 
@@ -431,13 +512,15 @@ POST /v1/video/generations
 }
 ```
 
-### Response Field Descriptions:
+### Response Body Fields:
 
-| Field | Type | Description |
-|------|------|------|
-| task_id | string | Task ID for subsequent task status queries |
+<ParameterTree requiredLabel="Always" optionalLabel="Conditional">
+  <ParameterField id="submit-response-task-id" name="task_id" type="string" required>
+    Task ID used for subsequent status queries.
+  </ParameterField>
+</ParameterTree>
 
-## 2. Query Task Status
+## 2. Query Task Status (/v1/video/generations/\{task_id\})
 
 ### Complete Request:
 
@@ -454,17 +537,27 @@ GET /v1/video/generations/{task_id}
 
 ### Request Headers:
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| Authorization | string | Yes | Bearer API_KEY |
+<ParameterTree>
+  <ParameterField id="seedance-2-video-table-authorization-3" name="Authorization" type="string" required>
+
+    Bearer API_KEY
+  </ParameterField>
+</ParameterTree>
 
 ### Path Parameters:
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| task_id | string | Yes | Task ID |
+<ParameterTree>
+  <ParameterField id="seedance-2-video-table-task-id-4" name="task_id" type="string" required>
 
-### Response Example (Processing):
+    Task ID
+  </ParameterField>
+</ParameterTree>
+
+### Response Examples:
+
+<ExampleTabs items={['Processing', 'Success']}>
+<ExampleTab id="processing-response-example">
+
 ```json
 {
     "code": "success",
@@ -493,7 +586,9 @@ GET /v1/video/generations/{task_id}
 }
 ```
 
-### Response Example (Success):
+</ExampleTab>
+
+<ExampleTab id="success-response-example">
 
 > **Note:** When the task succeeds, the `data.fail_reason` field will contain the video download URL instead of an error message — this is a known behavior of the upstream SeeDance API. The recommended way to retrieve the video URL is via `data.data.content.video_url`.
 
@@ -539,7 +634,117 @@ GET /v1/video/generations/{task_id}
 
 > **Note:** The returned `duration` is an integer approximation, calculated as the total frame count divided by 24 and rounded down. A 133-frame video lasts 5.54 seconds but reports a `duration` of `5`.
 
-## 3. Callback
+</ExampleTab>
+</ExampleTabs>
+
+### Response Body Fields:
+
+<ParameterTree requiredLabel="Always" optionalLabel="Conditional">
+  <ParameterField id="status-response-code" name="code" type="string" required>
+    Wrapper status. `success` indicates that the status query completed.
+  </ParameterField>
+  <ParameterField id="status-response-message" name="message" type="string" required>
+    Wrapper message. Usually empty for a successful query.
+  </ParameterField>
+  <ParameterField id="status-response-data" name="data" type="object" required>
+    Normalized task information and the raw SeeDance task details.
+    <ParameterChildren>
+      <ParameterField id="status-response-data-task-id" name="task_id" type="string" required>
+        Task ID returned when the generation was submitted.
+      </ParameterField>
+      <ParameterField id="status-response-data-action" name="action" type="string" required>
+        Task action. Video generation responses use `generate`.
+      </ParameterField>
+      <ParameterField id="status-response-data-status" name="status" type="string" required>
+        Normalized status: `QUEUED`, `IN_PROGRESS`, `SUCCESS`, or `FAILURE`.
+      </ParameterField>
+      <ParameterField id="status-response-data-fail-reason" name="fail_reason" type="string" required>
+        Video URL on success, error details on failure, or an empty string while
+        processing. Prefer `data.content.video_url` for successful tasks.
+      </ParameterField>
+      <ParameterField id="status-response-data-submit-time" name="submit_time" type="integer" required>
+        Unix timestamp, in seconds, when the task was submitted.
+      </ParameterField>
+      <ParameterField id="status-response-data-start-time" name="start_time" type="integer" required>
+        Unix timestamp, in seconds, when processing started.
+      </ParameterField>
+      <ParameterField id="status-response-data-finish-time" name="finish_time" type="integer" required>
+        Unix timestamp, in seconds, when processing finished; `0` until then.
+      </ParameterField>
+      <ParameterField id="status-response-data-progress" name="progress" type="string" required>
+        Completion percentage, such as `"30%"` or `"100%"`.
+      </ParameterField>
+      <ParameterField id="status-response-data-provider-data" name="data" type="object" required>
+        Raw SeeDance task data.
+        <ParameterChildren>
+          <ParameterField id="status-response-provider-content" name="content" type="object">
+            Generated output. Present after successful completion.
+            <ParameterChildren>
+              <ParameterField id="status-response-provider-content-video-url" name="video_url" type="string" required>
+                Direct URL to the generated video.
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField id="status-response-provider-created-at" name="created_at" type="integer" required>
+            Upstream task creation timestamp in seconds.
+          </ParameterField>
+          <ParameterField id="status-response-provider-draft" name="draft" type="boolean" required>
+            Whether the upstream task is a draft.
+          </ParameterField>
+          <ParameterField id="status-response-provider-duration" name="duration" type="integer">
+            Approximate output duration in seconds, rounded down from frame count.
+          </ParameterField>
+          <ParameterField id="status-response-provider-expires" name="execution_expires_after" type="integer" required>
+            Maximum permitted execution time in seconds.
+          </ParameterField>
+          <ParameterField id="status-response-provider-fps" name="framespersecond" type="integer">
+            Output frame rate. Present after successful completion.
+          </ParameterField>
+          <ParameterField id="status-response-provider-generate-audio" name="generate_audio" type="boolean" required>
+            Whether audio generation was enabled.
+          </ParameterField>
+          <ParameterField id="status-response-provider-id" name="id" type="string" required>
+            Upstream task ID.
+          </ParameterField>
+          <ParameterField id="status-response-provider-model" name="model" type="string" required>
+            Model used for the task.
+          </ParameterField>
+          <ParameterField id="status-response-provider-ratio" name="ratio" type="string">
+            Output aspect ratio. Present after successful completion.
+          </ParameterField>
+          <ParameterField id="status-response-provider-resolution" name="resolution" type="string">
+            Output resolution. Present after successful completion.
+          </ParameterField>
+          <ParameterField id="status-response-provider-seed" name="seed" type="integer">
+            Random seed used for generation.
+          </ParameterField>
+          <ParameterField id="status-response-provider-service-tier" name="service_tier" type="string" required>
+            Upstream service tier used for the task.
+          </ParameterField>
+          <ParameterField id="status-response-provider-status" name="status" type="string" required>
+            Raw SeeDance status, such as `running` or `succeeded`.
+          </ParameterField>
+          <ParameterField id="status-response-provider-updated-at" name="updated_at" type="integer" required>
+            Timestamp of the most recent upstream update.
+          </ParameterField>
+          <ParameterField id="status-response-provider-usage" name="usage" type="object">
+            Token usage. Present after successful completion.
+            <ParameterChildren>
+              <ParameterField id="status-response-provider-usage-completion" name="completion_tokens" type="integer" required>
+                Tokens billed for generation.
+              </ParameterField>
+              <ParameterField id="status-response-provider-usage-total" name="total_tokens" type="integer" required>
+                Total tokens billed for the task.
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
+
+## 3. Callback (Configured callback URL)
 
 ```
 POST <YOUR_CALLBACK_URL>
@@ -555,9 +760,13 @@ The webhook requests consist of "wrapper" data, taking the following format:
   }
 }
 ```
-The payload.data field contains the data in the same format that the [2. Query Task Status](#2-query-task-status) endpoint's response.data would provide.
+The `payload.data` field contains the same data returned in `response.data` by [2. Query Task Status](#2-query-task-status-v1videogenerationstask_id).
 
-### Request Example (Task Running)
+### Callback Examples
+
+<ExampleTabs items={['Task running', 'Task succeeded']}>
+<ExampleTab id="callback-running-example">
+
 ```json
 {
   "webhook_type": "VIDEO_TASK",
@@ -588,7 +797,10 @@ The payload.data field contains the data in the same format that the [2. Query T
 }
 ```
 
-### Request Example (Task Completed Successfully)
+</ExampleTab>
+
+<ExampleTab id="callback-success-example">
+
 ```json
 {
   "webhook_type": "VIDEO_TASK",
@@ -630,3 +842,30 @@ The payload.data field contains the data in the same format that the [2. Query T
   }
 }
 ```
+
+</ExampleTab>
+</ExampleTabs>
+
+### Callback Body Fields
+
+<ParameterTree requiredLabel="Always" optionalLabel="Conditional">
+  <ParameterField id="callback-webhook-type" name="webhook_type" type="string" required>
+    Webhook category. Video-task callbacks use `VIDEO_TASK`.
+  </ParameterField>
+  <ParameterField id="callback-payload" name="payload" type="object" required>
+    Callback routing information and task data.
+    <ParameterChildren>
+      <ParameterField id="callback-payload-channel-type" name="channel_type" type="string" required>
+        Upstream channel type. SeeDance callbacks use `DoubaoVideo`.
+      </ParameterField>
+      <ParameterField id="callback-payload-data" name="data" type="object" required>
+        The same normalized task object documented under
+        [Query Task Status](#2-query-task-status-v1videogenerationstask_id).
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
+
+## Related Links
+
+- [BytePlus Video Generation Task API](https://docs.byteplus.com/en/docs/modelark/create-video-generation-task-api)

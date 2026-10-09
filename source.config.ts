@@ -4,7 +4,9 @@ import {
   frontmatterSchema,
   metaSchema,
 } from 'fumadocs-mdx/config';
+import { z } from 'zod';
 import { resolveBrandTokens, localeFromPath } from './src/lib/brand';
+import { rehypeApiLayout } from './src/lib/rehype-api-layout';
 
 // Remark plugin: resolve ((TOKEN)) placeholders in docs body (prose, code blocks,
 // inline code, and JSX text/attributes). Locale is derived from the file path so a
@@ -47,16 +49,20 @@ export const docs = defineDocs({
   docs: {
     // Resolve ((TOKEN)) placeholders in frontmatter title/description per locale.
     schema: (ctx) =>
-      frontmatterSchema.transform((data) => {
-        const locale = localeFromPath(ctx.path);
-        return {
-          ...data,
-          title: resolveBrandTokens(data.title, locale),
-          description: data.description
-            ? resolveBrandTokens(data.description, locale)
-            : data.description,
-        };
-      }),
+      frontmatterSchema
+        .extend({
+          sectionLayout: z.enum(['api']).optional(),
+        })
+        .transform((data) => {
+          const locale = localeFromPath(ctx.path);
+          return {
+            ...data,
+            title: resolveBrandTokens(data.title, locale),
+            description: data.description
+              ? resolveBrandTokens(data.description, locale)
+              : data.description,
+          };
+        }),
     postprocess: {
       includeProcessedMarkdown: true,
     },
@@ -86,5 +92,6 @@ export default defineConfig({
   lastModifiedTime: 'git',
   mdxOptions: {
     remarkPlugins: [remarkBrandTokens],
+    rehypePlugins: [rehypeApiLayout],
   },
 });

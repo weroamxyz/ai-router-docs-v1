@@ -1,5 +1,6 @@
 ---
 title: Grok 视频接口文档
+sectionLayout: api
 ---
 
 # Grok 视频接口文档
@@ -41,7 +42,7 @@ queued → in_progress → completed
 - completed: 任务成功完成，视频已生成
 - failed: 任务失败
 
-> **注意：** Grok 视频不支持推送回调。请轮询 [2. 查询任务状态](#2-查询任务状态) 直到任务达到终止状态。
+> **注意：** Grok 视频不支持推送回调。请轮询 [2. 查询任务状态](#2-查询任务状态-v1videogenerationstask_id) 直到任务达到终止状态。
 
 ---
 
@@ -49,109 +50,207 @@ queued → in_progress → completed
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| POST | /v1/video/generations | 提交视频生成任务 |
-| GET | /v1/video/generations/\{task_id\} | 查询任务状态 |
+| POST | [/v1/video/generations](#1-提交视频生成任务-v1videogenerations) | 提交视频生成任务 |
+| GET | [/v1/video/generations/\{task_id\}](#2-查询任务状态-v1videogenerationstask_id) | 查询任务状态 |
 
-## 调用示例
+## 1. 提交视频生成任务 (/v1/video/generations)
 
-### 1. 文生视频
+请选择与视频生成方式匹配的示例，再根据实际场景调整请求体。
 
-文生视频仅使用 `prompt` 与 `model`，不传 `images`。顶层可选字段包括 `duration` 和 `size`，`aspect_ratio` 通过 `metadata` 设置。
+### 调用示例
 
-**请求体：**
+<ExampleTabs items={['文生视频', '图生视频', '参考生视频']}>
+  <ExampleTab id="text-to-video-example">
+    文生视频仅使用 `prompt` 与 `model`，不传 `images`。顶层可选字段包括
+    `duration` 和 `size`，`aspect_ratio` 通过 `metadata` 设置。
 
-```json
-{
-    "prompt": "A glowing crystal-powered rocket launching from the red dunes of Mars",
-    "model": "grok-imagine-video",
-    "duration": 10,
-    "size": "720p",
-    "metadata": {
+    **请求体：**
+
+    ```json
+    {
+      "prompt": "A glowing crystal-powered rocket launching from the red dunes of Mars",
+      "model": "grok-imagine-video",
+      "duration": 10,
+      "size": "720p",
+      "metadata": {
         "aspect_ratio": "16:9"
+      }
     }
-}
-```
+    ```
 
-| 字段 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| prompt | string | 是 | 视频的文本提示词 |
-| model | string | 是 | 模型名称：`grok-imagine-video` |
-| duration | integer | 是 | 取值：闭区间 `1`～`15` 的整数 |
-| size | string | 否 | 默认 `480p`。允许：`480p`、`720p`、`1080p` |
-| metadata | object | 否 | 额外元数据 |
-| metadata.aspect_ratio | string | 否 | 默认 `16:9`（省略时由 xAI 应用）。允许：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`、`3:2`、`2:3` |
+    **请求参数：**
 
-### 2. 图生视频
+    <ParameterTree locale="zh">
+      <ParameterField id="text-prompt" name="prompt" type="string" required>
+        视频的文本提示词。
+      </ParameterField>
+      <ParameterField id="text-model" name="model" type="string" required>
+        模型名称。使用 `grok-imagine-video`。
+      </ParameterField>
+      <ParameterField id="text-duration" name="duration" type="integer" required>
+        视频时长（秒）。取值为闭区间 `1`～`15` 的整数。
+      </ParameterField>
+      <ParameterField id="text-size" name="size" type="string">
+        输出分辨率。默认为 `480p`；可选 `480p`、`720p` 或 `1080p`。
+      </ParameterField>
+      <ParameterField id="text-metadata" name="metadata" type="object">
+        生成请求的额外元数据。
+        <ParameterChildren>
+          <ParameterField
+            id="text-metadata-aspect-ratio"
+            name="aspect_ratio"
+            type="string"
+          >
+            视频宽高比。省略时 xAI 使用 `16:9`。可选 `1:1`、`16:9`、
+            `9:16`、`4:3`、`3:4`、`3:2` 或 `2:3`。
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterTree>
+  </ExampleTab>
 
-在 `images` 中传入一个或多个图像 URL（或 base64 数据 URI），并省略 `metadata.imageMode` 或将其设为 `"keyframe"`（默认值）。仅使用数组中的**第一张**图像——该图像将成为视频的首帧并被锁定；其余图像将被忽略。
+  <ExampleTab id="image-to-video-example">
+    在 `images` 中传入一个或多个图像 URL（或 base64 数据 URI），并省略
+    `metadata.imageMode` 或将其设为 `"keyframe"`（默认值）。仅使用数组中的
+    **第一张**图像——该图像将成为视频的首帧并被锁定；其余图像将被忽略。
 
-**请求体：**
+    **请求体：**
 
-```json
-{
-    "prompt": "The rocket's engines ignite and it lifts off in a cloud of dust",
-    "model": "grok-imagine-video",
-    "images": [
-        "https://example.com/rocket-on-launchpad.jpg"
-    ],
-    "duration": 8,
-    "size": "720p",
-    "metadata": {
+    ```json
+    {
+      "prompt": "The rocket's engines ignite and it lifts off in a cloud of dust",
+      "model": "grok-imagine-video",
+      "images": ["https://example.com/rocket-on-launchpad.jpg"],
+      "duration": 8,
+      "size": "720p",
+      "metadata": {
         "aspect_ratio": "16:9"
+      }
     }
-}
-```
+    ```
 
-| 字段 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| prompt | string | 是 | 描述图像应如何动起来的文本提示词 |
-| model | string | 是 | 模型名称：`grok-imagine-video` |
-| images | string 数组 | 是 | 一个或多个图像 URL 或 base64 数据 URI；仅使用**第一张**，将成为锁定的首帧 |
-| duration | integer | 是 | 取值：闭区间 `1`～`15` 的整数 |
-| size | string | 否 | 默认 `480p`。允许：`480p`、`720p`、`1080p` |
-| metadata | object | 否 | 额外元数据 |
-| metadata.imageMode | string | 否 | 默认 `keyframe`。本模式下须为 `keyframe`（或省略） |
-| metadata.aspect_ratio | string | 否 | 默认 `16:9`。允许：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`、`3:2`、`2:3` |
+    **请求参数：**
 
-> **注意：** 图生视频不支持单独传入末帧图像。如需使用多张图片而不锁定画面，请将 `metadata.imageMode` 设为 `"reference"`——参见[3. 参考生视频](#3-参考生视频)。
+    <ParameterTree locale="zh">
+      <ParameterField id="image-prompt" name="prompt" type="string" required>
+        描述图像应如何动起来的文本提示词。
+      </ParameterField>
+      <ParameterField id="image-model" name="model" type="string" required>
+        模型名称。使用 `grok-imagine-video`。
+      </ParameterField>
+      <ParameterField id="image-images" name="images" type="string[]" required>
+        一个或多个图像 URL 或 base64 数据 URI。仅使用**第一张**图像，
+        它将成为锁定的首帧。
+      </ParameterField>
+      <ParameterField id="image-duration" name="duration" type="integer" required>
+        视频时长（秒）。取值为闭区间 `1`～`15` 的整数。
+      </ParameterField>
+      <ParameterField id="image-size" name="size" type="string">
+        输出分辨率。默认为 `480p`；可选 `480p`、`720p` 或 `1080p`。
+      </ParameterField>
+      <ParameterField id="image-metadata" name="metadata" type="object">
+        生成请求的额外元数据。
+        <ParameterChildren>
+          <ParameterField
+            id="image-metadata-image-mode"
+            name="imageMode"
+            type="string"
+          >
+            图像处理模式。默认为 `keyframe`；图生视频时使用 `keyframe`
+            或省略此字段。
+          </ParameterField>
+          <ParameterField
+            id="image-metadata-aspect-ratio"
+            name="aspect_ratio"
+            type="string"
+          >
+            视频宽高比。默认为 `16:9`；可选 `1:1`、`16:9`、`9:16`、
+            `4:3`、`3:4`、`3:2` 或 `2:3`。
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterTree>
 
-### 3. 参考生视频
+    > **注意：** 图生视频不支持单独传入末帧图像。如需使用多张图片而不锁定画面，
+    > 请切换到**参考生视频**标签页。
+  </ExampleTab>
 
-将 `metadata.imageMode` 设置为 `"reference"`，此时 `images` 中的每个 URL 都被视为**参考图**，用于影响视频生成而不锁定任何画面。可在提示词中使用 `<IMAGE_1>`、`<IMAGE_2>` 等标签，按 `images` 中的顺序引用参考图。
+  <ExampleTab id="reference-to-video-example">
+    将 `metadata.imageMode` 设置为 `"reference"`，此时 `images` 中的每个 URL 都被视为
+    **参考图**，用于影响视频生成而不锁定任何画面。可在提示词中使用
+    `<IMAGE_1>`、`<IMAGE_2>` 等标签，按 `images` 中的顺序引用参考图。
 
-**请求体：**
+    **请求体：**
 
-```json
-{
-    "prompt": "The model from <IMAGE_1> walks the runway wearing the shirt from <IMAGE_2>",
-    "model": "grok-imagine-video",
-    "images": [
+    ```json
+    {
+      "prompt": "The model from <IMAGE_1> walks the runway wearing the shirt from <IMAGE_2>",
+      "model": "grok-imagine-video",
+      "images": [
         "https://example.com/model-reference.jpg",
         "https://example.com/shirt-reference.jpg"
-    ],
-    "duration": 10,
-    "size": "720p",
-    "metadata": {
+      ],
+      "duration": 10,
+      "size": "720p",
+      "metadata": {
         "imageMode": "reference",
         "aspect_ratio": "16:9"
+      }
     }
-}
-```
+    ```
 
-| 字段 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| prompt | string | 是 | 文本提示词；使用 `<IMAGE_1>` … `<IMAGE_N>` 按顺序引用图片 |
-| model | string | 是 | 模型名称：`grok-imagine-video` |
-| images | string 数组 | 是 | 参考图像 URL 或 base64 数据 URI（一个或多个） |
-| duration | integer | 是 | 取值：闭区间 `1`～`15` 的整数 |
-| size | string | 否 | 默认 `480p`。允许：`480p`、`720p`、`1080p` |
-| metadata | object | 否 | 本模式需包含 `imageMode` |
-| metadata.imageMode | string | 是（本模式） | 取值为 `reference` |
-| metadata.aspect_ratio | string | 否 | 默认 `16:9`。允许：`1:1`、`16:9`、`9:16`、`4:3`、`3:4`、`3:2`、`2:3` |
+    **请求参数：**
 
-## 1. 提交视频生成任务
-
-请求体请参考上文 [调用示例](#调用示例)；按实际场景填写字段。
+    <ParameterTree locale="zh">
+      <ParameterField id="reference-prompt" name="prompt" type="string" required>
+        文本提示词。使用 `<IMAGE_1>` 至 `<IMAGE_N>` 按数组顺序引用图片。
+      </ParameterField>
+      <ParameterField id="reference-model" name="model" type="string" required>
+        模型名称。使用 `grok-imagine-video`。
+      </ParameterField>
+      <ParameterField
+        id="reference-images"
+        name="images"
+        type="string[]"
+        required
+      >
+        一个或多个参考图像 URL 或 base64 数据 URI。
+      </ParameterField>
+      <ParameterField
+        id="reference-duration"
+        name="duration"
+        type="integer"
+        required
+      >
+        视频时长（秒）。取值为闭区间 `1`～`15` 的整数。
+      </ParameterField>
+      <ParameterField id="reference-size" name="size" type="string">
+        输出分辨率。默认为 `480p`；可选 `480p`、`720p` 或 `1080p`。
+      </ParameterField>
+      <ParameterField id="reference-metadata" name="metadata" type="object">
+        参考图像处理的元数据。本模式必须包含 `imageMode`。
+        <ParameterChildren>
+          <ParameterField
+            id="reference-metadata-image-mode"
+            name="imageMode"
+            type="string"
+            required
+          >
+            设为 `reference`。
+          </ParameterField>
+          <ParameterField
+            id="reference-metadata-aspect-ratio"
+            name="aspect_ratio"
+            type="string"
+          >
+            视频宽高比。默认为 `16:9`；可选 `1:1`、`16:9`、`9:16`、
+            `4:3`、`3:4`、`3:2` 或 `2:3`。
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterTree>
+  </ExampleTab>
+</ExampleTabs>
 
 ### 完整请求：
 
@@ -170,10 +269,16 @@ POST /v1/video/generations
 
 ### 请求头:
 
-| 参数 | 类型 | 必填 | 描述 |
-|------|------|------|------|
-| Content-Type | string | 是 | application/json |
-| Authorization | string | 是 | Bearer API_KEY |
+<ParameterTree>
+  <ParameterField id="grok-video-table-content-type-1" name="Content-Type" type="string" required>
+
+    application/json
+  </ParameterField>
+  <ParameterField id="grok-video-table-authorization-2" name="Authorization" type="string" required>
+
+    Bearer API_KEY
+  </ParameterField>
+</ParameterTree>
 
 ### 响应示例:
 
@@ -189,19 +294,58 @@ POST /v1/video/generations
 }
 ```
 
-### 响应字段说明:
+### 响应体字段:
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| id | string | 任务 ID，用于后续查询任务状态 |
-| task_id | string | 与 `id` 相同；为向后兼容保留 |
-| object | string | 固定为 `video` |
-| model | string | 本任务使用的模型 |
-| status | string | 提交后立即固定为 `queued` |
-| progress | integer | 提交后立即固定为 `0` |
-| created_at | integer | 任务创建时间的 Unix 时间戳（秒） |
+<ParameterTree locale="zh" requiredLabel="始终返回" optionalLabel="条件返回">
+  <ParameterField id="submit-response-id" name="id" type="string" required>
+    任务 ID，用于后续查询任务状态。
+  </ParameterField>
+  <ParameterField
+    id="submit-response-task-id"
+    name="task_id"
+    type="string"
+    required
+  >
+    与 `id` 的值相同；为向后兼容保留。
+  </ParameterField>
+  <ParameterField
+    id="submit-response-object"
+    name="object"
+    type="string"
+    required
+  >
+    对象类型。固定为 `video`。
+  </ParameterField>
+  <ParameterField id="submit-response-model" name="model" type="string" required>
+    本任务使用的模型。
+  </ParameterField>
+  <ParameterField
+    id="submit-response-status"
+    name="status"
+    type="string"
+    required
+  >
+    初始任务状态。提交后立即固定为 `queued`。
+  </ParameterField>
+  <ParameterField
+    id="submit-response-progress"
+    name="progress"
+    type="integer"
+    required
+  >
+    初始进度值。提交后立即固定为 `0`。
+  </ParameterField>
+  <ParameterField
+    id="submit-response-created-at"
+    name="created_at"
+    type="integer"
+    required
+  >
+    任务创建时间的 Unix 时间戳（秒）。
+  </ParameterField>
+</ParameterTree>
 
-## 2. 查询任务状态
+## 2. 查询任务状态 (/v1/video/generations/\{task_id\})
 
 ### 完整请求：
 
@@ -218,23 +362,31 @@ GET /v1/video/generations/{task_id}
 
 ### 请求头:
 
-| 参数 | 类型 | 必填 | 描述 |
-|------|------|------|------|
-| Authorization | string | 是 | Bearer API_KEY |
+<ParameterTree>
+  <ParameterField id="grok-video-table-authorization-3" name="Authorization" type="string" required>
+
+    Bearer API_KEY
+  </ParameterField>
+</ParameterTree>
 
 ### 路径参数:
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| task_id | string | 是 | 任务 ID |
+<ParameterTree>
+  <ParameterField id="grok-video-table-task-id-4" name="task_id" type="string" required>
 
-### 响应示例（处理中）：
+    任务 ID
+  </ParameterField>
+</ParameterTree>
 
-```json
-{
-    "code": "success",
-    "message": "",
-    "data": {
+### 响应示例：
+
+<ExampleTabs items={['处理中', '成功']}>
+  <ExampleTab id="processing-response-example">
+    ```json
+    {
+      "code": "success",
+      "message": "",
+      "data": {
         "task_id": "<TASK_ID>",
         "action": "generate",
         "status": "IN_PROGRESS",
@@ -244,22 +396,23 @@ GET /v1/video/generations/{task_id}
         "finish_time": 0,
         "progress": "50%",
         "data": {
-            "status": "pending",
-            "model": "grok-imagine-video"
+          "status": "pending",
+          "model": "grok-imagine-video"
         }
+      }
     }
-}
-```
+    ```
+  </ExampleTab>
 
-### 响应示例（成功）：
+  <ExampleTab id="success-response-example">
+    > **注意：** 任务成功时，`data.fail_reason` 会包含视频下载 URL 而非错误信息。
+    > 获取生成的视频时，建议优先使用 `data.data.video.url`。
 
-> **注意：** 任务成功时，`data.fail_reason` 字段会包含视频下载 URL 而非错误信息。推荐通过 `data.data.video.url` 字段获取视频地址。
-
-```json
-{
-    "code": "success",
-    "message": "",
-    "data": {
+    ```json
+    {
+      "code": "success",
+      "message": "",
+      "data": {
         "task_id": "<TASK_ID>",
         "action": "generate",
         "status": "SUCCESS",
@@ -269,31 +422,203 @@ GET /v1/video/generations/{task_id}
         "finish_time": 1776717962,
         "progress": "100%",
         "data": {
-            "status": "done",
-            "model": "grok-imagine-video",
-            "video": {
-                "url": "<VIDEO_URL>",
-                "duration": 8,
-                "respect_moderation": true
-            },
-            "usage": {
-                "cost_in_usd_ticks": 2500000000
-            }
+          "status": "done",
+          "model": "grok-imagine-video",
+          "video": {
+            "url": "<VIDEO_URL>",
+            "duration": 8,
+            "respect_moderation": true
+          },
+          "usage": {
+            "cost_in_usd_ticks": 2500000000
+          }
         }
+      }
     }
-}
-```
+    ```
+  </ExampleTab>
+</ExampleTabs>
 
-### 响应字段说明:
+### 响应体字段:
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| data.status | string | 归一化后的任务状态：`QUEUED`、`IN_PROGRESS`、`SUCCESS`、`FAILURE` |
-| data.action | string | `textGenerate`（文生视频）、`generate`（图生视频）或 `referenceGenerate`（参考生视频） |
-| data.fail_reason | string | 成功时：视频 URL（见上方注意事项）。失败时：错误信息 |
-| data.progress | string | 百分比字符串，如 `"50%"`、`"100%"` |
-| data.data.status | string | xAI 原始状态：`pending`、`done`、`expired`、`failed` |
-| data.data.video.url | string | 生成视频的直链地址（`data.data.status` 为 `done` 时出现） |
-| data.data.video.duration | number | 生成视频的实际时长（秒） |
-| data.data.usage.cost_in_usd_ticks | integer | xAI 对本任务收取的确切费用，单位为 USD ticks（10,000,000,000 ticks = $1） |
-| data.data.error.message | string | 错误信息（`data.data.status` 为 `failed` 或 `expired` 时出现） |
+<ParameterTree locale="zh" requiredLabel="始终返回" optionalLabel="条件返回">
+  <ParameterField id="status-response-code" name="code" type="string" required>
+    包装层状态。`success` 表示状态查询已完成。
+  </ParameterField>
+  <ParameterField
+    id="status-response-message"
+    name="message"
+    type="string"
+    required
+  >
+    包装层消息。查询成功时通常为空字符串。
+  </ParameterField>
+  <ParameterField id="status-response-data" name="data" type="object" required>
+    归一化的任务信息和上游响应。
+    <ParameterChildren>
+      <ParameterField
+        id="status-response-data-task-id"
+        name="task_id"
+        type="string"
+        required
+      >
+        提交生成任务时返回的任务 ID。
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-action"
+        name="action"
+        type="string"
+        required
+      >
+        生成模式：文生视频为 `textGenerate`，图生视频为 `generate`，
+        参考生视频为 `referenceGenerate`。
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-status"
+        name="status"
+        type="string"
+        required
+      >
+        归一化后的任务状态：`QUEUED`、`IN_PROGRESS`、`SUCCESS` 或 `FAILURE`。
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-fail-reason"
+        name="fail_reason"
+        type="string"
+        required
+      >
+        成功时包含视频 URL，失败时包含错误信息，处理中时为空字符串。
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-submit-time"
+        name="submit_time"
+        type="integer"
+        required
+      >
+        任务提交时间的 Unix 时间戳（秒）。
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-start-time"
+        name="start_time"
+        type="integer"
+        required
+      >
+        开始处理时间的 Unix 时间戳（秒）。处理开始前可能为 `0`。
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-finish-time"
+        name="finish_time"
+        type="integer"
+        required
+      >
+        处理完成时间的 Unix 时间戳（秒）。任务达到终止状态前为 `0`。
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-progress"
+        name="progress"
+        type="string"
+        required
+      >
+        完成百分比，例如 `"50%"` 或 `"100%"`。
+      </ParameterField>
+      <ParameterField
+        id="status-response-data-provider-data"
+        name="data"
+        type="object"
+        required
+      >
+        xAI 返回的原始任务详情。
+        <ParameterChildren>
+          <ParameterField
+            id="status-response-data-provider-data-status"
+            name="status"
+            type="string"
+            required
+          >
+            xAI 原始状态：`pending`、`done`、`expired` 或 `failed`。
+          </ParameterField>
+          <ParameterField
+            id="status-response-data-provider-data-model"
+            name="model"
+            type="string"
+            required
+          >
+            生成任务使用的模型。
+          </ParameterField>
+          <ParameterField
+            id="status-response-data-provider-data-video"
+            name="video"
+            type="object"
+          >
+            生成的视频详情。原始状态为 `done` 时返回。
+            <ParameterChildren>
+              <ParameterField
+                id="status-response-data-provider-data-video-url"
+                name="url"
+                type="string"
+                required
+              >
+                生成视频的直链地址。
+              </ParameterField>
+              <ParameterField
+                id="status-response-data-provider-data-video-duration"
+                name="duration"
+                type="number"
+                required
+              >
+                生成视频的实际时长（秒）。
+              </ParameterField>
+              <ParameterField
+                id="status-response-data-provider-data-video-moderation"
+                name="respect_moderation"
+                type="boolean"
+                required
+              >
+                是否对输出应用内容审核要求。
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField
+            id="status-response-data-provider-data-usage"
+            name="usage"
+            type="object"
+          >
+            上游计费详情。有可用的用量信息时返回。
+            <ParameterChildren>
+              <ParameterField
+                id="status-response-data-provider-data-usage-cost"
+                name="cost_in_usd_ticks"
+                type="integer"
+                required
+              >
+                xAI 收取的确切费用，单位为 USD ticks。`10,000,000,000` ticks
+                等于 `$1`。
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField
+            id="status-response-data-provider-data-error"
+            name="error"
+            type="object"
+          >
+            错误详情。原始状态为 `failed` 或 `expired` 时返回。
+            <ParameterChildren>
+              <ParameterField
+                id="status-response-data-provider-data-error-message"
+                name="message"
+                type="string"
+                required
+              >
+                上游错误信息。
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
+
+## 相关链接
+
+- [xAI 视频 API 参考](https://docs.x.ai/developers/rest-api-reference/inference/videos)

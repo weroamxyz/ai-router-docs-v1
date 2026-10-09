@@ -1,10 +1,9 @@
 ---
-title: Qwen Chat Format (Text Generation)
+title: Qwen Chat
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Qwen Chat Format (Text Generation)
 
 <Callout type="info" title="Official Documentation">
 [Qwen Text Generation API](https://www.alibabacloud.com/help/en/model-studio/text-generation)
@@ -102,78 +101,108 @@ Where `$API_KEY` is your API key.
 
 ### Request Body Parameters
 
-#### `model`
+<ParameterTree>
+  <ParameterField id="qwen-chat-heading-model-23" name="model" type="String" required>
 
-- Type: String
-- Required: Yes
+    The ID of the model to use. For example: `qwen-plus`, `qwen-turbo`, etc.
+  </ParameterField>
+  <ParameterField id="qwen-chat-heading-input-24" name="input" type="Object" required>
 
-The ID of the model to use. For example: `qwen-plus`, `qwen-turbo`, etc.
+    An object containing input messages.
 
-#### `input`
+    **input Properties:**
 
-- Type: Object
-- Required: Yes
+    <ParameterChildren>
+      <ParameterField id="qwen-chat-table-messages-1" name="messages" type="Array" required>
 
-An object containing input messages.
+        A list of messages comprising the conversation.
+      </ParameterField>
+    </ParameterChildren>
 
-**input Properties:**
+    <ParameterChildren>
+      <ParameterField id="qwen-chat-heading-input-messages-25" name="messages" type="Array" required>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `messages` | Array | Yes | A list of messages comprising the conversation. |
+        The list of messages comprising the conversation so far.
 
-#### `input.messages`
+        **Message Types:**
 
-- Type: Array
-- Required: Yes
+        | Message Type | Description |
+        |---------|------|
+        | **System message** | System message used to set the assistant's behavior and role. |
+        | **User message** | Messages sent by the terminal user, containing prompts or additional context information. |
+        | **Assistant message** | Messages sent by the model in response to user messages. |
 
-The list of messages comprising the conversation so far.
+        **System message Properties:**
 
-**Message Types:**
+        <ParameterChildren>
+          <ParameterField id="qwen-chat-table-role-2" name="role" type="String" required>
 
-| Message Type | Description |
-|---------|------|
-| **System message** | System message used to set the assistant's behavior and role. |
-| **User message** | Messages sent by the terminal user, containing prompts or additional context information. |
-| **Assistant message** | Messages sent by the model in response to user messages. |
+            The role of the message author, here "system".
+          </ParameterField>
+          <ParameterField id="qwen-chat-table-content-3" name="content" type="String" required>
 
-**System message Properties:**
+            The content of the system message.
+          </ParameterField>
+        </ParameterChildren>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `role` | String | Yes | The role of the message author, here "system". |
-| `content` | String | Yes | The content of the system message. |
+        **User message Properties:**
 
-**User message Properties:**
+        <ParameterChildren>
+          <ParameterField id="qwen-chat-table-role-4" name="role" type="String" required>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `role` | String | Yes | The role of the message author, here "user". |
-| `content` | String | Yes | The content of the user message. |
+            The role of the message author, here "user".
+          </ParameterField>
+          <ParameterField id="qwen-chat-table-content-5" name="content" type="String" required>
 
-**Assistant message Properties:**
+            The content of the user message.
+          </ParameterField>
+        </ParameterChildren>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `role` | String | Yes | The role of the message author, here "assistant". |
-| `content` | String | No | The content of the assistant message. |
+        **Assistant message Properties:**
 
-#### `parameters`
+        <ParameterChildren>
+          <ParameterField id="qwen-chat-table-role-6" name="role" type="String" required>
 
-- Type: Object
-- Required: No
+            The role of the message author, here "assistant".
+          </ParameterField>
+          <ParameterField id="qwen-chat-table-content-7" name="content" type="String">
 
-Configuration for generation parameters.
+            The content of the assistant message.
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="qwen-chat-heading-parameters-26" name="parameters" type="Object">
 
-**parameters Properties:**
+    Configuration for generation parameters.
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `result_format` | String | No | Response format. Optional values: `message`, `text`. Default is `message`. |
-| `temperature` | Number | No | Sampling temperature, controlling the randomness of the output. Typically ranges from 0 to 2. |
-| `top_p` | Number | No | Nucleus sampling parameter, controlling the probability mass for sampling. |
-| `max_tokens` | Integer | No | Maximum number of tokens to generate. |
-| `stop` | String or Array | No | Stop sequences, when the model generates these sequences, it stops generating. |
+    **parameters Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="qwen-chat-table-result-format-8" name="result_format" type="String">
+
+        Response format. Optional values: `message`, `text`. Default is `message`.
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-temperature-9" name="temperature" type="Number">
+
+        Sampling temperature, controlling the randomness of the output. Typically ranges from 0 to 2.
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-top-p-10" name="top_p" type="Number">
+
+        Nucleus sampling parameter, controlling the probability mass for sampling.
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-max-tokens-11" name="max_tokens" type="Integer">
+
+        Maximum number of tokens to generate.
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-stop-12" name="stop" type="String or Array">
+
+        Stop sequences, when the model generates these sequences, it stops generating.
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 Response
 
@@ -181,60 +210,93 @@ Configuration for generation parameters.
 
 Returns a text generation object.
 
-#### `output`
+<ParameterTree>
+  <ParameterField id="qwen-chat-heading-output-27" name="output" type="Object">
 
-- Type: Object
-- Description: Output object containing the generated text and choices.
+    Output object containing the generated text and choices.
 
-**output Properties:**
+    **output Properties:**
 
-| Property | Type | Description |
-|------|------|------|
-| `text` | String | The generated text content. |
-| `finish_reason` | String | The reason for completion. |
-| `choices` | Array | A list of generated choices. |
+    <ParameterChildren>
+      <ParameterField id="qwen-chat-table-text-13" name="text" type="String">
 
-#### `output.choices`
+        The generated text content.
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-finish-reason-14" name="finish_reason" type="String">
 
-- Type: Array
-- Description: A list of generated response options.
+        The reason for completion.
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-choices-15" name="choices" type="Array">
 
-**choice Properties:**
+        A list of generated choices.
+      </ParameterField>
+    </ParameterChildren>
 
-| Property | Type | Description |
-|------|------|------|
-| `finish_reason` | String | The reason the model stopped generating tokens. Possible values: `stop` (natural stop), `length` (reached maximum length), etc. |
-| `message` | Object | The message generated by the model. |
-| `message.role` | String | The role of the message author, usually "assistant". |
-| `message.content` | String | The content of the message. |
+    <ParameterChildren>
+      <ParameterField id="qwen-chat-heading-output-choices-28" name="choices" type="Array">
 
-#### `usage`
+        A list of generated response options.
 
-- Type: Object
-- Description: Usage statistics for the completion request.
+        **choice Properties:**
 
-**usage Properties:**
+        <ParameterChildren>
+          <ParameterField id="qwen-chat-table-finish-reason-16" name="finish_reason" type="String">
 
-| Property | Type | Description |
-|------|------|------|
-| `input_tokens` | Integer | The number of tokens in the input. |
-| `output_tokens` | Integer | The number of tokens in the generated completion. |
-| `total_tokens` | Integer | The total number of tokens used in the request (input + output). |
+            The reason the model stopped generating tokens. Possible values: `stop` (natural stop), `length` (reached maximum length), etc.
+          </ParameterField>
+          <ParameterField id="qwen-chat-table-message-17" name="message" type="Object">
 
-#### `code`
+            The message generated by the model.
 
-- Type: String
-- Description: Response code, usually an empty string indicating success.
+            <ParameterChildren>
+              <ParameterField id="qwen-chat-table-message-role-18" name="role" type="String">
 
-#### `message`
+                The role of the message author, usually "assistant".
+              </ParameterField>
+              <ParameterField id="qwen-chat-table-message-content-19" name="content" type="String">
 
-- Type: String
-- Description: Response message, usually an empty string indicating success.
+                The content of the message.
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="qwen-chat-heading-usage-29" name="usage" type="Object">
 
-#### `request_id`
+    Usage statistics for the completion request.
 
-- Type: String
-- Description: The unique identifier for the request.
+    **usage Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="qwen-chat-table-input-tokens-20" name="input_tokens" type="Integer">
+
+        The number of tokens in the input.
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-output-tokens-21" name="output_tokens" type="Integer">
+
+        The number of tokens in the generated completion.
+      </ParameterField>
+      <ParameterField id="qwen-chat-table-total-tokens-22" name="total_tokens" type="Integer">
+
+        The total number of tokens used in the request (input + output).
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="qwen-chat-heading-code-30" name="code" type="String">
+
+    Response code, usually an empty string indicating success.
+  </ParameterField>
+  <ParameterField id="qwen-chat-heading-message-31" name="message" type="String">
+
+    Response message, usually an empty string indicating success.
+  </ParameterField>
+  <ParameterField id="qwen-chat-heading-request-id-32" name="request_id" type="String">
+
+    The unique identifier for the request.
+  </ParameterField>
+</ParameterTree>
 
 #### Text Generation Object Response Example
 

@@ -1,10 +1,9 @@
 ---
-title: OpenAI Image Format (Image)
+title: OpenAI Image Generation
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# OpenAI Image Format (Image)
 
 <Callout type="info" title="Official Documentation">
 [OpenAI Images](https://platform.openai.com/docs/api-reference/images)
@@ -25,7 +24,9 @@ Currently supported models include:
 
 ## 💡 Request Examples
 
-### Create Image ✅
+<ExampleTabs items={["Create Image","Edit Image"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 # Generate an image and return a temporary URL
@@ -90,7 +91,10 @@ curl ((SITE_URL))/v1/images/generations \
 }
 ```
 
-### Edit Image ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 # GPT Image 2.5 image editing
@@ -136,6 +140,10 @@ curl ((SITE_URL))/v1/images/edits \
   }
 }
 ```
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ## 📮 Request
 
@@ -184,21 +192,60 @@ Where `$API_KEY` is your API key.
 
 #### Create Image (`/v1/images/generations`)
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| `prompt` | string | Yes | Text description of the desired image. Maximum 32000 characters. |
-| `model` | string | Yes | Image generation model, such as `gpt-image-2`, `gpt-image-2.5-sunburst`, or `gpt-image-2.5-flare`. Dated GPT Image 2.5 snapshots ending in `-2026-09-08` are also supported. |
-| `n` | integer | No | Number of images to generate (1–10). Default: `1`. |
-| `size` | string | No | Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` and both GPT Image 2.5 variants also accept custom `WIDTHxHEIGHT` strings; see [Custom dimensions](#custom-dimensions). Default: `auto`. |
-| `quality` | string | No | Quality of the generated image. Options for GPT Image models: `low`, `medium`, `high`, `auto`. GPT Image 2.5 Sunburst and Flare additionally support `xhigh` and `max`. Default: `auto`. |
-| `background` | string | No | Background of the generated image. Options: `transparent`, `opaque`, `auto`. Transparent requires `output_format` of `png` or `webp`. Default: `auto`. |
-| `output_format` | string | No | File format of the returned image. Options: `png`, `jpeg`, `webp`. Default: `png`. |
-| `output_compression` | integer | No | Compression level (0–100) for `jpeg` and `webp` output. Default: `100`. |
-| `moderation` | string | No | Content-moderation strictness for generated images. Options: `low`, `auto`. Default: `auto`. |
-| `response_format` | string | No | Image response format. Use `url` for an image URL or `b64_json` for Base64 data. When omitted, the model or upstream provider's default behavior is preserved. |
-| `stream` | boolean | No | Generate the image in streaming mode. Default: `false`. |
-| `partial_images` | integer | No | Number of partial images to emit during streaming (0–3). Only valid when `stream` is `true`. |
-| `user` | string | No | Unique identifier for the end user to help OpenAI monitor and detect abuse. |
+<ParameterTree>
+  <ParameterField id="openai-image-table-prompt-1" name="prompt" type="string" required>
+
+    Text description of the desired image. Maximum 32000 characters.
+  </ParameterField>
+  <ParameterField id="openai-image-table-model-2" name="model" type="string" required>
+
+    Image generation model, such as `gpt-image-2`, `gpt-image-2.5-sunburst`, or `gpt-image-2.5-flare`. Dated GPT Image 2.5 snapshots ending in `-2026-09-08` are also supported.
+  </ParameterField>
+  <ParameterField id="openai-image-table-n-3" name="n" type="integer">
+
+    Number of images to generate (1–10). Default: `1`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-size-4" name="size" type="string">
+
+    Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` and both GPT Image 2.5 variants also accept custom `WIDTHxHEIGHT` strings; see [Custom dimensions](#custom-dimensions). Default: `auto`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-quality-5" name="quality" type="string">
+
+    Quality of the generated image. Options for GPT Image models: `low`, `medium`, `high`, `auto`. GPT Image 2.5 Sunburst and Flare additionally support `xhigh` and `max`. Default: `auto`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-background-6" name="background" type="string">
+
+    Background of the generated image. Options: `transparent`, `opaque`, `auto`. Transparent requires `output_format` of `png` or `webp`. Default: `auto`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-output-format-7" name="output_format" type="string">
+
+    File format of the returned image. Options: `png`, `jpeg`, `webp`. Default: `png`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-output-compression-8" name="output_compression" type="integer">
+
+    Compression level (0–100) for `jpeg` and `webp` output. Default: `100`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-moderation-9" name="moderation" type="string">
+
+    Content-moderation strictness for generated images. Options: `low`, `auto`. Default: `auto`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-response-format-10" name="response_format" type="string">
+
+    Image response format. Use `url` for an image URL or `b64_json` for Base64 data. When omitted, the model or upstream provider's default behavior is preserved.
+  </ParameterField>
+  <ParameterField id="openai-image-table-stream-11" name="stream" type="boolean">
+
+    Generate the image in streaming mode. Default: `false`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-partial-images-12" name="partial_images" type="integer">
+
+    Number of partial images to emit during streaming (0–3). Only valid when `stream` is `true`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-user-13" name="user" type="string">
+
+    Unique identifier for the end user to help OpenAI monitor and detect abuse.
+  </ParameterField>
+</ParameterTree>
 
 <Callout type="info" title="URL responses">
 For GPT Image models that only return Base64, the API stores the generated image and returns a temporary signed URL when URL delivery is available. This parameter is handled by the API compatibility layer and does not require native upstream support for `response_format`.
@@ -208,24 +255,72 @@ Before use, a platform administrator must enable image URL delivery in the curre
 
 #### Edit Image (`/v1/images/edits`)
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| `image` | file or file[] | Yes | Image(s) to edit. Each must be a PNG, WEBP, or JPG file, less than 25MB. Up to 16 images can be provided as an array. |
-| `prompt` | string | Yes | Text description of the desired edit. Maximum 32000 characters. |
-| `mask` | file | No | PNG image whose transparent areas (alpha = 0) indicate the positions to edit. Must be less than 4MB and the same size as the image. |
-| `model` | string | Yes | Image editing model, such as `gpt-image-2`, `gpt-image-2.5-sunburst`, or `gpt-image-2.5-flare`. Dated GPT Image 2.5 snapshots ending in `-2026-09-08` are also supported. |
-| `n` | integer | No | Number of images to generate (1–10). Default: `1`. |
-| `size` | string | No | Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` and both GPT Image 2.5 variants also accept custom `WIDTHxHEIGHT` strings; see [Custom dimensions](#custom-dimensions). Default: `auto`. |
-| `quality` | string | No | Quality of the generated image. Options for GPT Image models: `low`, `medium`, `high`, `auto`. GPT Image 2.5 Sunburst and Flare additionally support `xhigh` and `max`. Default: `auto`. |
-| `background` | string | No | Background of the generated image. Options: `transparent`, `opaque`, `auto`. Transparent requires `output_format` of `png` or `webp`. Default: `auto`. |
-| `output_format` | string | No | File format of the returned image. Options: `png`, `jpeg`, `webp`. Default: `png`. |
-| `output_compression` | integer | No | Compression level (0–100) for `jpeg` and `webp` output. Default: `100`. |
-| `input_fidelity` | string | No | Controls how closely the output adheres to the input image(s). Options: `high`, `low`. |
-| `moderation` | string | No | Content-moderation strictness for generated images. Options: `low`, `auto`. Default: `auto`. |
-| `response_format` | string | No | Image response format. Use `url` for an image URL or `b64_json` for Base64 data. When omitted, the model or upstream provider's default behavior is preserved. |
-| `stream` | boolean | No | Generate the image in streaming mode. Default: `false`. |
-| `partial_images` | integer | No | Number of partial images to emit during streaming (0–3). Only valid when `stream` is `true`. |
-| `user` | string | No | Unique identifier for the end user to help OpenAI monitor and detect abuse. |
+<ParameterTree>
+  <ParameterField id="openai-image-table-image-14" name="image" type="file or file[]" required>
+
+    Image(s) to edit. Each must be a PNG, WEBP, or JPG file, less than 25MB. Up to 16 images can be provided as an array.
+  </ParameterField>
+  <ParameterField id="openai-image-table-prompt-15" name="prompt" type="string" required>
+
+    Text description of the desired edit. Maximum 32000 characters.
+  </ParameterField>
+  <ParameterField id="openai-image-table-mask-16" name="mask" type="file">
+
+    PNG image whose transparent areas (alpha = 0) indicate the positions to edit. Must be less than 4MB and the same size as the image.
+  </ParameterField>
+  <ParameterField id="openai-image-table-model-17" name="model" type="string" required>
+
+    Image editing model, such as `gpt-image-2`, `gpt-image-2.5-sunburst`, or `gpt-image-2.5-flare`. Dated GPT Image 2.5 snapshots ending in `-2026-09-08` are also supported.
+  </ParameterField>
+  <ParameterField id="openai-image-table-n-18" name="n" type="integer">
+
+    Number of images to generate (1–10). Default: `1`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-size-19" name="size" type="string">
+
+    Size of the generated image. Standard options: `1024x1024`, `1536x1024` (horizontal), `1024x1536` (vertical), `auto`. `gpt-image-2` and both GPT Image 2.5 variants also accept custom `WIDTHxHEIGHT` strings; see [Custom dimensions](#custom-dimensions). Default: `auto`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-quality-20" name="quality" type="string">
+
+    Quality of the generated image. Options for GPT Image models: `low`, `medium`, `high`, `auto`. GPT Image 2.5 Sunburst and Flare additionally support `xhigh` and `max`. Default: `auto`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-background-21" name="background" type="string">
+
+    Background of the generated image. Options: `transparent`, `opaque`, `auto`. Transparent requires `output_format` of `png` or `webp`. Default: `auto`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-output-format-22" name="output_format" type="string">
+
+    File format of the returned image. Options: `png`, `jpeg`, `webp`. Default: `png`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-output-compression-23" name="output_compression" type="integer">
+
+    Compression level (0–100) for `jpeg` and `webp` output. Default: `100`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-input-fidelity-24" name="input_fidelity" type="string">
+
+    Controls how closely the output adheres to the input image(s). Options: `high`, `low`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-moderation-25" name="moderation" type="string">
+
+    Content-moderation strictness for generated images. Options: `low`, `auto`. Default: `auto`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-response-format-26" name="response_format" type="string">
+
+    Image response format. Use `url` for an image URL or `b64_json` for Base64 data. When omitted, the model or upstream provider's default behavior is preserved.
+  </ParameterField>
+  <ParameterField id="openai-image-table-stream-27" name="stream" type="boolean">
+
+    Generate the image in streaming mode. Default: `false`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-partial-images-28" name="partial_images" type="integer">
+
+    Number of partial images to emit during streaming (0–3). Only valid when `stream` is `true`.
+  </ParameterField>
+  <ParameterField id="openai-image-table-user-29" name="user" type="string">
+
+    Unique identifier for the end user to help OpenAI monitor and detect abuse.
+  </ParameterField>
+</ParameterTree>
 
 ### Custom dimensions
 
@@ -244,34 +339,76 @@ Resolutions above `2560x1440` are experimental.
 
 Both endpoints return a response containing a list of image objects.
 
-| Field | Type | Description |
-|------|------|------|
-| `created` | integer | Unix timestamp (in seconds) of when the image was created |
-| `data` | array | List of generated image objects |
-| `background` | string | The actual background setting used (`transparent` or `opaque`) |
-| `output_format` | string | The actual output format used (`png`, `webp`, or `jpeg`) |
-| `quality` | string | The actual quality level used (`low`, `medium`, `high`, `xhigh`, or `max`, depending on the model) |
-| `size` | string | The actual dimensions of the generated image |
-| `usage` | object | Token usage for the API call |
+<ParameterTree>
+  <ParameterField id="openai-image-table-created-30" name="created" type="integer">
+
+    Unix timestamp (in seconds) of when the image was created
+  </ParameterField>
+  <ParameterField id="openai-image-table-data-31" name="data" type="array">
+
+    List of generated image objects
+  </ParameterField>
+  <ParameterField id="openai-image-table-background-32" name="background" type="string">
+
+    The actual background setting used (`transparent` or `opaque`)
+  </ParameterField>
+  <ParameterField id="openai-image-table-output-format-33" name="output_format" type="string">
+
+    The actual output format used (`png`, `webp`, or `jpeg`)
+  </ParameterField>
+  <ParameterField id="openai-image-table-quality-34" name="quality" type="string">
+
+    The actual quality level used (`low`, `medium`, `high`, `xhigh`, or `max`, depending on the model)
+  </ParameterField>
+  <ParameterField id="openai-image-table-size-35" name="size" type="string">
+
+    The actual dimensions of the generated image
+  </ParameterField>
+  <ParameterField id="openai-image-table-usage-36" name="usage" type="object">
+
+    Token usage for the API call
+  </ParameterField>
+</ParameterTree>
 
 #### `usage` Fields
 
-| Field | Type | Description |
-|------|------|------|
-| `total_tokens` | integer | Total tokens used |
-| `input_tokens` | integer | Tokens used for input |
-| `output_tokens` | integer | Tokens used for output |
-| `input_tokens_details` | object | Detailed breakdown of input tokens: `text_tokens` and `image_tokens` |
+<ParameterTree>
+  <ParameterField id="openai-image-table-total-tokens-37" name="total_tokens" type="integer">
+
+    Total tokens used
+  </ParameterField>
+  <ParameterField id="openai-image-table-input-tokens-38" name="input_tokens" type="integer">
+
+    Tokens used for input
+  </ParameterField>
+  <ParameterField id="openai-image-table-output-tokens-39" name="output_tokens" type="integer">
+
+    Tokens used for output
+  </ParameterField>
+  <ParameterField id="openai-image-table-input-tokens-details-40" name="input_tokens_details" type="object">
+
+    Detailed breakdown of input tokens: `text_tokens` and `image_tokens`
+  </ParameterField>
+</ParameterTree>
 
 ### Image Object
 
 Each object in the `data` array contains:
 
-| Field | Type | Description |
-|------|------|------|
-| `url` | string | Image URL returned for `response_format=url`; it may be an upstream-native URL or a temporary signed URL created after Base64 storage. |
-| `b64_json` | string | Base64-encoded image data. Returned for `response_format=b64_json`, an upstream Base64 default, or an allowed URL-delivery fallback. |
-| `revised_prompt` | string | The modified prompt used for generation, if the prompt was revised |
+<ParameterTree>
+  <ParameterField id="openai-image-table-url-41" name="url" type="string">
+
+    Image URL returned for `response_format=url`; it may be an upstream-native URL or a temporary signed URL created after Base64 storage.
+  </ParameterField>
+  <ParameterField id="openai-image-table-b64-json-42" name="b64_json" type="string">
+
+    Base64-encoded image data. Returned for `response_format=b64_json`, an upstream Base64 default, or an allowed URL-delivery fallback.
+  </ParameterField>
+  <ParameterField id="openai-image-table-revised-prompt-43" name="revised_prompt" type="string">
+
+    The modified prompt used for generation, if the prompt was revised
+  </ParameterField>
+</ParameterTree>
 
 Each image object contains either `url` or `b64_json`; clients must not assume that both fields are present. URL response example:
 
