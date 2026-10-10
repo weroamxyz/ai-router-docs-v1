@@ -1,10 +1,9 @@
 ---
-title: Qwen Image Format (Image)
+title: Qwen Image Generation
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Qwen Image Format (Image)
 
 <Callout type="info" title="Official Documentation">
 [Alibaba Cloud Models Usage (Image and Video Generation)](https://www.alibabacloud.com/help/en/model-studio)
@@ -27,7 +26,9 @@ Currently supported models include:
 
 ## 💡 Request Examples
 
-### Create Image ✅
+<ExampleTabs items={["Create Image","Edit Image"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 # Basic image generation
@@ -57,7 +58,10 @@ curl "((SITE_URL))/v1/images/generations" \
 }
 ```
 
-### Edit Image ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 # Image editing (using multipart form)
@@ -81,6 +85,10 @@ curl -X POST "((SITE_URL))/v1/images/edits" \
   ]
 }
 ```
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ## 📮 Request
 
@@ -114,53 +122,82 @@ Where `$API_KEY` is your API key.
 
 #### Text-to-Image Generation (`/v1/images/generations`)
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| `model` | string | Yes | Model name, e.g., "qwen-image-plus" or "wan2.5-t2i-preview" |
-| `prompt` | string | Yes | Text description of the desired image |
-| `n` | integer | No | Number of images to generate, fixed at 1 |
-| `size` | string | No | The resolution of the output image, in the format of `width*height` (use `*` as the separator, not `x`). The default resolution is `1328*1328`. Only the following exact values are accepted:<br />- `"1664*928"` (16:9)<br />- `"1472*1104"` (4:3)<br />- `"1328*1328"` (1:1, default)<br />- `"1104*1472"` (3:4)<br />- `"928*1664"` (9:16) |
-| `response_format` | string | No | Response format, "url" or "b64_json" |
+<ParameterTree>
+  <ParameterField id="qwen-image-table-model-1" name="model" type="string" required>
 
-##### `prompt`
-- Type: String
-- Required: Yes
-- Description: Text description of the desired image.
-- Tips:
-  - Use specific and detailed descriptions
-  - Include key visual elements
-  - Specify the desired artistic style
-  - Describe composition and perspective
+    Model name, e.g., "qwen-image-plus" or "wan2.5-t2i-preview"
+  </ParameterField>
+  <ParameterField id="qwen-image-table-prompt-2" name="prompt" type="string" required>
+
+    Text description of the desired image
+  </ParameterField>
+  <ParameterField id="qwen-image-table-n-3" name="n" type="integer">
+
+    Number of images to generate, fixed at 1
+  </ParameterField>
+  <ParameterField id="qwen-image-table-size-4" name="size" type="string">
+
+    The resolution of the output image, in the format of `width*height` (use `*` as the separator, not `x`). The default resolution is `1328*1328`. Only the following exact values are accepted:<br />- `"1664*928"` (16:9)<br />- `"1472*1104"` (4:3)<br />- `"1328*1328"` (1:1, default)<br />- `"1104*1472"` (3:4)<br />- `"928*1664"` (9:16)
+  </ParameterField>
+  <ParameterField id="qwen-image-table-response-format-5" name="response_format" type="string">
+
+    Response format, "url" or "b64_json"
+  </ParameterField>
+</ParameterTree>
+
+<ParameterTree>
+  <ParameterField id="qwen-image-heading-prompt-13" name="prompt" type="String" required>
+
+    Text description of the desired image.
+    - Tips:
+      - Use specific and detailed descriptions
+      - Include key visual elements
+      - Specify the desired artistic style
+      - Describe composition and perspective
+  </ParameterField>
+</ParameterTree>
 
 #### Image Editing (`/v1/images/edits`)
 
 Image editing uses multipart form request format.
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| `model` | string | Yes | Model name, e.g., "qwen-image-edit-plus", "qwen-image-edit", or "wan2.5-i2i-preview" |
-| `image` | file | Yes | Input image file to be edited |
-| `prompt` | string | Yes | Text prompt describing how to modify the input image |
+<ParameterTree>
+  <ParameterField id="qwen-image-table-model-6" name="model" type="string" required>
 
-##### `image`
-- Type: File (multipart form)
-- Required: Yes
-- Description: Input image file to be edited.
+    Model name, e.g., "qwen-image-edit-plus", "qwen-image-edit", or "wan2.5-i2i-preview"
+  </ParameterField>
+  <ParameterField id="qwen-image-table-image-7" name="image" type="file" required>
 
-##### `prompt`
-- Type: String
-- Required: Yes
-- Description: Text prompt describing how you want to modify the input image.
-- Tips:
-  - Clearly describe elements to add, remove, or replace
-  - Use specific and detailed descriptions
-  - Describe the desired modification effect
+    Input image file to be edited
+  </ParameterField>
+  <ParameterField id="qwen-image-table-prompt-8" name="prompt" type="string" required>
+
+    Text prompt describing how to modify the input image
+  </ParameterField>
+</ParameterTree>
+
+<ParameterTree>
+  <ParameterField id="qwen-image-heading-image-14" name="image" type="File (multipart form)" required>
+
+    Input image file to be edited.
+  </ParameterField>
+  <ParameterField id="qwen-image-heading-prompt-15" name="prompt" type="String" required>
+
+    Text prompt describing how you want to modify the input image.
+    - Tips:
+      - Clearly describe elements to add, remove, or replace
+      - Use specific and detailed descriptions
+      - Describe the desired modification effect
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 Response
 
 ### Success Response
 
-#### Text-to-Image Generation Response
+<ExampleTabs items={["Text-to-Image Generation Response","Image Editing Response"]}>
+<ExampleTab id="response-example-1">
+
 
 ```json
 {
@@ -176,14 +213,33 @@ Image editing uses multipart form request format.
 
 **Response Field Descriptions:**
 
-| Field | Type | Description |
-|------|------|------|
-| `created` | integer | Creation timestamp |
-| `data` | array | Array of generated images |
-| `data[].url` | string | Image URL (if `response_format` is "url") |
-| `data[].b64_json` | string | Base64-encoded image data (if `response_format` is "b64_json") |
+<ParameterTree>
+  <ParameterField id="qwen-image-table-created-9" name="created" type="integer">
 
-#### Image Editing Response
+    Creation timestamp
+  </ParameterField>
+  <ParameterField id="qwen-image-table-data-10" name="data" type="array">
+
+    Array of generated images
+  </ParameterField>
+  <ParameterField id="qwen-image-nested-5-group-data-" name="data[]" type="object">
+    <ParameterChildren>
+      <ParameterField id="qwen-image-table-data-url-11" name="url" type="string">
+
+        Image URL (if `response_format` is "url")
+      </ParameterField>
+      <ParameterField id="qwen-image-table-data-b64-json-12" name="b64_json" type="string">
+
+        Base64-encoded image data (if `response_format` is "b64_json")
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
+
+</ExampleTab>
+
+<ExampleTab id="response-example-2">
+
 
 ```json
 {
@@ -198,6 +254,10 @@ Image editing uses multipart form request format.
 ```
 
 The response format is the same as text-to-image generation.
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ### Error Response
 

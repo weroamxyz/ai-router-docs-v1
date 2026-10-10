@@ -1,10 +1,9 @@
 ---
-title: Qwen 图像格式（Image）
+title: Qwen 图像生成
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Qwen 图像格式（Image）
 
 <Callout type="info" title="官方文档">
 [Alibaba Cloud Models Usage (Image and Video Generation)](https://www.alibabacloud.com/help/en/model-studio)
@@ -27,7 +26,9 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 ## 💡 请求示例
 
-### 创建图片 ✅
+<ExampleTabs items={["创建图片","编辑图片"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 # 基础图片生成
@@ -57,7 +58,10 @@ curl "((SITE_URL))/v1/images/generations" \
 }
 ```
 
-### 编辑图片 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 # 图片编辑（使用 multipart form）
@@ -81,6 +85,10 @@ curl -X POST "((SITE_URL))/v1/images/edits" \
   ]
 }
 ```
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ## 📮 请求
 
@@ -114,53 +122,96 @@ Authorization: Bearer $API_KEY
 
 #### 文本到图像生成（`/v1/images/generations`）
 
-| 参数 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `model` | 字符串 | 是 | 模型名称，如 "qwen-image-plus" 或 "wan2.5-t2i-preview" |
-| `prompt` | 字符串 | 是 | 期望生成图片的文本描述 |
-| `n` | 整数 | 否 | 生成图片数量，固定为 1 |
-| `size` | 字符串 | 否 | 图片分辨率，格式为 `width*height`（使用 `*` 作为分隔符，不能用 `x`）。默认值为 `1328*1328`。只接受以下固定值：<br />- `"1664*928"` (16:9)<br />- `"1472*1104"` (4:3)<br />- `"1328*1328"` (1:1，默认)<br />- `"1104*1472"` (3:4)<br />- `"928*1664"` (9:16) |
-| `response_format` | 字符串 | 否 | 响应格式，"url" 或 "b64_json" |
+<ParameterTree>
+  <ParameterField id="qwen-image-table-model-1" name="model" type="字符串">
 
-##### `prompt`
-- 类型：字符串
-- 必需：是
-- 说明：期望生成图片的文本描述。
-- 提示：
-  - 使用具体和详细的描述
-  - 包含关键的视觉元素
-  - 指定期望的艺术风格
-  - 描述构图和视角
+    模型名称，如 "qwen-image-plus" 或 "wan2.5-t2i-preview"
+    **必需:** 是
+  </ParameterField>
+  <ParameterField id="qwen-image-table-prompt-2" name="prompt" type="字符串">
+
+    期望生成图片的文本描述
+    **必需:** 是
+  </ParameterField>
+  <ParameterField id="qwen-image-table-n-3" name="n" type="整数">
+
+    生成图片数量，固定为 1
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="qwen-image-table-size-4" name="size" type="字符串">
+
+    图片分辨率，格式为 `width*height`（使用 `*` 作为分隔符，不能用 `x`）。默认值为 `1328*1328`。只接受以下固定值：<br />- `"1664*928"` (16:9)<br />- `"1472*1104"` (4:3)<br />- `"1328*1328"` (1:1，默认)<br />- `"1104*1472"` (3:4)<br />- `"928*1664"` (9:16)
+    **必需:** 否
+  </ParameterField>
+  <ParameterField id="qwen-image-table-response-format-5" name="response_format" type="字符串">
+
+    响应格式，"url" 或 "b64_json"
+    **必需:** 否
+  </ParameterField>
+</ParameterTree>
+
+<ParameterTree>
+  <ParameterField id="qwen-image-heading-prompt-13" name="prompt" type="unknown">
+
+    - 类型：字符串
+    - 必需：是
+    - 说明：期望生成图片的文本描述。
+    - 提示：
+      - 使用具体和详细的描述
+      - 包含关键的视觉元素
+      - 指定期望的艺术风格
+      - 描述构图和视角
+  </ParameterField>
+</ParameterTree>
 
 #### 图像编辑（`/v1/images/edits`）
 
 图像编辑使用 multipart form 请求格式。
 
-| 参数 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `model` | 字符串 | 是 | 模型名称，如 "qwen-image-edit-plus"、"qwen-image-edit" 或 "wan2.5-i2i-preview" |
-| `image` | 文件 | 是 | 要编辑的输入图像文件 |
-| `prompt` | 字符串 | 是 | 描述如何修改输入图像的文本提示 |
+<ParameterTree>
+  <ParameterField id="qwen-image-table-model-6" name="model" type="字符串">
 
-##### `image`
-- 类型：文件（multipart form）
-- 必需：是
-- 说明：要编辑的输入图像文件。
+    模型名称，如 "qwen-image-edit-plus"、"qwen-image-edit" 或 "wan2.5-i2i-preview"
+    **必需:** 是
+  </ParameterField>
+  <ParameterField id="qwen-image-table-image-7" name="image" type="文件">
 
-##### `prompt`
-- 类型：字符串
-- 必需：是
-- 说明：描述希望如何修改输入图像的文本提示。
-- 提示：
-  - 明确描述要添加、移除或替换的元素
-  - 使用具体和详细的描述
-  - 描述期望的修改效果
+    要编辑的输入图像文件
+    **必需:** 是
+  </ParameterField>
+  <ParameterField id="qwen-image-table-prompt-8" name="prompt" type="字符串">
+
+    描述如何修改输入图像的文本提示
+    **必需:** 是
+  </ParameterField>
+</ParameterTree>
+
+<ParameterTree>
+  <ParameterField id="qwen-image-heading-image-14" name="image" type="unknown">
+
+    - 类型：文件（multipart form）
+    - 必需：是
+    - 说明：要编辑的输入图像文件。
+  </ParameterField>
+  <ParameterField id="qwen-image-heading-prompt-15" name="prompt" type="unknown">
+
+    - 类型：字符串
+    - 必需：是
+    - 说明：描述希望如何修改输入图像的文本提示。
+    - 提示：
+      - 明确描述要添加、移除或替换的元素
+      - 使用具体和详细的描述
+      - 描述期望的修改效果
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 响应
 
 ### 成功响应
 
-#### 文本到图像生成响应
+<ExampleTabs items={["文本到图像生成响应","图像编辑响应"]}>
+<ExampleTab id="response-example-1">
+
 
 ```json
 {
@@ -176,14 +227,33 @@ Authorization: Bearer $API_KEY
 
 **响应字段说明：**
 
-| 字段 | 类型 | 描述 |
-|------|------|------|
-| `created` | 整数 | 创建时间戳 |
-| `data` | 数组 | 生成的图片数组 |
-| `data[].url` | 字符串 | 图片 URL（如果 `response_format` 为 "url"） |
-| `data[].b64_json` | 字符串 | Base64 编码的图片数据（如果 `response_format` 为 "b64_json"） |
+<ParameterTree>
+  <ParameterField id="qwen-image-table-created-9" name="created" type="整数">
 
-#### 图像编辑响应
+    创建时间戳
+  </ParameterField>
+  <ParameterField id="qwen-image-table-data-10" name="data" type="数组">
+
+    生成的图片数组
+  </ParameterField>
+  <ParameterField id="qwen-image-nested-5-group-data-" name="data[]" type="object">
+    <ParameterChildren>
+      <ParameterField id="qwen-image-table-data-url-11" name="url" type="字符串">
+
+        图片 URL（如果 `response_format` 为 "url"）
+      </ParameterField>
+      <ParameterField id="qwen-image-table-data-b64-json-12" name="b64_json" type="字符串">
+
+        Base64 编码的图片数据（如果 `response_format` 为 "b64_json"）
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
+
+</ExampleTab>
+
+<ExampleTab id="response-example-2">
+
 
 ```json
 {
@@ -198,6 +268,10 @@ Authorization: Bearer $API_KEY
 ```
 
 响应格式与文本到图像生成相同。
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ### 错误响应
 

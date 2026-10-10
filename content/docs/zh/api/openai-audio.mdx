@@ -1,10 +1,9 @@
 ---
-title: OpenAI 音频格式
+title: OpenAI 音频
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# OpenAI 音频格式
 
 <Callout type="info" title="官方文档">
 [OpenAI Audio](https://platform.openai.com/docs/api-reference/audio)
@@ -19,7 +18,9 @@ OpenAI 音频 API 提供了三个主要功能:
 
 ## 💡 请求示例
 
-### 文本转语音 ✅
+<ExampleTabs items={["文本转语音","语音转文本","音频翻译"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 curl ((SITE_URL))/v1/audio/speech \
@@ -51,7 +52,10 @@ curl ((SITE_URL))/v1/audio/speech \
 - **shimmer**: 清晰轻盈，偏女性，适合短提示或教育内容
 - **sage**: 沉稳自然，中性，适合讲解或中性叙述
 
-### 语音转文本 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 curl ((SITE_URL))/v1/audio/transcriptions \
@@ -69,7 +73,10 @@ curl ((SITE_URL))/v1/audio/transcriptions \
 }
 ```
 
-### 音频翻译 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-3">
+
 
 ```bash
 curl ((SITE_URL))/v1/audio/translations \
@@ -86,6 +93,10 @@ curl ((SITE_URL))/v1/audio/translations \
   "text": "Hello, world!"
 }
 ```
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ## 📮 请求
 
@@ -126,126 +137,157 @@ Authorization: Bearer $API_KEY
 
 #### 文本转语音
 
-##### `model`
-- 类型：字符串
-- 必需：是
-- 可选值：tts-1, tts-1-hd
-- 说明：要使用的 TTS 模型
+<ParameterTree>
+  <ParameterField id="openai-audio-heading-model-1" name="model" type="unknown">
 
-##### `input`
-- 类型：字符串  
-- 必需：是
-- 最大长度：4096 字符
-- 说明：要转换为语音的文本
+    - 类型：字符串
+    - 必需：是
+    - 可选值：tts-1, tts-1-hd
+    - 说明：要使用的 TTS 模型
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-input-2" name="input" type="unknown">
 
-##### `voice`
-- 类型：字符串
-- 必需：是
-- 可选值：alloy, echo, fable, onyx, nova, shimmer
-- 说明：生成语音时使用的声音
+    - 类型：字符串
+    - 必需：是
+    - 最大长度：4096 字符
+    - 说明：要转换为语音的文本
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-voice-3" name="voice" type="unknown">
 
-##### `response_format`
-- 类型：字符串
-- 必需：否
-- 默认值：mp3
-- 可选值：mp3, opus, aac, flac, wav, pcm
-- 说明：音频输出格式
+    - 类型：字符串
+    - 必需：是
+    - 可选值：alloy, echo, fable, onyx, nova, shimmer
+    - 说明：生成语音时使用的声音
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-response-format-4" name="response_format" type="unknown">
 
-##### `speed`
-- 类型：数字
-- 必需：否
-- 默认值：1.0
-- 范围：0.25 - 4.0
-- 说明：生成语音的速度
+    - 类型：字符串
+    - 必需：否
+    - 默认值：mp3
+    - 可选值：mp3, opus, aac, flac, wav, pcm
+    - 说明：音频输出格式
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-speed-5" name="speed" type="unknown">
+
+    - 类型：数字
+    - 必需：否
+    - 默认值：1.0
+    - 范围：0.25 - 4.0
+    - 说明：生成语音的速度
+  </ParameterField>
+</ParameterTree>
 
 #### 语音转文本
 
-##### `file`
-- 类型：文件
-- 必需：是
-- 支持格式：flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm
-- 说明：要转录的音频文件
+<ParameterTree>
+  <ParameterField id="openai-audio-heading-file-6" name="file" type="unknown">
 
-##### `model`
-- 类型：字符串
-- 必需：是
-- 当前仅支持：whisper-1
-- 说明：要使用的模型 ID
+    - 类型：文件
+    - 必需：是
+    - 支持格式：flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm
+    - 说明：要转录的音频文件
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-model-7" name="model" type="unknown">
 
-##### `language`
-- 类型：字符串
-- 必需：否
-- 格式：ISO-639-1 (如 "en")
-- 说明：音频的语言,提供可提高准确性
+    - 类型：字符串
+    - 必需：是
+    - 当前仅支持：whisper-1
+    - 说明：要使用的模型 ID
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-language-8" name="language" type="unknown">
 
-##### `prompt`
-- 类型：字符串
-- 必需：否
-- 说明：用于指导模型风格或继续前一段音频的文本
+    - 类型：字符串
+    - 必需：否
+    - 格式：ISO-639-1 (如 "en")
+    - 说明：音频的语言,提供可提高准确性
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-prompt-9" name="prompt" type="unknown">
 
-##### `response_format`
-- 类型：字符串
-- 必需：否
-- 默认值：json
-- 可选值：json, text, srt, verbose_json, vtt
-- 说明：输出格式
+    - 类型：字符串
+    - 必需：否
+    - 说明：用于指导模型风格或继续前一段音频的文本
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-response-format-10" name="response_format" type="unknown">
 
-##### `temperature`
-- 类型：数字
-- 必需：否
-- 默认值：0
-- 范围：0 - 1
-- 说明：采样温度,较高的值使输出更随机
+    - 类型：字符串
+    - 必需：否
+    - 默认值：json
+    - 可选值：json, text, srt, verbose_json, vtt
+    - 说明：输出格式
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-temperature-11" name="temperature" type="unknown">
 
-##### `timestamp_granularities`
-- 类型：数组
-- 必需：否
-- 默认值：segment
-- 可选值：word, segment
-- 说明：转录的时间戳粒度
+    - 类型：数字
+    - 必需：否
+    - 默认值：0
+    - 范围：0 - 1
+    - 说明：采样温度,较高的值使输出更随机
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-timestamp-granularities-12" name="timestamp_granularities" type="unknown">
+
+    - 类型：数组
+    - 必需：否
+    - 默认值：segment
+    - 可选值：word, segment
+    - 说明：转录的时间戳粒度
+  </ParameterField>
+</ParameterTree>
 
 #### 音频翻译
 
-##### `file`
-- 类型：文件
-- 必需：是
-- 支持格式：flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm
-- 说明：要翻译的音频文件
+<ParameterTree>
+  <ParameterField id="openai-audio-heading-file-13" name="file" type="unknown">
 
-##### `model`
-- 类型：字符串
-- 必需：是
-- 当前仅支持：whisper-1
-- 说明：要使用的模型 ID
+    - 类型：文件
+    - 必需：是
+    - 支持格式：flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm
+    - 说明：要翻译的音频文件
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-model-14" name="model" type="unknown">
 
-##### `prompt`
-- 类型：字符串
-- 必需：否
-- 说明：用于指导模型风格的英文文本
+    - 类型：字符串
+    - 必需：是
+    - 当前仅支持：whisper-1
+    - 说明：要使用的模型 ID
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-prompt-15" name="prompt" type="unknown">
 
-##### `response_format`
-- 类型：字符串
-- 必需：否
-- 默认值：json
-- 可选值：json, text, srt, verbose_json, vtt
-- 说明：输出格式
+    - 类型：字符串
+    - 必需：否
+    - 说明：用于指导模型风格的英文文本
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-response-format-16" name="response_format" type="unknown">
 
-##### `temperature`
-- 类型：数字
-- 必需：否
-- 默认值：0
-- 范围：0 - 1
-- 说明：采样温度,较高的值使输出更随机
+    - 类型：字符串
+    - 必需：否
+    - 默认值：json
+    - 可选值：json, text, srt, verbose_json, vtt
+    - 说明：输出格式
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-temperature-17" name="temperature" type="unknown">
+
+    - 类型：数字
+    - 必需：否
+    - 默认值：0
+    - 范围：0 - 1
+    - 说明：采样温度,较高的值使输出更随机
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 响应
 
 ### 成功响应
 
-#### 文本转语音
+<ExampleTabs items={["文本转语音","语音转文本","音频翻译"]}>
+<ExampleTab id="response-example-1">
+
 
 返回二进制音频文件内容。
 
-#### 语音转文本
+</ExampleTab>
+
+<ExampleTab id="response-example-2">
+
 
 ##### 基础 JSON 格式
 
@@ -280,13 +322,20 @@ Authorization: Bearer $API_KEY
 }
 ```
 
-#### 音频翻译
+</ExampleTab>
+
+<ExampleTab id="response-example-3">
+
 
 ```json
 {
   "text": "翻译后的英文文本"
 }
 ```
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ### 错误响应
 
@@ -310,4 +359,4 @@ Authorization: Bearer $API_KEY
     "code": "invalid_file_format"
   }
 }
-``` 
+```

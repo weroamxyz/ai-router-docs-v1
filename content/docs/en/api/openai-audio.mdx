@@ -1,10 +1,9 @@
 ---
-title: OpenAI Audio Format
+title: OpenAI Audio
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# OpenAI Audio Format
 
 <Callout type="info" title="Official Documentation">
 [OpenAI Audio](https://platform.openai.com/docs/api-reference/audio)
@@ -19,7 +18,9 @@ OpenAI Audio API provides three main functions:
 
 ## 💡 Request Examples
 
-### Text-to-Speech ✅
+<ExampleTabs items={["Text-to-Speech","Speech-to-Text","Audio Translation"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 curl ((SITE_URL))/v1/audio/speech \
@@ -51,7 +52,10 @@ The `voice` parameter accepts different voice options:
 - **shimmer**: Clear and light, feminine, suitable for short prompts or educational content
 - **sage**: Calm and natural, neutral, suitable for explanations or neutral narration
 
-### Speech-to-Text ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 curl ((SITE_URL))/v1/audio/transcriptions \
@@ -69,7 +73,10 @@ curl ((SITE_URL))/v1/audio/transcriptions \
 }
 ```
 
-### Audio Translation ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-3">
+
 
 ```bash
 curl ((SITE_URL))/v1/audio/translations \
@@ -86,6 +93,10 @@ curl ((SITE_URL))/v1/audio/translations \
   "text": "Hello, world!"
 }
 ```
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ## 📮 Request
 
@@ -126,126 +137,123 @@ Where `$API_KEY` is your API key.
 
 #### Text-to-Speech
 
-##### `model`
-- Type: String
-- Required: Yes
-- Optional values: tts-1, tts-1-hd
-- Description: TTS model to use
+<ParameterTree>
+  <ParameterField id="openai-audio-heading-model-1" name="model" type="String" required>
 
-##### `input`
-- Type: String  
-- Required: Yes
-- Maximum length: 4096 characters
-- Description: Text to convert to speech
+    - Optional values: tts-1, tts-1-hd
+    TTS model to use
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-input-2" name="input" type="String" required>
 
-##### `voice`
-- Type: String
-- Required: Yes
-- Optional values: alloy, echo, fable, onyx, nova, shimmer
-- Description: Voice to use when generating speech
+    - Maximum length: 4096 characters
+    Text to convert to speech
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-voice-3" name="voice" type="String" required>
 
-##### `response_format`
-- Type: String
-- Required: No
-- Default: mp3
-- Optional values: mp3, opus, aac, flac, wav, pcm
-- Description: Audio output format
+    - Optional values: alloy, echo, fable, onyx, nova, shimmer
+    Voice to use when generating speech
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-response-format-4" name="response_format" type="String">
 
-##### `speed`
-- Type: Number
-- Required: No
-- Default: 1.0
-- Range: 0.25 - 4.0
-- Description: Speed of generated speech
+    - Default: mp3
+    - Optional values: mp3, opus, aac, flac, wav, pcm
+    Audio output format
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-speed-5" name="speed" type="Number">
+
+    - Default: 1.0
+    - Range: 0.25 - 4.0
+    Speed of generated speech
+  </ParameterField>
+</ParameterTree>
 
 #### Speech-to-Text
 
-##### `file`
-- Type: File
-- Required: Yes
-- Supported formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm
-- Description: Audio file to transcribe
+<ParameterTree>
+  <ParameterField id="openai-audio-heading-file-6" name="file" type="File" required>
 
-##### `model`
-- Type: String
-- Required: Yes
-- Currently only supports: whisper-1
-- Description: Model ID to use
+    - Supported formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm
+    Audio file to transcribe
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-model-7" name="model" type="String" required>
 
-##### `language`
-- Type: String
-- Required: No
-- Format: ISO-639-1 (e.g., "en")
-- Description: Language of the audio, providing this can improve accuracy
+    - Currently only supports: whisper-1
+    Model ID to use
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-language-8" name="language" type="String">
 
-##### `prompt`
-- Type: String
-- Required: No
-- Description: Text to guide the model's style or continue from a previous audio segment
+    - Format: ISO-639-1 (e.g., "en")
+    Language of the audio, providing this can improve accuracy
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-prompt-9" name="prompt" type="String">
 
-##### `response_format`
-- Type: String
-- Required: No
-- Default: json
-- Optional values: json, text, srt, verbose_json, vtt
-- Description: Output format
+    Text to guide the model's style or continue from a previous audio segment
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-response-format-10" name="response_format" type="String">
 
-##### `temperature`
-- Type: Number
-- Required: No
-- Default: 0
-- Range: 0 - 1
-- Description: Sampling temperature, higher values make output more random
+    - Default: json
+    - Optional values: json, text, srt, verbose_json, vtt
+    Output format
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-temperature-11" name="temperature" type="Number">
 
-##### `timestamp_granularities`
-- Type: Array
-- Required: No
-- Default: segment
-- Optional values: word, segment
-- Description: Granularity of transcription timestamps
+    - Default: 0
+    - Range: 0 - 1
+    Sampling temperature, higher values make output more random
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-timestamp-granularities-12" name="timestamp_granularities" type="Array">
+
+    - Default: segment
+    - Optional values: word, segment
+    Granularity of transcription timestamps
+  </ParameterField>
+</ParameterTree>
 
 #### Audio Translation
 
-##### `file`
-- Type: File
-- Required: Yes
-- Supported formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm
-- Description: Audio file to translate
+<ParameterTree>
+  <ParameterField id="openai-audio-heading-file-13" name="file" type="File" required>
 
-##### `model`
-- Type: String
-- Required: Yes
-- Currently only supports: whisper-1
-- Description: Model ID to use
+    - Supported formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm
+    Audio file to translate
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-model-14" name="model" type="String" required>
 
-##### `prompt`
-- Type: String
-- Required: No
-- Description: English text to guide the model's style
+    - Currently only supports: whisper-1
+    Model ID to use
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-prompt-15" name="prompt" type="String">
 
-##### `response_format`
-- Type: String
-- Required: No
-- Default: json
-- Optional values: json, text, srt, verbose_json, vtt
-- Description: Output format
+    English text to guide the model's style
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-response-format-16" name="response_format" type="String">
 
-##### `temperature`
-- Type: Number
-- Required: No
-- Default: 0
-- Range: 0 - 1
-- Description: Sampling temperature, higher values make output more random
+    - Default: json
+    - Optional values: json, text, srt, verbose_json, vtt
+    Output format
+  </ParameterField>
+  <ParameterField id="openai-audio-heading-temperature-17" name="temperature" type="Number">
+
+    - Default: 0
+    - Range: 0 - 1
+    Sampling temperature, higher values make output more random
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 Response
 
 ### Successful Response
 
-#### Text-to-Speech
+<ExampleTabs items={["Text-to-Speech","Speech-to-Text","Audio Translation"]}>
+<ExampleTab id="response-example-1">
+
 
 Returns binary audio file content.
 
-#### Speech-to-Text
+</ExampleTab>
+
+<ExampleTab id="response-example-2">
+
 
 ##### Basic JSON Format
 
@@ -280,13 +288,20 @@ Returns binary audio file content.
 }
 ```
 
-#### Audio Translation
+</ExampleTab>
+
+<ExampleTab id="response-example-3">
+
 
 ```json
 {
   "text": "Translated English text"
 }
 ```
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ### Error Response
 
@@ -310,4 +325,4 @@ Error response example:
     "code": "invalid_file_format"
   }
 }
-``` 
+```

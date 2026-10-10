@@ -1,10 +1,9 @@
 ---
-title: Google Gemini 对话格式（Generate Content）
+title: Google Gemini 对话
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Google Gemini 对话格式（Generate Content）
 
 <Callout type="info" title="官方文档">
 [Google Gemini Generating content API](https://ai.google.dev/api/generate-content)
@@ -19,22 +18,23 @@ Google Gemini API 支持使用图片、音频、代码、工具等生成内容�
 
 | 模型 | 描述 |
 | --- | --- |
-| **gemini-2.5-flash** | 面向低延迟、高吞吐推理任务的最佳性价比模型 |
-| **gemini-2.5-pro** | 2.5 系列中最先进的模型，具备深度推理与编码能力，适用于复杂任务 |
 | **gemini-3-flash-preview** | 以更低成本媲美更大模型性能的前沿级模型（预览版） |
 | **gemini-3.1-flash-lite** | 以更低成本媲美更大模型性能的前沿级模型 |
 | **gemini-3.1-pro-preview** | 具备高级智能、复杂问题解决能力，以及强大的智能体与氛围编码能力（预览版） |
 | **gemini-3.5-flash-lite** | 3.5 系列中速度最快、性价比最高的模型，专为高吞吐执行打造 |
 | **gemini-3.5-flash** | 上一代 Flash 模型，为常规高吞吐工作负载提供基础速度和性能 |
 | **gemini-3.6-flash** | 前一代 Flash 模型，在通用智能体和日常任务中兼顾速度与多模态能力 |
-| **gemini-3.7-flash** | 最新、最强大的 Flash 模型，专为复杂编码、智能体工作流和可靠的多步执行打造 |
+| **gemini-3.7-flash** | 智能的日常主力模型，专为复杂编码、智能体工作流和可靠的多步执行打造 |
+| **gemini-3.8-flash** | 迄今最智能的 Flash 模型，专为长周期编码和自主智能体打造 |
 
 ## 💡 请求示例
 
-### 基础文本对话 ✅
+<ExampleTabs items={["基础文本对话","图像分析对话","函数调用","JSON 模式响应","音频处理","视频处理","PDF处理","聊天对话","流式响应","代码执行","生成配置","安全设置","系统指令"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -44,7 +44,10 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
        }'
 ```
 
-### 图像分析对话 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 # 使用临时文件保存base64编码的图片数据
@@ -72,13 +75,16 @@ cat > "$TEMP_JSON" << EOF
 }
 EOF
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d "@$TEMP_JSON"
 ```
 
-### 函数调用 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-3">
+
 
 ```bash
 cat > tools.json << EOF
@@ -112,7 +118,7 @@ cat > tools.json << EOF
 } 
 EOF
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -d @<(echo '
   {
@@ -137,10 +143,13 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
 ')
 ```
 
-### JSON 模式响应 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-4">
+
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
 -H 'Content-Type: application/json' \
 -d '{
     "contents": [{
@@ -163,7 +172,10 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
 }'
 ```
 
-### 音频处理 🟡
+</ExampleTab>
+
+<ExampleTab id="request-example-5">
+
 
 <Callout type="warn" title="文件上传限制">
 仅支持通过 `inline_data` 以 base64 方式上传音频，不支持 `file_data.file_uri` 或 File API。
@@ -178,7 +190,7 @@ else
 fi
 AUDIO_B64=$(base64 $B64FLAGS "$AUDIO_PATH")
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -191,7 +203,10 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
   }'
 ```
 
-### 视频处理 🟡
+</ExampleTab>
+
+<ExampleTab id="request-example-6">
+
 
 <Callout type="warn" title="文件上传限制">
 仅支持通过 `inline_data` 以 base64 方式上传视频，不支持 `file_data.file_uri` 或 File API。
@@ -206,7 +221,7 @@ else
 fi
 VIDEO_B64=$(base64 $B64FLAGS "$VIDEO_PATH")
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -219,7 +234,10 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
   }'
 ```
 
-### PDF处理 🟡
+</ExampleTab>
+
+<ExampleTab id="request-example-7">
+
 
 <Callout type="warn" title="文件上传限制">
 仅支持通过 `inline_data` 以 base64 方式上传 PDF，不支持 `file_data.file_uri` 或 File API。
@@ -236,7 +254,7 @@ PDF_B64=$(base64 $B64FLAGS "$PDF_PATH")
 
 echo $MIME_TYPE
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -249,10 +267,13 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
   }'
 ```
 
-### 聊天对话 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-8">
+
 
 ```bash
-curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
+curl ((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -270,10 +291,13 @@ curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KE
     }'
 ```
 
-### 流式响应 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-9">
+
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=sse&key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:streamGenerateContent?alt=sse&key=$API_KEY" \
     -H 'Content-Type: application/json' \
     --no-buffer \
     -d '{
@@ -283,10 +307,13 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=
     }'
 ```
 
-### 代码执行 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-10">
+
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -299,10 +326,13 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
     }'
 ```
 
-### 生成配置 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-11">
+
 
 ```bash
-curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
+curl ((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -323,7 +353,10 @@ curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KE
     }'
 ```
 
-### 安全设置 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-12">
+
 
 ```bash
 echo '{
@@ -335,16 +368,19 @@ echo '{
         "parts":[{
             "text": "'I support Martians Soccer Club and I think Jupiterians Football Club sucks! Write a ironic phrase about them.'"}]}]}' > request.json
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d @request.json
 ```
 
-### 系统指令 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-13">
+
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
 -H 'Content-Type: application/json' \
 -d '{ "system_instruction": {
     "parts":
@@ -353,6 +389,10 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
       "parts": {
         "text": "Hello there"}}}'
 ```
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ## 📮 请求
 
@@ -380,276 +420,542 @@ POST ((SITE_URL))/v1beta/{model=models/*}:streamGenerateContent
 
 ### 路径参数
 
-#### `model`
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-heading-model-147" name="model" type="unknown">
 
-- 类型：字符串
-- 必需：是
+    - 类型：字符串
+    - 必需：是
 
-用于生成补全项的模型名称。
+    用于生成补全项的模型名称。
 
-格式：`models/{model}`，例如 `models/gemini-3-pro-preview`
+    格式：`models/{model}`，例如 `models/gemini-3.8-flash`
+  </ParameterField>
+</ParameterTree>
 
 ### 请求体参数
 
-#### `contents`
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-heading-contents-148" name="contents" type="unknown">
 
-- 类型：数组
-- 必需：是
+    - 类型：数组
+    - 必需：是
 
-与模型当前对话的内容。对于单轮查询，这是单个实例。对于聊天等多轮查询，这是包含对话历史记录和最新请求的重复字段。
+    与模型当前对话的内容。对于单轮查询，这是单个实例。对于聊天等多轮查询，这是包含对话历史记录和最新请求的重复字段。
 
-**Content 对象属性：**
+    **Content 对象属性：**
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `parts` | 数组 | 是 | 有序的内容部分，构成单个消息 |
-| `role` | 字符串 | 否 | 对话中内容的生产者。`user`、`model`、`function` 或 `tool` |
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-parts-1" name="parts" type="数组">
 
-**Part 对象属性：**
+        有序的内容部分，构成单个消息
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-role-2" name="role" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `text` | 字符串 | 否 | 纯文本内容 |
-| `inlineData` | 对象 | 否 | 内联媒体字节数据 |
-| `fileData` | 对象 | 否 | 上传文件的URI引用 |
-| `functionCall` | 对象 | 否 | 函数调用请求 |
-| `functionResponse` | 对象 | 否 | 函数调用响应 |
-| `executableCode` | 对象 | 否 | 可执行代码 |
-| `codeExecutionResult` | 对象 | 否 | 代码执行结果 |
+        对话中内容的生产者。`user`、`model`、`function` 或 `tool`
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-**InlineData 对象属性：**
+    **Part 对象属性：**
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `mimeType` | 字符串 | 是 | 媒体的MIME类型 |
-| `data` | 字符串 | 是 | base64编码的媒体数据 |
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-text-3" name="text" type="字符串">
 
-**FileData 对象属性：**
+        纯文本内容
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-inlinedata-4" name="inlineData" type="对象">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `mimeType` | 字符串 | 是 | 文件的MIME类型 |
-| `fileUri` | 字符串 | 是 | 文件的URI |
+        内联媒体字节数据
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-filedata-5" name="fileData" type="对象">
 
-#### `tools`
+        上传文件的URI引用
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-functioncall-6" name="functionCall" type="对象">
 
-- 类型：数组
-- 必需：否
+        函数调用请求
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-functionresponse-7" name="functionResponse" type="对象">
 
-模型可能用于生成下一个响应的工具列表。支持的工具包括函数和代码执行。
+        函数调用响应
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-executablecode-8" name="executableCode" type="对象">
 
-**Tool 对象属性：**
+        可执行代码
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-codeexecutionresult-9" name="codeExecutionResult" type="对象">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `functionDeclarations` | 数组 | 否 | 可选的函数声明列表 |
-| `codeExecution` | 对象 | 否 | 启用模型执行代码 |
+        代码执行结果
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-**FunctionDeclaration 对象属性：**
+    **InlineData 对象属性：**
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `name` | 字符串 | 是 | 函数名称 |
-| `description` | 字符串 | 否 | 函数功能描述 |
-| `parameters` | 对象 | 否 | 函数参数，JSON Schema格式 |
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-mimetype-10" name="mimeType" type="字符串">
 
-**FunctionCall 对象属性：**
+        媒体的MIME类型
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-data-11" name="data" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `name` | 字符串 | 是 | 要调用的函数名称 |
-| `args` | 对象 | 否 | 函数参数的键值对 |
+        base64编码的媒体数据
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-**FunctionResponse 对象属性：**
+    **FileData 对象属性：**
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `name` | 字符串 | 是 | 调用的函数名称 |
-| `response` | 对象 | 是 | 函数调用的响应数据 |
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-mimetype-12" name="mimeType" type="字符串">
 
-**ExecutableCode 对象属性：**
+        文件的MIME类型
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-fileuri-13" name="fileUri" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `language` | 枚举 | 是 | 代码的编程语言 |
-| `code` | 字符串 | 是 | 要执行的代码 |
+        文件的URI
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-tools-149" name="tools" type="unknown">
 
-**CodeExecutionResult 对象属性：**
+    - 类型：数组
+    - 必需：否
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `outcome` | 枚举 | 是 | 代码执行的结果状态 |
-| `output` | 字符串 | 否 | 代码执行的输出内容 |
+    模型可能用于生成下一个响应的工具列表。支持的工具包括函数和代码执行。
 
-**CodeExecution 对象属性：**
+    **Tool 对象属性：**
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| \{\} | 空对象 | - | 启用代码执行功能的空配置对象 |
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-functiondeclarations-14" name="functionDeclarations" type="数组">
 
-#### `toolConfig`
+        可选的函数声明列表
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-codeexecution-15" name="codeExecution" type="对象">
 
-- 类型：对象
-- 必需：否
+        启用模型执行代码
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-请求中指定的任何工具的工具配置。
+    **FunctionDeclaration 对象属性：**
 
-**ToolConfig 对象属性：**
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-name-16" name="name" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `functionCallingConfig` | 对象 | 否 | 函数调用配置 |
+        函数名称
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-description-17" name="description" type="字符串">
 
-**FunctionCallingConfig 对象属性：**
+        函数功能描述
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-parameters-18" name="parameters" type="对象">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `mode` | 枚举 | 否 | 指定函数调用的模式 |
-| `allowedFunctionNames` | 数组 | 否 | 允许调用的函数名列表 |
+        函数参数，JSON Schema格式
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-**FunctionCallingMode 枚举值：**
+    **FunctionCall 对象属性：**
 
-- `MODE_UNSPECIFIED`: 默认模式，模型决定是否调用函数
-- `AUTO`: 模型自动决定何时调用函数 
-- `ANY`: 模型必须调用函数
-- `NONE`: 模型不能调用函数
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-name-19" name="name" type="字符串">
 
-#### `safetySettings`
+        要调用的函数名称
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-args-20" name="args" type="对象">
 
-- 类型：数组
-- 必需：否
+        函数参数的键值对
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-用于屏蔽不安全内容的 SafetySetting 实例列表。
-
-**SafetySetting 对象属性：**
+    **FunctionResponse 对象属性：**
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `category` | 枚举 | 是 | 安全类别 |
-| `threshold` | 枚举 | 是 | 屏蔽阈值 |
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-name-21" name="name" type="字符串">
 
-**HarmCategory 枚举值：**
-
-- `HARM_CATEGORY_HARASSMENT`: 骚扰内容
-- `HARM_CATEGORY_HATE_SPEECH`: 仇恨言论和内容
-- `HARM_CATEGORY_SEXUALLY_EXPLICIT`: 露骨色情内容
-- `HARM_CATEGORY_DANGEROUS_CONTENT`: 危险内容
-- `HARM_CATEGORY_CIVIC_INTEGRITY`: 可能用于破坏公民诚信的内容
+        调用的函数名称
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-response-22" name="response" type="对象">
 
-**HarmBlockThreshold 枚举值：**
+        函数调用的响应数据
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-- `BLOCK_LOW_AND_ABOVE`: 允许发布评分为 NEGLIGIBLE 的内容
-- `BLOCK_MEDIUM_AND_ABOVE`: 允许发布评分为 NEGLIGIBLE 和 LOW 的内容
-- `BLOCK_ONLY_HIGH`: 允许发布风险等级为 NEGLIGIBLE、LOW 和 MEDIUM 的内容
-- `BLOCK_NONE`: 允许所有内容
-- `OFF`: 关闭安全过滤器
+    **ExecutableCode 对象属性：**
 
-**HarmBlockThreshold 完整枚举值：**
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-language-23" name="language" type="枚举">
 
-- `HARM_BLOCK_THRESHOLD_UNSPECIFIED`: 未指定阈值
-- `BLOCK_LOW_AND_ABOVE`: 屏蔽低概率及以上的有害内容，只允许 NEGLIGIBLE 级别的内容
-- `BLOCK_MEDIUM_AND_ABOVE`: 屏蔽中等概率及以上的有害内容，允许 NEGLIGIBLE 和 LOW 级别的内容
-- `BLOCK_ONLY_HIGH`: 只屏蔽高概率的有害内容，允许 NEGLIGIBLE、LOW 和 MEDIUM 级别的内容
-- `BLOCK_NONE`: 不屏蔽任何内容，允许所有级别的内容
-- `OFF`: 完全关闭安全过滤器
+        代码的编程语言
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-code-24" name="code" type="字符串">
 
-#### `systemInstruction`
+        要执行的代码
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-- 类型：对象（Content）
-- 必需：否
+    **CodeExecutionResult 对象属性：**
 
-开发者设置的系统指令。目前仅支持文本。
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-outcome-25" name="outcome" type="枚举">
 
-#### `generationConfig`
+        代码执行的结果状态
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-output-26" name="output" type="字符串">
 
-- 类型：对象
-- 必需：否
+        代码执行的输出内容
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-模型生成和输出的配置选项。
+    **CodeExecution 对象属性：**
 
-**GenerationConfig 对象属性：**
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-field-27" name="\{\}" type="空对象">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `stopSequences` | 数组 | 否 | 用于停止生成输出的字符序列集（最多5个） |
-| `responseMimeType` | 字符串 | 否 | 生成的候选文本的MIME类型 |
-| `responseSchema` | 对象 | 否 | 生成的候选文本的输出架构 |
-| `responseModalities` | 数组 | 否 | 请求的响应模式 |
-| `candidateCount` | 整数 | 否 | 要返回的生成的回答数量 |
-| `maxOutputTokens` | 整数 | 否 | 候选回答中包含的令牌数量上限 |
-| `temperature` | 数字 | 否 | 控制输出的随机性，范围[0.0, 2.0] |
-| `topP` | 数字 | 否 | 在抽样时要考虑的令牌的累计概率上限 |
-| `topK` | 整数 | 否 | 抽样时要考虑的令牌数量上限 |
-| `seed` | 整数 | 否 | 解码中使用的种子 |
-| `presencePenalty` | 数字 | 否 | 存在性惩罚 |
-| `frequencyPenalty` | 数字 | 否 | 频率惩罚 |
-| `responseLogprobs` | 布尔值 | 否 | 是否在响应中导出logprobs结果 |
-| `logprobs` | 整数 | 否 | 返回的顶部logprob的数量 |
-| `enableEnhancedCivicAnswers` | 布尔值 | 否 | 启用增强型城市服务回答 |
-| `speechConfig` | 对象 | 否 | 语音生成配置 |
-| `thinkingConfig` | 对象 | 否 | 思考功能的配置 |
-| `mediaResolution` | 枚举 | 否 | 指定的媒体分辨率 |
+        启用代码执行功能的空配置对象
+        **必需:** -
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-toolconfig-150" name="toolConfig" type="unknown">
 
-**支持的 MIME 类型：**
+    - 类型：对象
+    - 必需：否
 
-- `text/plain`: （默认）文本输出
-- `application/json`: JSON响应
-- `text/x.enum`: ENUM作为字符串响应
+    请求中指定的任何工具的工具配置。
 
-**Modality 枚举值：**
+    **ToolConfig 对象属性：**
 
-- `TEXT`: 指示模型应返回文本
-- `IMAGE`: 表示模型应返回图片
-- `AUDIO`: 指示模型应返回音频
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-functioncallingconfig-28" name="functionCallingConfig" type="对象">
 
-**Schema 对象属性：**
+        函数调用配置
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `type` | 枚举 | 是 | 数据类型 |
-| `description` | 字符串 | 否 | 字段描述 |
-| `enum` | 数组 | 否 | 枚举值列表（当type为string时） |
-| `example` | 任意类型 | 否 | 示例值 |
-| `nullable` | 布尔值 | 否 | 是否可为null |
-| `format` | 字符串 | 否 | 字符串格式（如date、date-time等） |
-| `items` | 对象 | 否 | 数组项的Schema（当type为array时） |
-| `properties` | 对象 | 否 | 对象属性的Schema映射（当type为object时） |
-| `required` | 数组 | 否 | 必需属性的名称列表 |
-| `minimum` | 数字 | 否 | 数字的最小值 |
-| `maximum` | 数字 | 否 | 数字的最大值 |
-| `minItems` | 整数 | 否 | 数组的最小长度 |
-| `maxItems` | 整数 | 否 | 数组的最大长度 |
-| `minLength` | 整数 | 否 | 字符串的最小长度 |
-| `maxLength` | 整数 | 否 | 字符串的最大长度 |
+    **FunctionCallingConfig 对象属性：**
 
-**Type 枚举值：**
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-mode-29" name="mode" type="枚举">
 
-- `TYPE_UNSPECIFIED`: 未指定类型
-- `STRING`: 字符串类型
-- `NUMBER`: 数字类型
-- `INTEGER`: 整数类型
-- `BOOLEAN`: 布尔类型
-- `ARRAY`: 数组类型
-- `OBJECT`: 对象类型
+        指定函数调用的模式
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-allowedfunctionnames-30" name="allowedFunctionNames" type="数组">
 
-**支持的编程语言（ExecutableCode）：**
+        允许调用的函数名列表
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-- `LANGUAGE_UNSPECIFIED`: 未指定语言
-- `PYTHON`: Python编程语言
+    **FunctionCallingMode 枚举值：**
 
-**代码执行结果枚举（Outcome）：**
+    - `MODE_UNSPECIFIED`: 默认模式，模型决定是否调用函数
+    - `AUTO`: 模型自动决定何时调用函数
+    - `ANY`: 模型必须调用函数
+    - `NONE`: 模型不能调用函数
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-safetysettings-151" name="safetySettings" type="unknown">
 
-- `OUTCOME_UNSPECIFIED`: 未指定结果
-- `OUTCOME_OK`: 代码执行成功
-- `OUTCOME_FAILED`: 代码执行失败
-- `OUTCOME_DEADLINE_EXCEEDED`: 代码执行超时
+    - 类型：数组
+    - 必需：否
 
-#### `cachedContent`
+    用于屏蔽不安全内容的 SafetySetting 实例列表。
 
-- 类型：字符串
-- 必需：否
+    **SafetySetting 对象属性：**
 
-缓存的内容的名称，用于用作提供预测的上下文。格式：`cachedContents/{cachedContent}`
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-category-31" name="category" type="枚举">
+
+        安全类别
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-threshold-32" name="threshold" type="枚举">
+
+        屏蔽阈值
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
+
+    **HarmCategory 枚举值：**
+
+    - `HARM_CATEGORY_HARASSMENT`: 骚扰内容
+    - `HARM_CATEGORY_HATE_SPEECH`: 仇恨言论和内容
+    - `HARM_CATEGORY_SEXUALLY_EXPLICIT`: 露骨色情内容
+    - `HARM_CATEGORY_DANGEROUS_CONTENT`: 危险内容
+    - `HARM_CATEGORY_CIVIC_INTEGRITY`: 可能用于破坏公民诚信的内容
+
+    **HarmBlockThreshold 枚举值：**
+
+    - `BLOCK_LOW_AND_ABOVE`: 允许发布评分为 NEGLIGIBLE 的内容
+    - `BLOCK_MEDIUM_AND_ABOVE`: 允许发布评分为 NEGLIGIBLE 和 LOW 的内容
+    - `BLOCK_ONLY_HIGH`: 允许发布风险等级为 NEGLIGIBLE、LOW 和 MEDIUM 的内容
+    - `BLOCK_NONE`: 允许所有内容
+    - `OFF`: 关闭安全过滤器
+
+    **HarmBlockThreshold 完整枚举值：**
+
+    - `HARM_BLOCK_THRESHOLD_UNSPECIFIED`: 未指定阈值
+    - `BLOCK_LOW_AND_ABOVE`: 屏蔽低概率及以上的有害内容，只允许 NEGLIGIBLE 级别的内容
+    - `BLOCK_MEDIUM_AND_ABOVE`: 屏蔽中等概率及以上的有害内容，允许 NEGLIGIBLE 和 LOW 级别的内容
+    - `BLOCK_ONLY_HIGH`: 只屏蔽高概率的有害内容，允许 NEGLIGIBLE、LOW 和 MEDIUM 级别的内容
+    - `BLOCK_NONE`: 不屏蔽任何内容，允许所有级别的内容
+    - `OFF`: 完全关闭安全过滤器
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-systeminstruction-152" name="systemInstruction" type="unknown">
+
+    - 类型：对象（Content）
+    - 必需：否
+
+    开发者设置的系统指令。目前仅支持文本。
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-generationconfig-153" name="generationConfig" type="unknown">
+
+    - 类型：对象
+    - 必需：否
+
+    模型生成和输出的配置选项。
+
+    **GenerationConfig 对象属性：**
+
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-stopsequences-33" name="stopSequences" type="数组">
+
+        用于停止生成输出的字符序列集（最多5个）
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-responsemimetype-34" name="responseMimeType" type="字符串">
+
+        生成的候选文本的MIME类型
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-responseschema-35" name="responseSchema" type="对象">
+
+        生成的候选文本的输出架构
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-responsemodalities-36" name="responseModalities" type="数组">
+
+        请求的响应模式
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-candidatecount-37" name="candidateCount" type="整数">
+
+        要返回的生成的回答数量
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-maxoutputtokens-38" name="maxOutputTokens" type="整数">
+
+        候选回答中包含的令牌数量上限
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-temperature-39" name="temperature" type="数字">
+
+        控制输出的随机性，范围[0.0, 2.0]
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-topp-40" name="topP" type="数字">
+
+        在抽样时要考虑的令牌的累计概率上限
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-topk-41" name="topK" type="整数">
+
+        抽样时要考虑的令牌数量上限
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-seed-42" name="seed" type="整数">
+
+        解码中使用的种子
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-presencepenalty-43" name="presencePenalty" type="数字">
+
+        存在性惩罚
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-frequencypenalty-44" name="frequencyPenalty" type="数字">
+
+        频率惩罚
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-responselogprobs-45" name="responseLogprobs" type="布尔值">
+
+        是否在响应中导出logprobs结果
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-logprobs-46" name="logprobs" type="整数">
+
+        返回的顶部logprob的数量
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-enableenhancedcivicanswers-47" name="enableEnhancedCivicAnswers" type="布尔值">
+
+        启用增强型城市服务回答
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-speechconfig-48" name="speechConfig" type="对象">
+
+        语音生成配置
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-thinkingconfig-49" name="thinkingConfig" type="对象">
+
+        思考功能的配置
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-mediaresolution-50" name="mediaResolution" type="枚举">
+
+        指定的媒体分辨率
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
+
+    **支持的 MIME 类型：**
+
+    - `text/plain`: （默认）文本输出
+    - `application/json`: JSON响应
+    - `text/x.enum`: ENUM作为字符串响应
+
+    **Modality 枚举值：**
+
+    - `TEXT`: 指示模型应返回文本
+    - `IMAGE`: 表示模型应返回图片
+    - `AUDIO`: 指示模型应返回音频
+
+    **Schema 对象属性：**
+
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-type-51" name="type" type="枚举">
+
+        数据类型
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-description-52" name="description" type="字符串">
+
+        字段描述
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-enum-53" name="enum" type="数组">
+
+        枚举值列表（当type为string时）
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-example-54" name="example" type="任意类型">
+
+        示例值
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-nullable-55" name="nullable" type="布尔值">
+
+        是否可为null
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-format-56" name="format" type="字符串">
+
+        字符串格式（如date、date-time等）
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-items-57" name="items" type="对象">
+
+        数组项的Schema（当type为array时）
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-properties-58" name="properties" type="对象">
+
+        对象属性的Schema映射（当type为object时）
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-required-59" name="required" type="数组">
+
+        必需属性的名称列表
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-minimum-60" name="minimum" type="数字">
+
+        数字的最小值
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-maximum-61" name="maximum" type="数字">
+
+        数字的最大值
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-minitems-62" name="minItems" type="整数">
+
+        数组的最小长度
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-maxitems-63" name="maxItems" type="整数">
+
+        数组的最大长度
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-minlength-64" name="minLength" type="整数">
+
+        字符串的最小长度
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-maxlength-65" name="maxLength" type="整数">
+
+        字符串的最大长度
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
+
+    **Type 枚举值：**
+
+    - `TYPE_UNSPECIFIED`: 未指定类型
+    - `STRING`: 字符串类型
+    - `NUMBER`: 数字类型
+    - `INTEGER`: 整数类型
+    - `BOOLEAN`: 布尔类型
+    - `ARRAY`: 数组类型
+    - `OBJECT`: 对象类型
+
+    **支持的编程语言（ExecutableCode）：**
+
+    - `LANGUAGE_UNSPECIFIED`: 未指定语言
+    - `PYTHON`: Python编程语言
+
+    **代码执行结果枚举（Outcome）：**
+
+    - `OUTCOME_UNSPECIFIED`: 未指定结果
+    - `OUTCOME_OK`: 代码执行成功
+    - `OUTCOME_FAILED`: 代码执行失败
+    - `OUTCOME_DEADLINE_EXCEEDED`: 代码执行超时
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-cachedcontent-154" name="cachedContent" type="unknown">
+
+    - 类型：字符串
+    - 必需：否
+
+    缓存的内容的名称，用于用作提供预测的上下文。格式：`cachedContents/{cachedContent}`
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 响应
 
@@ -657,92 +963,167 @@ POST ((SITE_URL))/v1beta/{model=models/*}:streamGenerateContent
 
 支持多个候选回答的模型的回答。系统会针对提示以及每个候选项报告安全分级和内容过滤。
 
-#### `candidates`
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-heading-candidates-155" name="candidates" type="unknown">
 
-- 类型：数组
-- 说明：模型的候选回答列表
+    - 类型：数组
+    - 说明：模型的候选回答列表
 
-**Candidate 对象属性：**
+    **Candidate 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `content` | 对象 | 模型返回的生成内容 |
-| `finishReason` | 枚举 | 模型停止生成词元的原因 |
-| `safetyRatings` | 数组 | 候选回答安全性的评分列表 |
-| `citationMetadata` | 对象 | 模型生成的候选项的引用信息 |
-| `tokenCount` | 整数 | 此候选项的令牌数 |
-| `groundingAttributions` | 数组 | 为生成有依据的回答所参考的来源提供方信息 |
-| `groundingMetadata` | 对象 | 候选对象的参考元数据 |
-| `avgLogprobs` | 数字 | 候选项的平均对数概率得分 |
-| `logprobsResult` | 对象 | 回答令牌和前置令牌的对数似然度得分 |
-| `urlRetrievalMetadata` | 对象 | 与网址情境检索工具相关的元数据 |
-| `urlContextMetadata` | 对象 | 与网址情境检索工具相关的元数据 |
-| `index` | 整数 | 响应候选列表中候选项的索引 |
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-content-66" name="content" type="对象">
 
-**FinishReason 枚举值：**
+        模型返回的生成内容
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-finishreason-67" name="finishReason" type="枚举">
 
-- `STOP`: 模型的自然停止点或提供的停止序列
-- `MAX_TOKENS`: 已达到请求中指定的词元数量上限
-- `SAFETY`: 出于安全考虑，系统已标记回答候选内容
-- `RECITATION`: 由于背诵原因，回答候选内容被标记
-- `LANGUAGE`: 回答候选内容因使用不受支持的语言而被标记
-- `OTHER`: 原因未知
-- `BLOCKLIST`: 由于内容包含禁止使用的字词，因此token生成操作已停止
-- `PROHIBITED_CONTENT`: 由于可能包含禁止的内容，因此token生成操作已停止
-- `SPII`: 由于内容可能包含敏感的个人身份信息，因此token生成操作已停止
-- `MALFORMED_FUNCTION_CALL`: 模型生成的函数调用无效
-- `IMAGE_SAFETY`: 由于生成的图片违反了安全规定，因此词元生成已停止
+        模型停止生成词元的原因
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-safetyratings-68" name="safetyRatings" type="数组">
 
-#### `promptFeedback`
+        候选回答安全性的评分列表
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-citationmetadata-69" name="citationMetadata" type="对象">
 
-- 类型：对象
-- 说明：与内容过滤器相关的提示反馈
+        模型生成的候选项的引用信息
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-tokencount-70" name="tokenCount" type="整数">
 
-**PromptFeedback 对象属性：**
+        此候选项的令牌数
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-groundingattributions-71" name="groundingAttributions" type="数组">
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `blockReason` | 枚举 | 屏蔽该提示的原因 |
-| `safetyRatings` | 数组 | 问题安全性的评分 |
+        为生成有依据的回答所参考的来源提供方信息
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-groundingmetadata-72" name="groundingMetadata" type="对象">
 
-**BlockReason 枚举值：**
+        候选对象的参考元数据
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-avglogprobs-73" name="avgLogprobs" type="数字">
 
-- `BLOCK_REASON_UNSPECIFIED`: 默认值，此值未使用
-- `SAFETY`: 出于安全原因，系统屏蔽了提示
-- `OTHER`: 提示因未知原因被屏蔽了
-- `BLOCKLIST`: 系统屏蔽了此提示，因为其中包含术语屏蔽名单中包含的术语
-- `PROHIBITED_CONTENT`: 系统屏蔽了此提示，因为其中包含禁止的内容
-- `IMAGE_SAFETY`: 候选图片因生成不安全的内容而被屏蔽
+        候选项的平均对数概率得分
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-logprobsresult-74" name="logprobsResult" type="对象">
 
-#### `usageMetadata`
+        回答令牌和前置令牌的对数似然度得分
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-urlretrievalmetadata-75" name="urlRetrievalMetadata" type="对象">
 
-- 类型：对象
-- 说明：有关生成请求令牌用量的元数据
+        与网址情境检索工具相关的元数据
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-urlcontextmetadata-76" name="urlContextMetadata" type="对象">
 
-**UsageMetadata 对象属性：**
+        与网址情境检索工具相关的元数据
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-index-77" name="index" type="整数">
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `promptTokenCount` | 整数 | 提示中的词元数 |
-| `cachedContentTokenCount` | 整数 | 提示的缓存部分中的词元数 |
-| `candidatesTokenCount` | 整数 | 所有生成的候选回答中的词元总数 |
-| `totalTokenCount` | 整数 | 生成请求的总令牌数 |
-| `toolUsePromptTokenCount` | 整数 | 工具使用提示中的词元数量 |
-| `thoughtsTokenCount` | 整数 | 思考模型的想法token数 |
-| `promptTokensDetails` | 数组 | 在请求输入中处理的模态列表 |
-| `candidatesTokensDetails` | 数组 | 响应中返回的模态列表 |
-| `cacheTokensDetails` | 数组 | 请求输入中缓存内容的模态列表 |
-| `toolUsePromptTokensDetails` | 数组 | 为工具使用请求输入处理的模态列表 |
+        响应候选列表中候选项的索引
+      </ParameterField>
+    </ParameterChildren>
 
-#### `modelVersion`
+    **FinishReason 枚举值：**
 
-- 类型：字符串
-- 说明：用于生成回答的模型版本
+    - `STOP`: 模型的自然停止点或提供的停止序列
+    - `MAX_TOKENS`: 已达到请求中指定的词元数量上限
+    - `SAFETY`: 出于安全考虑，系统已标记回答候选内容
+    - `RECITATION`: 由于背诵原因，回答候选内容被标记
+    - `LANGUAGE`: 回答候选内容因使用不受支持的语言而被标记
+    - `OTHER`: 原因未知
+    - `BLOCKLIST`: 由于内容包含禁止使用的字词，因此token生成操作已停止
+    - `PROHIBITED_CONTENT`: 由于可能包含禁止的内容，因此token生成操作已停止
+    - `SPII`: 由于内容可能包含敏感的个人身份信息，因此token生成操作已停止
+    - `MALFORMED_FUNCTION_CALL`: 模型生成的函数调用无效
+    - `IMAGE_SAFETY`: 由于生成的图片违反了安全规定，因此词元生成已停止
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-promptfeedback-156" name="promptFeedback" type="unknown">
 
-#### `responseId`
+    - 类型：对象
+    - 说明：与内容过滤器相关的提示反馈
 
-- 类型：字符串
-- 说明：用于标识每个响应的ID
+    **PromptFeedback 对象属性：**
+
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-blockreason-78" name="blockReason" type="枚举">
+
+        屏蔽该提示的原因
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-safetyratings-79" name="safetyRatings" type="数组">
+
+        问题安全性的评分
+      </ParameterField>
+    </ParameterChildren>
+
+    **BlockReason 枚举值：**
+
+    - `BLOCK_REASON_UNSPECIFIED`: 默认值，此值未使用
+    - `SAFETY`: 出于安全原因，系统屏蔽了提示
+    - `OTHER`: 提示因未知原因被屏蔽了
+    - `BLOCKLIST`: 系统屏蔽了此提示，因为其中包含术语屏蔽名单中包含的术语
+    - `PROHIBITED_CONTENT`: 系统屏蔽了此提示，因为其中包含禁止的内容
+    - `IMAGE_SAFETY`: 候选图片因生成不安全的内容而被屏蔽
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-usagemetadata-157" name="usageMetadata" type="unknown">
+
+    - 类型：对象
+    - 说明：有关生成请求令牌用量的元数据
+
+    **UsageMetadata 对象属性：**
+
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-prompttokencount-80" name="promptTokenCount" type="整数">
+
+        提示中的词元数
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-cachedcontenttokencount-81" name="cachedContentTokenCount" type="整数">
+
+        提示的缓存部分中的词元数
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-candidatestokencount-82" name="candidatesTokenCount" type="整数">
+
+        所有生成的候选回答中的词元总数
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-totaltokencount-83" name="totalTokenCount" type="整数">
+
+        生成请求的总令牌数
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-tooluseprompttokencount-84" name="toolUsePromptTokenCount" type="整数">
+
+        工具使用提示中的词元数量
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-thoughtstokencount-85" name="thoughtsTokenCount" type="整数">
+
+        思考模型的想法token数
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-prompttokensdetails-86" name="promptTokensDetails" type="数组">
+
+        在请求输入中处理的模态列表
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-candidatestokensdetails-87" name="candidatesTokensDetails" type="数组">
+
+        响应中返回的模态列表
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-cachetokensdetails-88" name="cacheTokensDetails" type="数组">
+
+        请求输入中缓存内容的模态列表
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-tooluseprompttokensdetails-89" name="toolUsePromptTokensDetails" type="数组">
+
+        为工具使用请求输入处理的模态列表
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-modelversion-158" name="modelVersion" type="unknown">
+
+    - 类型：字符串
+    - 说明：用于生成回答的模型版本
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-responseid-159" name="responseId" type="unknown">
+
+    - 类型：字符串
+    - 说明：用于标识每个响应的ID
+  </ParameterField>
+</ParameterTree>
 
 #### 完整响应示例
 
@@ -814,7 +1195,7 @@ POST ((SITE_URL))/v1beta/{model=models/*}:streamGenerateContent
       }
     ]
   },
-  "modelVersion": "gemini-3-pro-preview",
+  "modelVersion": "gemini-3.8-flash",
   "responseId": "response-12345"
 }
 ```
@@ -825,11 +1206,20 @@ POST ((SITE_URL))/v1beta/{model=models/*}:streamGenerateContent
 
 **SafetyRating 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `category` | 枚举 | 此评分的类别 |
-| `probability` | 枚举 | 此内容的有害概率 |
-| `blocked` | 布尔值 | 此内容是否因此分级而被屏蔽 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-category-90" name="category" type="枚举">
+
+    此评分的类别
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-probability-91" name="probability" type="枚举">
+
+    此内容的有害概率
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-blocked-92" name="blocked" type="布尔值">
+
+    此内容是否因此分级而被屏蔽
+  </ParameterField>
+</ParameterTree>
 
 **HarmProbability 枚举值：**
 
@@ -842,18 +1232,33 @@ POST ((SITE_URL))/v1beta/{model=models/*}:streamGenerateContent
 
 **CitationMetadata 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `citationSources` | 数组 | 特定回复的来源引用 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-citationsources-93" name="citationSources" type="数组">
+
+    特定回复的来源引用
+  </ParameterField>
+</ParameterTree>
 
 **CitationSource 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `startIndex` | 整数 | 归因于此来源的响应片段的开始索引 |
-| `endIndex` | 整数 | 归因细分的结束索引（不含） |
-| `uri` | 字符串 | 被归因为文本部分来源的URI |
-| `license` | 字符串 | 被归因为片段来源的GitHub项目的许可 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-startindex-94" name="startIndex" type="整数">
+
+    归因于此来源的响应片段的开始索引
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-endindex-95" name="endIndex" type="整数">
+
+    归因细分的结束索引（不含）
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-uri-96" name="uri" type="字符串">
+
+    被归因为文本部分来源的URI
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-license-97" name="license" type="字符串">
+
+    被归因为片段来源的GitHub项目的许可
+  </ParameterField>
+</ParameterTree>
 
 ### 代码执行
 
@@ -898,84 +1303,162 @@ POST ((SITE_URL))/v1beta/{model=models/*}:streamGenerateContent
 
 **GroundingMetadata 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `groundingChunks` | 数组 | 从指定的接地源检索到的支持参考文献列表 |
-| `groundingSupports` | 数组 | 接地支持列表 |
-| `webSearchQueries` | 数组 | 用于后续网页搜索的网页搜索查询 |
-| `searchEntryPoint` | 对象 | 后续网页搜索的Google搜索条目 |
-| `retrievalMetadata` | 对象 | 与基准流程中检索相关的元数据 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-groundingchunks-98" name="groundingChunks" type="数组">
+
+    从指定的接地源检索到的支持参考文献列表
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-groundingsupports-99" name="groundingSupports" type="数组">
+
+    接地支持列表
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-websearchqueries-100" name="webSearchQueries" type="数组">
+
+    用于后续网页搜索的网页搜索查询
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-searchentrypoint-101" name="searchEntryPoint" type="对象">
+
+    后续网页搜索的Google搜索条目
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-retrievalmetadata-102" name="retrievalMetadata" type="对象">
+
+    与基准流程中检索相关的元数据
+  </ParameterField>
+</ParameterTree>
 
 **GroundingAttribution 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `sourceId` | 对象 | 对此归因做出贡献的来源的标识符 |
-| `content` | 对象 | 构成此归因的来源内容 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-sourceid-103" name="sourceId" type="对象">
+
+    对此归因做出贡献的来源的标识符
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-content-104" name="content" type="对象">
+
+    构成此归因的来源内容
+  </ParameterField>
+</ParameterTree>
 
 **AttributionSourceId 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `groundingPassage` | 对象 | 内嵌段落的标识符 |
-| `semanticRetrieverChunk` | 对象 | 通过Semantic Retriever提取的Chunk的标识符 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-groundingpassage-105" name="groundingPassage" type="对象">
+
+    内嵌段落的标识符
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-semanticretrieverchunk-106" name="semanticRetrieverChunk" type="对象">
+
+    通过Semantic Retriever提取的Chunk的标识符
+  </ParameterField>
+</ParameterTree>
 
 **GroundingPassageId 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `passageId` | 字符串 | 与GenerateAnswerRequest的GroundingPassage.id匹配的段落的ID |
-| `partIndex` | 整数 | GenerateAnswerRequest的GroundingPassage.content中的部分的索引 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-passageid-107" name="passageId" type="字符串">
+
+    与GenerateAnswerRequest的GroundingPassage.id匹配的段落的ID
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-partindex-108" name="partIndex" type="整数">
+
+    GenerateAnswerRequest的GroundingPassage.content中的部分的索引
+  </ParameterField>
+</ParameterTree>
 
 **SemanticRetrieverChunk 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `source` | 字符串 | 与请求的SemanticRetrieverConfig.source匹配的来源名称 |
-| `chunk` | 字符串 | 包含归因文本的Chunk的名称 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-source-109" name="source" type="字符串">
+
+    与请求的SemanticRetrieverConfig.source匹配的来源名称
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-chunk-110" name="chunk" type="字符串">
+
+    包含归因文本的Chunk的名称
+  </ParameterField>
+</ParameterTree>
 
 **SearchEntryPoint 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `renderedContent` | 字符串 | 可嵌入网页或应用WebView中的Web内容代码段 |
-| `sdkBlob` | 字符串 | 使用base64编码的JSON，表示搜索词和搜索URL元组的数组 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-renderedcontent-111" name="renderedContent" type="字符串">
+
+    可嵌入网页或应用WebView中的Web内容代码段
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-sdkblob-112" name="sdkBlob" type="字符串">
+
+    使用base64编码的JSON，表示搜索词和搜索URL元组的数组
+  </ParameterField>
+</ParameterTree>
 
 **Segment 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `partIndex` | 整数 | Part对象在其父级Content对象中的索引 |
-| `startIndex` | 整数 | 给定part中的起始索引，以字节为单位 |
-| `endIndex` | 整数 | 给定分块中的结束索引，以字节为单位 |
-| `text` | 字符串 | 与响应中的片段对应的文本 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-partindex-113" name="partIndex" type="整数">
+
+    Part对象在其父级Content对象中的索引
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-startindex-114" name="startIndex" type="整数">
+
+    给定part中的起始索引，以字节为单位
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-endindex-115" name="endIndex" type="整数">
+
+    给定分块中的结束索引，以字节为单位
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-text-116" name="text" type="字符串">
+
+    与响应中的片段对应的文本
+  </ParameterField>
+</ParameterTree>
 
 **RetrievalMetadata 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `googleSearchDynamicRetrievalScore` | 数字 | Google搜索中的信息有助于回答问题的概率得分，范围[0,1] |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-googlesearchdynamicretrievalscore-117" name="googleSearchDynamicRetrievalScore" type="数字">
+
+    Google搜索中的信息有助于回答问题的概率得分，范围[0,1]
+  </ParameterField>
+</ParameterTree>
 
 **GroundingChunk 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `web` | 对象 | 来自网络的接地分块 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-web-118" name="web" type="对象">
+
+    来自网络的接地分块
+  </ParameterField>
+</ParameterTree>
 
 **Web 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `uri` | 字符串 | 分块的URI引用 |
-| `title` | 字符串 | 数据块的标题 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-uri-119" name="uri" type="字符串">
+
+    分块的URI引用
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-title-120" name="title" type="字符串">
+
+    数据块的标题
+  </ParameterField>
+</ParameterTree>
 
 **GroundingSupport 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `groundingChunkIndices` | 数组 | 索引列表，用于指定与版权主张相关的引文 |
-| `confidenceScores` | 数组 | 支持参考文档的置信度分数，范围为0到1 |
-| `segment` | 对象 | 此支持请求所属的内容片段 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-groundingchunkindices-121" name="groundingChunkIndices" type="数组">
+
+    索引列表，用于指定与版权主张相关的引文
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-confidencescores-122" name="confidenceScores" type="数组">
+
+    支持参考文档的置信度分数，范围为0到1
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-segment-123" name="segment" type="对象">
+
+    此支持请求所属的内容片段
+  </ParameterField>
+</ParameterTree>
 
 ### 多模态处理
 
@@ -991,10 +1474,16 @@ Gemini API 支持处理多种模态的输入和输出：
 
 **ModalityTokenCount 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `modality` | 枚举 | 与此令牌数关联的模态 |
-| `tokenCount` | 整数 | 令牌数量 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-modality-124" name="modality" type="枚举">
+
+    与此令牌数关联的模态
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-tokencount-125" name="tokenCount" type="整数">
+
+    令牌数量
+  </ParameterField>
+</ParameterTree>
 
 **MediaResolution 枚举值：**
 
@@ -1006,45 +1495,75 @@ Gemini API 支持处理多种模态的输入和输出：
 
 **ThinkingConfig 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `includeThoughts` | 布尔值 | 是否要在回答中包含思考内容 |
-| `thinkingBudget` | 整数 | 模型应生成的想法token的数量 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-includethoughts-126" name="includeThoughts" type="布尔值">
+
+    是否要在回答中包含思考内容
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-thinkingbudget-127" name="thinkingBudget" type="整数">
+
+    模型应生成的想法token的数量
+  </ParameterField>
+</ParameterTree>
 
 ### 语音生成
 
 **SpeechConfig 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `voiceConfig` | 对象 | 单声音输出的配置 |
-| `multiSpeakerVoiceConfig` | 对象 | 多音箱设置的配置 |
-| `languageCode` | 字符串 | 用于语音合成的语言代码 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-voiceconfig-128" name="voiceConfig" type="对象">
+
+    单声音输出的配置
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-multispeakervoiceconfig-129" name="multiSpeakerVoiceConfig" type="对象">
+
+    多音箱设置的配置
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-languagecode-130" name="languageCode" type="字符串">
+
+    用于语音合成的语言代码
+  </ParameterField>
+</ParameterTree>
 
 **VoiceConfig 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `prebuiltVoiceConfig` | 对象 | 要使用的预构建语音的配置 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-prebuiltvoiceconfig-131" name="prebuiltVoiceConfig" type="对象">
+
+    要使用的预构建语音的配置
+  </ParameterField>
+</ParameterTree>
 
 **PrebuiltVoiceConfig 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `voiceName` | 字符串 | 要使用的预设语音的名称 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-voicename-132" name="voiceName" type="字符串">
+
+    要使用的预设语音的名称
+  </ParameterField>
+</ParameterTree>
 
 **MultiSpeakerVoiceConfig 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `speakerVoiceConfigs` | 数组 | 所有已启用的音箱语音 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-speakervoiceconfigs-133" name="speakerVoiceConfigs" type="数组">
+
+    所有已启用的音箱语音
+  </ParameterField>
+</ParameterTree>
 
 **SpeakerVoiceConfig 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `speaker` | 字符串 | 要使用的音箱的名称 |
-| `voiceConfig` | 对象 | 要使用的语音的配置 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-speaker-134" name="speaker" type="字符串">
+
+    要使用的音箱的名称
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-voiceconfig-135" name="voiceConfig" type="对象">
+
+    要使用的语音的配置
+  </ParameterField>
+</ParameterTree>
 
 **支持的语言代码：**
 
@@ -1070,51 +1589,84 @@ Gemini API 支持处理多种模态的输入和输出：
 
 **LogprobsResult 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `topCandidates` | 数组 | 长度等于解码步骤总数 |
-| `chosenCandidates` | 数组 | 长度等于解码步骤总数，所选候选项不一定在topCandidates中 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-topcandidates-136" name="topCandidates" type="数组">
+
+    长度等于解码步骤总数
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-chosencandidates-137" name="chosenCandidates" type="数组">
+
+    长度等于解码步骤总数，所选候选项不一定在topCandidates中
+  </ParameterField>
+</ParameterTree>
 
 **TopCandidates 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `candidates` | 数组 | 按对数概率降序排序的候选项 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-candidates-138" name="candidates" type="数组">
+
+    按对数概率降序排序的候选项
+  </ParameterField>
+</ParameterTree>
 
 **Candidate (Logprobs) 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `token` | 字符串 | 候选项的令牌字符串值 |
-| `tokenId` | 整数 | 候选项的令牌ID值 |
-| `logProbability` | 数字 | 候选项的对数概率 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-token-139" name="token" type="字符串">
+
+    候选项的令牌字符串值
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-tokenid-140" name="tokenId" type="整数">
+
+    候选项的令牌ID值
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-logprobability-141" name="logProbability" type="数字">
+
+    候选项的对数概率
+  </ParameterField>
+</ParameterTree>
 
 ### URL检索功能
 
 **UrlRetrievalMetadata 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `urlRetrievalContexts` | 数组 | 网址检索情境列表 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-urlretrievalcontexts-142" name="urlRetrievalContexts" type="数组">
+
+    网址检索情境列表
+  </ParameterField>
+</ParameterTree>
 
 **UrlRetrievalContext 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `retrievedUrl` | 字符串 | 工具检索到的网址 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-retrievedurl-143" name="retrievedUrl" type="字符串">
+
+    工具检索到的网址
+  </ParameterField>
+</ParameterTree>
 
 **UrlContextMetadata 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `urlMetadata` | 数组 | 网址上下文列表 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-urlmetadata-144" name="urlMetadata" type="数组">
+
+    网址上下文列表
+  </ParameterField>
+</ParameterTree>
 
 **UrlMetadata 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `retrievedUrl` | 字符串 | 工具检索到的网址 |
-| `urlRetrievalStatus` | 枚举 | 网址检索的状态 |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-retrievedurl-145" name="retrievedUrl" type="字符串">
+
+    工具检索到的网址
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-urlretrievalstatus-146" name="urlRetrievalStatus" type="枚举">
+
+    网址检索的状态
+  </ParameterField>
+</ParameterTree>
 
 **UrlRetrievalStatus 枚举值：**
 

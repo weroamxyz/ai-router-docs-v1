@@ -37,6 +37,25 @@ const config = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/:lang(en|zh)/docs/api/veo-image-to-video',
+        destination: '/:lang/docs/api/veo-video',
+        permanent: true,
+      },
+      {
+        source: '/:lang(en|zh)/docs/api/wan-image-to-video',
+        destination: '/:lang/docs/api/wan-video',
+        permanent: true,
+      },
+      {
+        source: '/:lang(en|zh)/docs/api/wan-video-to-video',
+        destination: '/:lang/docs/api/wan-video',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

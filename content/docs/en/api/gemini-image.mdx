@@ -1,10 +1,9 @@
 ---
-title: Google Gemini Image Format (Image)
+title: Google Gemini Image Generation
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Google Gemini Image Format (Image)
 
 <Callout type="info" title="Official Documentation">
 [Google Gemini Generating content API](https://ai.google.dev/api/generate-content)
@@ -26,7 +25,9 @@ Currently supported models include:
 
 ## 💡 Request Examples
 
-### Create Image ✅
+<ExampleTabs items={["Create Image","Create Image with URL Delivery","Edit Image"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 # Basic image generation
@@ -86,7 +87,10 @@ curl "((SITE_URL))/v1beta/models/gemini-2.5-flash-image:generateContent?key=$API
 }
 ```
 
-### Create Image with URL Delivery
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 # Generate an image and return a temporary URL
@@ -132,7 +136,10 @@ curl "((SITE_URL))/v1beta/models/gemini-2.5-flash-image:generateContent?key=$API
 }
 ```
 
-### Edit Image ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-3">
+
 
 ```bash
 # Image editing
@@ -211,6 +218,10 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-image-preview:generateContent?key=
 }
 ```
 
+</ExampleTab>
+
+</ExampleTabs>
+
 ## 📮 Request
 
 ### Endpoint
@@ -241,158 +252,248 @@ Where `$API_KEY` is your API key.
 
 ### Request Body Parameters
 
-#### `contents`
-- Type: Array
-- Required: Yes
-- Description: Array containing the content for the generation request.
+<ParameterTree>
+  <ParameterField id="gemini-image-heading-contents-31" name="contents" type="Object">
 
-**Content Object Properties:**
+    Array containing the content for the generation request.
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `parts` | Array | Yes | Ordered content parts that constitute a single message |
+    **Content Object Properties:**
 
-**Part Object Properties:**
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-parts-1" name="parts" type="Array" required>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `text` | String | Yes (for create image) | Text description of the desired image |
-| `inline_data` | Object | Yes (for edit image) | Input image data (for image editing) |
+        Ordered content parts that constitute a single message
+      </ParameterField>
+    </ParameterChildren>
 
-##### `text` (in parts)
-- Type: String
-- Required: Yes (required for create image, also required for edit image)
-- Description: Text description of the desired image.
-- Tips:
-  - Use specific and detailed descriptions
-  - Include key visual elements
-  - Specify the desired artistic style
-  - Describe composition and perspective
-  - When editing images, describe how you want to modify the input image
+    **Part Object Properties:**
 
-##### `inline_data` (in parts, for image editing)
-- Type: Object
-- Required: Yes (for edit image)
-- Description: Input image data to be edited.
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-text-2" name="text" type="String">
 
-**InlineData Object Properties (in request):**
+        Text description of the desired image
+      </ParameterField>
+      <ParameterField id="gemini-image-table-inline-data-3" name="inline_data" type="Object">
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `mime_type` | String | Yes | MIME type of the image (e.g., "image/jpeg", "image/png") |
-| `data` | String | Yes | Base64-encoded image data |
+        Input image data (for image editing)
+      </ParameterField>
+    </ParameterChildren>
 
-#### `generationConfig` (Optional)
-- Type: Object
-- Required: No
-- Description: Configuration parameters for controlling generation behavior.
+    ##### `text` (in parts)
+    Text description of the desired image.
+    - Tips:
+      - Use specific and detailed descriptions
+      - Include key visual elements
+      - Specify the desired artistic style
+      - Describe composition and perspective
+      - When editing images, describe how you want to modify the input image
 
-**GenerationConfig Object Properties:**
+    ##### `inline_data` (in parts, for image editing)
+    Input image data to be edited.
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `responseModalities` | Array | No | Specifies the modality types that should be included in the response, such as ["TEXT", "IMAGE"] |
-| `imageConfig` | Object | No | Image generation configuration parameters |
-| `responseFormat` | Object | No | Response formatting options. Set `image.delivery` to `"URI"` to request image URLs. |
+    **InlineData Object Properties (in request):**
 
-**ImageConfig Object Properties:**
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-mime-type-4" name="mime_type" type="String" required>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `aspectRatio` | String | No | Aspect ratio of the image, such as "1:1", "16:9", etc. |
-| `imageSize` | String | No | Image size, such as "2K", "4K", etc. |
+        MIME type of the image (e.g., "image/jpeg", "image/png")
+      </ParameterField>
+      <ParameterField id="gemini-image-table-data-5" name="data" type="String" required>
 
-**ResponseFormat Image Object Properties:**
+        Base64-encoded image data
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="gemini-image-heading-generationconfig-32" name="generationConfig" type="Object">
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `delivery` | String | No | Set to uppercase `"URI"` to request a URL for each generated image. When omitted, the upstream response format is preserved. |
+    Configuration parameters for controlling generation behavior.
+
+    **GenerationConfig Object Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-responsemodalities-6" name="responseModalities" type="Array">
+
+        Specifies the modality types that should be included in the response, such as ["TEXT", "IMAGE"]
+      </ParameterField>
+      <ParameterField id="gemini-image-table-imageconfig-7" name="imageConfig" type="Object">
+
+        Image generation configuration parameters
+      </ParameterField>
+      <ParameterField id="gemini-image-table-responseformat-8" name="responseFormat" type="Object">
+
+        Response formatting options. Set `image.delivery` to `"URI"` to request image URLs.
+      </ParameterField>
+    </ParameterChildren>
+
+    **ImageConfig Object Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-aspectratio-9" name="aspectRatio" type="String">
+
+        Aspect ratio of the image, such as "1:1", "16:9", etc.
+      </ParameterField>
+      <ParameterField id="gemini-image-table-imagesize-10" name="imageSize" type="String">
+
+        Image size, such as "2K", "4K", etc.
+      </ParameterField>
+    </ParameterChildren>
+
+    **ResponseFormat Image Object Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-delivery-11" name="delivery" type="String">
+
+        Set to uppercase `"URI"` to request a URL for each generated image. When omitted, the upstream response format is preserved.
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 Response
 
 ### Success Response
 
-#### `candidates`
-- Type: Array
-- Description: List of candidate responses from the model
+<ParameterTree>
+  <ParameterField id="gemini-image-heading-candidates-33" name="candidates" type="Array">
 
-**Candidate Object Properties:**
+    List of candidate responses from the model
 
-| Property | Type | Description |
-|------|------|------|
-| `content` | Object | Generated content returned by the model |
-| `finishReason` | Enum | Reason why the model stopped generating |
-| `index` | Integer | Index of the candidate in the response candidate list |
+    **Candidate Object Properties:**
 
-**Content Object Properties:**
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-content-12" name="content" type="Object">
 
-| Property | Type | Description |
-|------|------|------|
-| `parts` | Array | Generated content parts, which may include text and images |
-| `role` | String | Producer of the content, usually "model" |
+        Generated content returned by the model
+      </ParameterField>
+      <ParameterField id="gemini-image-table-finishreason-13" name="finishReason" type="Enum">
 
-**Part Object Properties:**
+        Reason why the model stopped generating
+      </ParameterField>
+      <ParameterField id="gemini-image-table-index-14" name="index" type="Integer">
 
-| Property | Type | Description |
-|------|------|------|
-| `text` | String | Text content; some upstreams embed generated images as Markdown data URLs here |
-| `inlineData` | Object | Base64 image data when URL delivery is not requested or falls back |
-| `fileData` | Object | Generated image URL when URL delivery succeeds, or an upstream-native image URI |
+        Index of the candidate in the response candidate list
+      </ParameterField>
+    </ParameterChildren>
 
-**InlineData Object Properties:**
+    **Content Object Properties:**
 
-| Property | Type | Description |
-|------|------|------|
-| `mimeType` | String | MIME type of the image (e.g., "image/png") |
-| `data` | String | Base64-encoded image data |
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-parts-15" name="parts" type="Array">
 
-**FileData Object Properties:**
+        Generated content parts, which may include text and images
+      </ParameterField>
+      <ParameterField id="gemini-image-table-role-16" name="role" type="String">
 
-| Property | Type | Description |
-|------|------|------|
-| `mimeType` | String | MIME type of the image (for example, `image/png`) |
-| `fileUri` | String | URL of the generated image |
+        Producer of the content, usually "model"
+      </ParameterField>
+    </ParameterChildren>
 
-**FinishReason Enum Values:**
+    **Part Object Properties:**
 
-- `STOP`: Natural stopping point of the model
-- `MAX_TOKENS`: Maximum token count specified in the request has been reached
-- `SAFETY`: The system has flagged the response candidate content for safety reasons
-- `IMAGE_SAFETY`: Token generation has stopped because the generated image violates safety regulations
-- `OTHER`: Unknown reason
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-text-17" name="text" type="String">
 
-#### `usageMetadata`
-- Type: Object
-- Description: Metadata about token usage for the generation request
+        Text content; some upstreams embed generated images as Markdown data URLs here
+      </ParameterField>
+      <ParameterField id="gemini-image-table-inlinedata-18" name="inlineData" type="Object">
 
-**UsageMetadata Object Properties:**
+        Base64 image data when URL delivery is not requested or falls back
+      </ParameterField>
+      <ParameterField id="gemini-image-table-filedata-19" name="fileData" type="Object">
 
-| Property | Type | Description |
-|------|------|------|
-| `promptTokenCount` | Integer | Number of tokens in the prompt |
-| `candidatesTokenCount` | Integer | Total number of tokens in all generated candidate responses |
-| `totalTokenCount` | Integer | Total number of tokens for the generation request |
-| `promptTokensDetails` | Array | List of modalities processed in the request input |
-| `candidatesTokensDetails` | Array | List of modalities returned in the response |
+        Generated image URL when URL delivery succeeds, or an upstream-native image URI
+      </ParameterField>
+    </ParameterChildren>
 
-**candidatesTokensDetails Object Properties:**
+    **InlineData Object Properties:**
 
-| Property | Type | Description |
-|------|------|------|
-| `modality` | Enum | Modality associated with this token count (TEXT, IMAGE, etc.) |
-| `tokenCount` | Integer | Number of tokens |
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-mimetype-20" name="mimeType" type="String">
 
-#### `modelVersion`
-- Type: String
-- Description: Model version used to generate the response
+        MIME type of the image (e.g., "image/png")
+      </ParameterField>
+      <ParameterField id="gemini-image-table-data-21" name="data" type="String">
 
-#### `responseId`
-- Type: String
-- Description: ID used to identify each response
+        Base64-encoded image data
+      </ParameterField>
+    </ParameterChildren>
 
-#### `promptFeedback` (Optional)
-- Type: Object
-- Description: Prompt feedback related to content filters
+    **FileData Object Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-mimetype-22" name="mimeType" type="String">
+
+        MIME type of the image (for example, `image/png`)
+      </ParameterField>
+      <ParameterField id="gemini-image-table-fileuri-23" name="fileUri" type="String">
+
+        URL of the generated image
+      </ParameterField>
+    </ParameterChildren>
+
+    **FinishReason Enum Values:**
+
+    - `STOP`: Natural stopping point of the model
+    - `MAX_TOKENS`: Maximum token count specified in the request has been reached
+    - `SAFETY`: The system has flagged the response candidate content for safety reasons
+    - `IMAGE_SAFETY`: Token generation has stopped because the generated image violates safety regulations
+    - `OTHER`: Unknown reason
+  </ParameterField>
+  <ParameterField id="gemini-image-heading-usagemetadata-34" name="usageMetadata" type="Object">
+
+    Metadata about token usage for the generation request
+
+    **UsageMetadata Object Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-prompttokencount-24" name="promptTokenCount" type="Integer">
+
+        Number of tokens in the prompt
+      </ParameterField>
+      <ParameterField id="gemini-image-table-candidatestokencount-25" name="candidatesTokenCount" type="Integer">
+
+        Total number of tokens in all generated candidate responses
+      </ParameterField>
+      <ParameterField id="gemini-image-table-totaltokencount-26" name="totalTokenCount" type="Integer">
+
+        Total number of tokens for the generation request
+      </ParameterField>
+      <ParameterField id="gemini-image-table-prompttokensdetails-27" name="promptTokensDetails" type="Array">
+
+        List of modalities processed in the request input
+      </ParameterField>
+      <ParameterField id="gemini-image-table-candidatestokensdetails-28" name="candidatesTokensDetails" type="Array">
+
+        List of modalities returned in the response
+      </ParameterField>
+    </ParameterChildren>
+
+    **candidatesTokensDetails Object Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-modality-29" name="modality" type="Enum">
+
+        Modality associated with this token count (TEXT, IMAGE, etc.)
+      </ParameterField>
+      <ParameterField id="gemini-image-table-tokencount-30" name="tokenCount" type="Integer">
+
+        Number of tokens
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="gemini-image-heading-modelversion-35" name="modelVersion" type="String">
+
+    Model version used to generate the response
+  </ParameterField>
+  <ParameterField id="gemini-image-heading-responseid-36" name="responseId" type="String">
+
+    ID used to identify each response
+  </ParameterField>
+  <ParameterField id="gemini-image-heading-promptfeedback-37" name="promptFeedback" type="Object">
+
+    Prompt feedback related to content filters
+  </ParameterField>
+</ParameterTree>
 
 ### Image Object Example
 

@@ -1,10 +1,9 @@
 ---
-title: OpenAI Chat Format (Chat Completions)
+title: OpenAI Chat
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# OpenAI Chat Format (Chat Completions)
 
 <Callout type="info" title="Official Documentation">
 [OpenAI Chat](https://platform.openai.com/docs/api-reference/chat)
@@ -19,12 +18,6 @@ Currently supported models include:
 
 | Model | Description |
 | --- | --- |
-| **gpt-4o** | Fast, intelligent, flexible GPT model |
-| **gpt-4o-mini** | Fast, affordable small model for focused tasks |
-| **gpt-4o-audio-preview** | GPT-4o chat model with native audio input/output support |
-| **gpt-4.1** | Smartest non-reasoning model |
-| **gpt-4.1-mini** | A streamlined, faster alternative to GPT-4.1 |
-| **gpt-4.1-nano** | The fastest, most cost-effective model in the GPT-4.1 family |
 | **gpt-5** | Previous intelligent reasoning model for coding and agentic tasks |
 | **gpt-5-chat-latest** | GPT-5 chat model that always points to the latest snapshot |
 | **gpt-5-mini** | Strong performance for cost-conscious, latency-sensitive applications |
@@ -37,17 +30,22 @@ Currently supported models include:
 | **gpt-5.6-luna** | GPT-5.6 model optimized for cost-sensitive workloads |
 | **gpt-5.6-terra** | Balances capability with affordability as the mid-tier option in the 5.6 lineup |
 | **gpt-5.6-sol** | Frontier model for complex professional work |
+| **gpt-6-luna** | Most efficient model for focused, high-volume tasks. |
+| **gpt-6-astra** | Most capable model for the most demanding work. |
+| **gpt-6.1-sol** | Near-Astra performance for complex work at a lower cost. |
 
 ## 💡 Request Examples
 
-### Basic Text Chat ✅
+<ExampleTabs items={["Basic Text Chat","Image Analysis Chat","Streaming Response","Function Calling","Logprobs Request"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 curl ((SITE_URL))/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
-    "model": "gpt-4.1",
+    "model": "gpt-6.1-sol",
     "messages": [
       {
         "role": "developer",
@@ -68,7 +66,7 @@ curl ((SITE_URL))/v1/chat/completions \
   "id": "chatcmpl-B9MBs8CjcvOU2jLn4n570S5qMJKcT",
   "object": "chat.completion",
   "created": 1741569952,
-  "model": "gpt-4.1-2025-04-14",
+  "model": "gpt-6.1-sol",
   "choices": [
     {
       "index": 0,
@@ -101,14 +99,17 @@ curl ((SITE_URL))/v1/chat/completions \
 }
 ```
 
-### Image Analysis Chat ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 curl ((SITE_URL))/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
-    "model": "gpt-4.1",
+    "model": "gpt-6.1-sol",
     "messages": [
       {
         "role": "user",
@@ -137,7 +138,7 @@ curl ((SITE_URL))/v1/chat/completions \
   "id": "chatcmpl-B9MHDbslfkBeAs8l4bebGdFOJ6PeG",
   "object": "chat.completion",
   "created": 1741570283,
-  "model": "gpt-4.1-2025-04-14",
+  "model": "gpt-6.1-sol",
   "choices": [
     {
       "index": 0,
@@ -171,14 +172,17 @@ curl ((SITE_URL))/v1/chat/completions \
 }
 ```
 
-### Streaming Response ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-3">
+
 
 ```bash
 curl ((SITE_URL))/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
-    "model": "gpt-4.1",
+    "model": "gpt-6.1-sol",
     "messages": [
       {
         "role": "developer",
@@ -196,23 +200,26 @@ curl ((SITE_URL))/v1/chat/completions \
 **Streaming Response Example:**
 
 ```jsonl
-{"id":"chatcmpl-123","object":"chat.completion.chunk","created":1694268190,"model":"gpt-4o-mini", "system_fingerprint": "fp_44709d6fcb", "choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}]}
+{"id":"chatcmpl-123","object":"chat.completion.chunk","created":1694268190,"model":"gpt-6-luna", "system_fingerprint": "fp_44709d6fcb", "choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}]}
 
-{"id":"chatcmpl-123","object":"chat.completion.chunk","created":1694268190,"model":"gpt-4o-mini", "system_fingerprint": "fp_44709d6fcb", "choices":[{"index":0,"delta":{"content":"Hello"},"logprobs":null,"finish_reason":null}]}
+{"id":"chatcmpl-123","object":"chat.completion.chunk","created":1694268190,"model":"gpt-6-luna", "system_fingerprint": "fp_44709d6fcb", "choices":[{"index":0,"delta":{"content":"Hello"},"logprobs":null,"finish_reason":null}]}
 
 // ... more data chunks ...
 
-{"id":"chatcmpl-123","object":"chat.completion.chunk","created":1694268190,"model":"gpt-4o-mini", "system_fingerprint": "fp_44709d6fcb", "choices":[{"index":0,"delta":{},"logprobs":null,"finish_reason":"stop"}]}
+{"id":"chatcmpl-123","object":"chat.completion.chunk","created":1694268190,"model":"gpt-6-luna", "system_fingerprint": "fp_44709d6fcb", "choices":[{"index":0,"delta":{},"logprobs":null,"finish_reason":"stop"}]}
 ```
 
-### Function Calling ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-4">
+
 
 ```bash
 curl ((SITE_URL))/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
-    "model": "gpt-4.1",
+    "model": "gpt-6.1-sol",
     "messages": [
       {
         "role": "user",
@@ -253,7 +260,7 @@ curl ((SITE_URL))/v1/chat/completions \
   "id": "chatcmpl-abc123",
   "object": "chat.completion",
   "created": 1699896916,
-  "model": "gpt-4o-mini",
+  "model": "gpt-6-luna",
   "choices": [
     {
       "index": 0,
@@ -288,14 +295,17 @@ curl ((SITE_URL))/v1/chat/completions \
 }
 ```
 
-### Logprobs Request ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-5">
+
 
 ```bash
 curl ((SITE_URL))/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
-    "model": "gpt-4.1",
+    "model": "gpt-6.1-sol",
     "messages": [
       {
         "role": "user",
@@ -314,7 +324,7 @@ curl ((SITE_URL))/v1/chat/completions \
   "id": "chatcmpl-123",
   "object": "chat.completion",
   "created": 1702685778,
-  "model": "gpt-4o-mini",
+  "model": "gpt-6-luna",
   "choices": [
     {
       "index": 0,
@@ -501,6 +511,10 @@ curl ((SITE_URL))/v1/chat/completions \
 }
 ```
 
+</ExampleTab>
+
+</ExampleTabs>
+
 ## 📮 Request
 
 ### Endpoint
@@ -523,539 +537,685 @@ Where `$API_KEY` is your API key. You can find or generate your API key on the A
 
 ### Request Body Parameters
 
-#### `messages`
+<ParameterTree>
+  <ParameterField id="openai-chat-heading-messages-74" name="messages" type="Array" required>
 
-- Type: Array
-- Required: Yes
+    The list of messages comprising the conversation so far. Depending on the model used, different message types (forms) are supported, such as text, image, and audio.
 
-The list of messages comprising the conversation so far. Depending on the model used, different message types (forms) are supported, such as text, image, and audio.
+    | Message Type | Description |
+    |---------|------|
+    | **Developer message** | Developer instructions, the model should follow these instructions regardless of what message the user sends. In o1 models and newer versions, developer messages replace previous system messages. |
+    | **System message** | Developer instructions, the model should follow these instructions regardless of what message the user sends. In o1 models and newer versions, please use developer messages instead. |
+    | **User message** | Messages sent by the terminal user, containing prompts or additional context information. |
+    | **Assistant message** | Messages sent by the model in response to user messages. |
+    | **Tool message** | Content of a tool message. |
+    | **Function message** | Deprecated. |
 
-| Message Type | Description |
-|---------|------|
-| **Developer message** | Developer instructions, the model should follow these instructions regardless of what message the user sends. In o1 models and newer versions, developer messages replace previous system messages. |
-| **System message** | Developer instructions, the model should follow these instructions regardless of what message the user sends. In o1 models and newer versions, please use developer messages instead. |
-| **User message** | Messages sent by the terminal user, containing prompts or additional context information. |
-| **Assistant message** | Messages sent by the model in response to user messages. |
-| **Tool message** | Content of a tool message. |
-| **Function message** | Deprecated. |
+    **Developer message Properties:**
 
-**Developer message Properties:**
-
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `role` | String | Yes | The role of the message author, here "developer". |
-| `content` | String or Array | Yes | The content of the developer message. Can be text content (string) or an array of content parts. |
-| `name` | String | No | An optional name for the participant. Provides information to the model to distinguish between participants with the same role. |
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-role-1" name="role" type="String" required>
 
-**System message Properties:**
-
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `role` | String | Yes | The role of the message author, here "system". |
-| `content` | String or Array | Yes | The content of the system message. Can be text content (string) or an array of content parts. |
-| `name` | String | No | An optional name for the participant. Provides information to the model to distinguish between participants with the same role. |
+        The role of the message author, here "developer".
+      </ParameterField>
+      <ParameterField id="openai-chat-table-content-2" name="content" type="String or Array" required>
 
-**User message Properties:**
+        The content of the developer message. Can be text content (string) or an array of content parts.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-name-3" name="name" type="String">
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `role` | String | Yes | The role of the message author, here "user". |
-| `content` | String or Array | Yes | The content of the user message. Can be text content (string) or an array of content parts. |
-| `name` | String | No | An optional name for the participant. Provides information to the model to distinguish between participants with the same role. |
+        An optional name for the participant. Provides information to the model to distinguish between participants with the same role.
+      </ParameterField>
+    </ParameterChildren>
 
-**Content Part Types:**
+    **System message Properties:**
 
-| Content Part Type | Description | Can Be Used For |
-|------------|------|---------|
-| **Text Content Part** | Text input. | All message types |
-| **Image Content Part** | Image input. | User messages |
-| **Audio Content Part** | Audio input. | User messages |
-| **File Content Part** | File input, used for text generation. | User messages |
-| **Refusal Content Part** | Rejection messages generated by the model. | Assistant messages |
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-role-4" name="role" type="String" required>
 
-**Text Content Part Properties:**
+        The role of the message author, here "system".
+      </ParameterField>
+      <ParameterField id="openai-chat-table-content-5" name="content" type="String or Array" required>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `text` | String | Yes | Text content. |
-| `type` | String | Yes | The type of content part. |
+        The content of the system message. Can be text content (string) or an array of content parts.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-name-6" name="name" type="String">
 
-**Image Content Part Properties:**
+        An optional name for the participant. Provides information to the model to distinguish between participants with the same role.
+      </ParameterField>
+    </ParameterChildren>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `image_url` | Object | Yes | Contains an image URL or base64 encoded image data. |
-| `type` | String | Yes | The type of content part. |
+    **User message Properties:**
 
-**Image URL Object Properties:**
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-role-7" name="role" type="String" required>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `url` | String | Yes | The URL of the image or base64 encoded image data. |
-| `detail` | String | No | Specifies the detailed level of the image. Defaults to "auto". |
+        The role of the message author, here "user".
+      </ParameterField>
+      <ParameterField id="openai-chat-table-content-8" name="content" type="String or Array" required>
 
-**Audio Content Part Properties:**
+        The content of the user message. Can be text content (string) or an array of content parts.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-name-9" name="name" type="String">
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `input_audio` | Object | Yes | Contains an object with audio data. |
-| `type` | String | Yes | The type of content part. Always "input_audio". |
+        An optional name for the participant. Provides information to the model to distinguish between participants with the same role.
+      </ParameterField>
+    </ParameterChildren>
 
-**Audio Input Object Properties:**
+    **Content Part Types:**
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `data` | String | Yes | Base64 encoded audio data. |
-| `format` | String | Yes | The format of the encoded audio data. Currently supports "wav" and "mp3". |
+    | Content Part Type | Description | Can Be Used For |
+    |------------|------|---------|
+    | **Text Content Part** | Text input. | All message types |
+    | **Image Content Part** | Image input. | User messages |
+    | **Audio Content Part** | Audio input. | User messages |
+    | **File Content Part** | File input, used for text generation. | User messages |
+    | **Refusal Content Part** | Rejection messages generated by the model. | Assistant messages |
 
-**File Content Part Properties:**
+    **Text Content Part Properties:**
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `file` | Object | Yes | Contains an object with file data. |
-| `type` | String | Yes | The type of content part. Always "file". |
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-text-10" name="text" type="String" required>
 
-**File Object Properties:**
+        Text content.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-11" name="type" type="String" required>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `file_data` | String | No | Base64 encoded file data, used to pass the file as a string to the model. |
-| `file_id` | String | No | The ID of the uploaded file, used as input. |
-| `filename` | String | No | The filename, used to pass the file as a string to the model. |
+        The type of content part.
+      </ParameterField>
+    </ParameterChildren>
 
-**Assistant message Properties:**
+    **Image Content Part Properties:**
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `role` | String | Yes | The role of the message author, here "assistant". |
-| `content` | String or Array | No | The content of the assistant message. Required unless `tool_calls` or `function_call` is specified. |
-| `name` | String | No | An optional name for the participant. Provides information to the model to distinguish between participants with the same role. |
-| `audio` | Object or null | No | Data about the model's previous audio response. |
-| `function_call` | Object or null | No | Deprecated, replaced by `tool_calls`. The name and parameters of the function to be called, generated by the model. |
-| `tool_calls` | Array | No | Tool calls generated by the model, such as function calls. |
-| `refusal` | String or null | No | The assistant's refusal message. |
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-image-url-12" name="image_url" type="Object" required>
 
-**Tool message Properties:**
+        Contains an image URL or base64 encoded image data.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-13" name="type" type="String" required>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `role` | String | Yes | The role of the message author, here "tool". |
-| `content` | String or Array | Yes | The content of the tool message. |
-| `tool_call_id` | String | Yes | The tool call associated with this message response. |
+        The type of content part.
+      </ParameterField>
+    </ParameterChildren>
 
-**Function message Properties (Deprecated):**
+    **Image URL Object Properties:**
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `role` | String | Yes | The role of the message author, here "function". |
-| `content` | String or null | Yes | The content of the function message. |
-| `name` | String | Yes | The name of the function to be called. |
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-url-14" name="url" type="String" required>
 
-#### `model`
+        The URL of the image or base64 encoded image data.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-detail-15" name="detail" type="String">
 
-- Type: String  
-- Required: Yes
+        Specifies the detailed level of the image. Defaults to "auto".
+      </ParameterField>
+    </ParameterChildren>
 
-The ID of the model to use. For details on which models are compatible with the Chat API, please refer to the model endpoint compatibility table.
+    **Audio Content Part Properties:**
 
-#### `store` 
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-input-audio-16" name="input_audio" type="Object" required>
 
-- Type: Boolean or null
-- Required: No
-- Default: false
+        Contains an object with audio data.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-17" name="type" type="String" required>
 
-Whether to store the output of this chat completion request for our model distillation or evaluation products.
+        The type of content part. Always "input_audio".
+      </ParameterField>
+    </ParameterChildren>
 
-#### `reasoning_effort`
+    **Audio Input Object Properties:**
 
-- Type: String or null
-- Required: No
-- Default: medium
-- Only applicable to o-series models
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-data-18" name="data" type="String" required>
 
-Constraints the reasoning effort of the reasoning model. Current supported values are `low`, `medium`, and `high`. Reducing reasoning effort can speed up responses and reduce the number of tokens used for reasoning in the response.
+        Base64 encoded audio data.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-format-19" name="format" type="String" required>
 
-#### `metadata`
+        The format of the encoded audio data. Currently supports "wav" and "mp3".
+      </ParameterField>
+    </ParameterChildren>
 
-- Type: map
-- Required: No
+    **File Content Part Properties:**
 
-A collection of 16 key-value pairs that can be attached to the object. This is useful for storing other information about the object in a structured format and querying the object via API or the dashboard.
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-file-20" name="file" type="Object" required>
 
-Keys are strings of maximum length 64 characters. Values are strings of maximum length 512 characters.
+        Contains an object with file data.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-21" name="type" type="String" required>
 
-#### `modalities`
+        The type of content part. Always "file".
+      </ParameterField>
+    </ParameterChildren>
 
-- Type: Array or null
-- Required: No
+    **File Object Properties:**
 
-The types of output you want the model to generate for this request. Most models can generate text, which is the default:
-["text"]
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-file-data-22" name="file_data" type="String">
 
-The model can also be used to generate audio. To request that the model generate both text and audio responses simultaneously, you can use:
-["text", "audio"]
+        Base64 encoded file data, used to pass the file as a string to the model.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-file-id-23" name="file_id" type="String">
 
-#### `prediction`
+        The ID of the uploaded file, used as input.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-filename-24" name="filename" type="String">
 
-- Type: Object
-- Required: No
+        The filename, used to pass the file as a string to the model.
+      </ParameterField>
+    </ParameterChildren>
 
-Configuration for the predicted output, when you know most of the content of the model response in advance, it can greatly improve response time. This is most common when you are only making small changes to a file.
+    **Assistant message Properties:**
 
-**Possible Types:**
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-role-25" name="role" type="String" required>
 
-| Type | Description |
-|------|------|
-| **Static Content** | Static predicted output content, e.g., text content of a file with small changes being regenerated. |
+        The role of the message author, here "assistant".
+      </ParameterField>
+      <ParameterField id="openai-chat-table-content-26" name="content" type="String or Array">
 
-**Static Content Properties:**
+        The content of the assistant message. Required unless `tool_calls` or `function_call` is specified.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-name-27" name="name" type="String">
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `content` | String or Array | Yes | The content that should be matched when generating the model response. If the generated tokens match this content, the entire model response can return faster. |
-| `type` | String | Yes | The type of predicted content to provide. Currently, the type is always "content". |
+        An optional name for the participant. Provides information to the model to distinguish between participants with the same role.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-audio-28" name="audio" type="Object or null">
 
-**Possible Content Types:**
+        Data about the model's previous audio response.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-function-call-29" name="function_call" type="Object or null">
 
-1. **Text Content (String)** - Content for predicted output. This is usually the text of the file you are regenerating, with only small changes.
+        Deprecated, replaced by `tool_calls`. The name and parameters of the function to be called, generated by the model.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-tool-calls-30" name="tool_calls" type="Array">
 
-2. **Content Part Array (Array)** - An array of content parts with defined types. The supported options vary depending on the model used to generate the response. Can include text input.
+        Tool calls generated by the model, such as function calls.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-refusal-31" name="refusal" type="String or null">
 
-**Content Part Array Properties:**
+        The assistant's refusal message.
+      </ParameterField>
+    </ParameterChildren>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `text` | String | Yes | Text content. |
-| `type` | String | Yes | The type of content part. |
+    **Tool message Properties:**
 
-#### `audio`
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-role-32" name="role" type="String" required>
 
-- Type: Object or null
-- Required: No
+        The role of the message author, here "tool".
+      </ParameterField>
+      <ParameterField id="openai-chat-table-content-33" name="content" type="String or Array" required>
 
-Parameters for audio output. Required when requesting audio output with `modalities: ["audio"]`.
+        The content of the tool message.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-tool-call-id-34" name="tool_call_id" type="String" required>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `format` | String | Yes | Specifies the output audio format. Must be one of: wav, mp3, flac, opus, or pcm16. |
-| `voice` | String | Yes | The voice used by the model for the response. Supported voices include: alloy, ash, ballad, coral, echo, fable, nova, onyx, sage, and shimmer. |
+        The tool call associated with this message response.
+      </ParameterField>
+    </ParameterChildren>
 
-#### `temperature`
+    **Function message Properties (Deprecated):**
 
-- Type: Number or null
-- Required: No
-- Default: 1
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-role-35" name="role" type="String" required>
 
-The sampling temperature to use, between 0 and 2. Higher values (e.g., 0.8) make the output more random, while lower values (e.g., 0.2) make it more concentrated and deterministic. We generally recommend changing this value or `top_p`, but not both.
+        The role of the message author, here "function".
+      </ParameterField>
+      <ParameterField id="openai-chat-table-content-36" name="content" type="String or null" required>
 
-#### `top_p`
+        The content of the function message.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-name-37" name="name" type="String" required>
 
-- Type: Number or null  
-- Required: No
-- Default: 1
+        The name of the function to be called.
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-model-75" name="model" type="String" required>
 
-An alternative to sampling temperature, called nucleus sampling, where the model considers the results of tokens with top_p probability mass. Therefore, 0.1 means only considering tokens with the top 10% probability mass.
+    The ID of the model to use. For details on which models are compatible with the Chat API, please refer to the model endpoint compatibility table.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-store-76" name="store" type="Boolean or null">
 
-We generally recommend changing this value or `temperature`, but not both.
+    - Default: false
 
-#### `n`
+    Whether to store the output of this chat completion request for our model distillation or evaluation products.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-reasoning-effort-77" name="reasoning_effort" type="String or null">
 
-- Type: Integer or null
-- Required: No  
-- Default: 1
+    - Default: medium
+    - Only applicable to o-series models
 
-How many chat completions to generate for each input message. Note that you will be charged for the total number of tokens generated across all choices. Keeping `n` to 1 can minimize costs.
+    Constraints the reasoning effort of the reasoning model. Current supported values are `low`, `medium`, and `high`. Reducing reasoning effort can speed up responses and reduce the number of tokens used for reasoning in the response.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-metadata-78" name="metadata" type="map">
 
-#### `stop`
+    A collection of 16 key-value pairs that can be attached to the object. This is useful for storing other information about the object in a structured format and querying the object via API or the dashboard.
 
-- Type: String/Array/null
-- Required: No
-- Default: null
-- Not supported by the latest inference models and .o3, o4-mini
+    Keys are strings of maximum length 64 characters. Values are strings of maximum length 512 characters.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-modalities-79" name="modalities" type="Array or null">
 
-API will stop generating more tokens for up to 4 sequences. The returned text will not include the stop sequence.
+    The types of output you want the model to generate for this request. Most models can generate text, which is the default:
+    ["text"]
 
-#### `max_tokens`
+    The model can also be used to generate audio. To request that the model generate both text and audio responses simultaneously, you can use:
+    ["text", "audio"]
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-prediction-80" name="prediction" type="Object">
 
-- Type: Integer or null
-- Required: No
+    Configuration for the predicted output, when you know most of the content of the model response in advance, it can greatly improve response time. This is most common when you are only making small changes to a file.
 
-The maximum number of tokens that can be generated in a chat completion. This value can be used to control the text cost generated via API.
+    **Possible Types:**
 
-This value is now deprecated, replaced by `max_completion_tokens`, and is incompatible with .o1 series models.
+    | Type | Description |
+    |------|------|
+    | **Static Content** | Static predicted output content, e.g., text content of a file with small changes being regenerated. |
 
-#### `max_completion_tokens`
+    **Static Content Properties:**
 
-- Type: Integer or null
-- Required: No
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-content-38" name="content" type="String or Array" required>
 
-The upper limit of tokens that can be generated in a completion, including visible output tokens and reasoning tokens.
+        The content that should be matched when generating the model response. If the generated tokens match this content, the entire model response can return faster.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-39" name="type" type="String" required>
 
-#### `presence_penalty`
+        The type of predicted content to provide. Currently, the type is always "content".
+      </ParameterField>
+    </ParameterChildren>
 
-- Type: Number or null 
-- Required: No
-- Default: 0
+    **Possible Content Types:**
 
-A number between -2.0 and 2.0. Positive values penalize new tokens based on their occurrence so far in the text, thereby increasing the model's likelihood of discussing new topics.
+    1. **Text Content (String)** - Content for predicted output. This is usually the text of the file you are regenerating, with only small changes.
 
-#### `frequency_penalty`
+    2. **Content Part Array (Array)** - An array of content parts with defined types. The supported options vary depending on the model used to generate the response. Can include text input.
 
-- Type: Number or null
-- Required: No  
-- Default: 0
+    **Content Part Array Properties:**
 
-A number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency so far in the text, thereby reducing the model's likelihood of repeating the same line word for word.
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-text-40" name="text" type="String" required>
 
-#### `logit_bias`
+        Text content.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-41" name="type" type="String" required>
 
-- Type: map
-- Required: No
-- Default: null
+        The type of content part.
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-audio-81" name="audio" type="Object or null">
 
-Modifies the likelihood of specified tokens appearing in the completion.
+    Parameters for audio output. Required when requesting audio output with `modalities: ["audio"]`.
 
-Accepts a JSON object that maps tokens (specified by token IDs in the tokenizer) to associated bias values from -100 to 100. Mathematically, bias is added to the logits of the model before sampling. The exact effect can vary by model, but values between -1 and 1 should reduce or increase the likelihood of selection; values like -100 or 100 should result in the relevant tokens being prohibited or exclusively selected.
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-format-42" name="format" type="String" required>
 
-#### `logprobs`
+        Specifies the output audio format. Must be one of: wav, mp3, flac, opus, or pcm16.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-voice-43" name="voice" type="String" required>
 
-- Type: Boolean or null
-- Required: No
-- Default: false
+        The voice used by the model for the response. Supported voices include: alloy, ash, ballad, coral, echo, fable, nova, onyx, sage, and shimmer.
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-temperature-82" name="temperature" type="Number or null">
 
-Whether to return log probabilities for output tokens. If true, returns log probabilities for each output token in `message.content`.
+    - Default: 1
 
-#### `user`
+    The sampling temperature to use, between 0 and 2. Higher values (e.g., 0.8) make the output more random, while lower values (e.g., 0.2) make it more concentrated and deterministic. We generally recommend changing this value or `top_p`, but not both.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-top-p-83" name="top_p" type="Number or null">
 
-- Type: String
-- Required: No
+    - Default: 1
 
-A unique identifier for the final user, which helps OpenAI monitor and detect abuse behavior. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids).
+    An alternative to sampling temperature, called nucleus sampling, where the model considers the results of tokens with top_p probability mass. Therefore, 0.1 means only considering tokens with the top 10% probability mass.
 
-#### `service_tier`
+    We generally recommend changing this value or `temperature`, but not both.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-n-84" name="n" type="Integer or null">
 
-- Type: String or null
-- Required: No
-- Default: auto
+    - Default: 1
 
-Specifies the latency tier for processing the request. This parameter is relevant to customers subscribed to the scale tier service:
+    How many chat completions to generate for each input message. Note that you will be charged for the total number of tokens generated across all choices. Keeping `n` to 1 can minimize costs.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-stop-85" name="stop" type="String/Array/null">
 
-- If set to 'auto', and the project is enabled for Scale tier, the system will use scale tier credits until they are exhausted
-- If set to 'auto', and the project is not enabled for Scale tier, the request will be processed using the default service tier, with lower normal operation time SLA and no latency guarantees
-- If set to 'default', the request will be processed using the default service tier, with lower normal operation time SLA and no latency guarantees
-- If set to 'flex', the request will be processed using the Flex Processing service tier. For details, please refer to the documentation.
-- When not set, the default behavior is 'auto'
-- When this parameter is set, the response body will include the used service_tier
+    - Default: null
+    - Not supported by the latest inference models and .o3, o4-mini
 
-#### `stream_options`
+    API will stop generating more tokens for up to 4 sequences. The returned text will not include the stop sequence.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-max-tokens-86" name="max_tokens" type="Integer or null">
 
-- Type: Object or null
-- Required: No
-- Default: null
+    The maximum number of tokens that can be generated in a chat completion. This value can be used to control the text cost generated via API.
 
-Options for streaming responses. Only used when `stream: true`.
+    This value is now deprecated, replaced by `max_completion_tokens`, and is incompatible with .o1 series models.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-max-completion-tokens-87" name="max_completion_tokens" type="Integer or null">
 
-**Possible Properties:**
+    The upper limit of tokens that can be generated in a completion, including visible output tokens and reasoning tokens.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-presence-penalty-88" name="presence_penalty" type="Number or null">
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `include_usage` | Boolean | No | If set, an additional block will be streamed before the data: [DONE] message. The usage field on this block shows the token usage statistics for the entire request, and the choices field is always an empty array. All other blocks will also include a usage field, but its value will be null. Note: If the stream is interrupted, you may not receive a final usage block containing the total token usage of the request. |
+    - Default: 0
 
-#### `response_format`
+    A number between -2.0 and 2.0. Positive values penalize new tokens based on their occurrence so far in the text, thereby increasing the model's likelihood of discussing new topics.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-frequency-penalty-89" name="frequency_penalty" type="Number or null">
 
-- Type: Object
-- Required: No
+    - Default: 0
 
-Specifies the format that the model must output.
+    A number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency so far in the text, thereby reducing the model's likelihood of repeating the same line word for word.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-logit-bias-90" name="logit_bias" type="map">
 
-- Set to `{ "type": "json_schema", "json_schema": {...} }` to enable structured output, ensuring the model matches your provided JSON schema.
-- Set to `{ "type": "json_object" }` to enable JSON mode, ensuring the generated messages are valid JSON.
+    - Default: null
 
-Important Note: When using JSON mode, you must also explicitly instruct the model to generate JSON via system or user messages. Otherwise, the model may generate endless blanks until it reaches token limits.
+    Modifies the likelihood of specified tokens appearing in the completion.
 
-**Possible Types:**
+    Accepts a JSON object that maps tokens (specified by token IDs in the tokenizer) to associated bias values from -100 to 100. Mathematically, bias is added to the logits of the model before sampling. The exact effect can vary by model, but values between -1 and 1 should reduce or increase the likelihood of selection; values like -100 or 100 should result in the relevant tokens being prohibited or exclusively selected.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-logprobs-91" name="logprobs" type="Boolean or null">
 
-| Type | Description |
-|------|------|
-| **text** | Default response format. Used to generate text responses. |
-| **json_schema** | JSON Schema response format. Used to generate structured JSON responses. Learn more about structured output. |
-| **json_object** | JSON object response format. An older method for generating JSON responses. For supported models, we recommend using json_schema. |
+    - Default: false
 
-**text Properties:**
+    Whether to return log probabilities for output tokens. If true, returns log probabilities for each output token in `message.content`.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-user-92" name="user" type="String">
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `type` | String | Yes | The type of response format being defined. Always "text". |
+    A unique identifier for the final user, which helps OpenAI monitor and detect abuse behavior. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids).
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-service-tier-93" name="service_tier" type="String or null">
 
-**json_schema Properties:**
+    - Default: auto
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `json_schema` | Object | Yes | Structured output configuration options, including JSON Schema. |
-| `type` | String | Yes | The type of response format being defined. Always "json_schema". |
+    Specifies the latency tier for processing the request. This parameter is relevant to customers subscribed to the scale tier service:
 
-**json_schema.json_schema Properties:**
+    - If set to 'auto', and the project is enabled for Scale tier, the system will use scale tier credits until they are exhausted
+    - If set to 'auto', and the project is not enabled for Scale tier, the request will be processed using the default service tier, with lower normal operation time SLA and no latency guarantees
+    - If set to 'default', the request will be processed using the default service tier, with lower normal operation time SLA and no latency guarantees
+    - If set to 'flex', the request will be processed using the Flex Processing service tier. For details, please refer to the documentation.
+    - When not set, the default behavior is 'auto'
+    - When this parameter is set, the response body will include the used service_tier
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-stream-options-94" name="stream_options" type="Object or null">
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `name` | String | Yes | The name of the response format. Must be a-z, A-Z, 0-9, or contain underscores and hyphens, with a maximum length of 64. |
-| `description` | String | No | A description of the purpose of the response format, used by the model to determine how to respond in that format. |
-| `schema` | Object | No | The schema of the response format, described as a JSON Schema object. |
-| `strict` | Boolean or null | No | Whether to enable strict schema adherence when generating output. If set to true, the model will always follow the exact schema defined in the schema field. strict is true, only a subset of JSON Schema is supported. |
+    - Default: null
 
-**json_object Properties:**
+    Options for streaming responses. Only used when `stream: true`.
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `type` | String | Yes | The type of response format being defined. Always "json_object". |
+    **Possible Properties:**
 
-#### `seed`
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-include-usage-44" name="include_usage" type="Boolean">
 
-- Type: Integer or null
-- Required: No
-Beta feature. If specified, our system will do its best to perform deterministic sampling, so repeated requests with the same seed and parameters should return the same results. No guarantee of determinism, you should refer to the system_fingerprint of the response parameters to monitor backend changes.
+        If set, an additional block will be streamed before the data: [DONE] message. The usage field on this block shows the token usage statistics for the entire request, and the choices field is always an empty array. All other blocks will also include a usage field, but its value will be null. Note: If the stream is interrupted, you may not receive a final usage block containing the total token usage of the request.
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-response-format-95" name="response_format" type="Object">
 
-#### `tools`
+    Specifies the format that the model must output.
 
-- Type: Array
-- Required: No
+    - Set to `{ "type": "json_schema", "json_schema": {...} }` to enable structured output, ensuring the model matches your provided JSON schema.
+    - Set to `{ "type": "json_object" }` to enable JSON mode, ensuring the generated messages are valid JSON.
 
-A list of tools that the model might call. Currently, only functions are supported as tools. Use this parameter to provide a list of functions that the model might generate JSON input for. Up to 128 functions are supported.
+    Important Note: When using JSON mode, you must also explicitly instruct the model to generate JSON via system or user messages. Otherwise, the model may generate endless blanks until it reaches token limits.
 
-**Properties:**
+    **Possible Types:**
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `function` | Object | Yes | Information about the function to be called |
-| `type` | String | Yes | The type of tool. Currently, only function is supported. |
+    | Type | Description |
+    |------|------|
+    | **text** | Default response format. Used to generate text responses. |
+    | **json_schema** | JSON Schema response format. Used to generate structured JSON responses. Learn more about structured output. |
+    | **json_object** | JSON object response format. An older method for generating JSON responses. For supported models, we recommend using json_schema. |
 
-**function Properties:**
+    **text Properties:**
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `name` | String | Yes | The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and hyphens, with a maximum length of 64. |
-| `description` | String | No | A description of the function's functionality, used by the model to determine when and how to call the function. |
-| `parameters` | Object | No | The parameters accepted by the function, described as a JSON Schema object. Please refer to the guide for examples, and the JSON Schema reference for format documentation. Omitting the parameters definition results in an empty parameter list for the function. |
-| `strict` | Boolean or null | No | Default: false. Whether to enable strict schema adherence when generating function calls. If set to true, the model will follow the exact schema defined in the parameters field. strict is true, only a subset of JSON Schema is supported. For details, please refer to the structured output section of the function calling guide. |
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-type-45" name="type" type="String" required>
 
-#### `functions`
+        The type of response format being defined. Always "text".
+      </ParameterField>
+    </ParameterChildren>
 
-- Type: Array
-- Required: No
-- Note: Deprecated, recommended to use `tools`
+    **json_schema Properties:**
 
-A list of functions that the model might generate JSON input for.
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-json-schema-46" name="json_schema" type="Object" required>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `name` | String | Yes | The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and hyphens, with a maximum length of 64. |
-| `description` | String | No | A description of the function's functionality, used by the model to determine when and how to call the function. |
-| `parameters` | Object | No | The parameters accepted by the function, described as a JSON Schema object. Omitting the parameters definition results in an empty parameter list for the function. |
+        Structured output configuration options, including JSON Schema.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-47" name="type" type="String" required>
 
-#### `tool_choice`
+        The type of response format being defined. Always "json_schema".
+      </ParameterField>
+    </ParameterChildren>
 
-- Type: String or Object
-- Required: No
+    **json_schema.json_schema Properties:**
 
-Controls which tool (if any) the model should call:
-- `none`: The model will not call any tools, but generate a message
-- `auto`: The model can choose between generating a message or calling one or more tools
-- `required`: The model must call one or more tools
-- `{"type": "function", "function": {"name": "my_function"}}`: Forces the model to call a specific tool
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-name-48" name="name" type="String" required>
 
-Defaults to `none` when no tools are present, and to `auto` when tools are present.
+        The name of the response format. Must be a-z, A-Z, 0-9, or contain underscores and hyphens, with a maximum length of 64.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-description-49" name="description" type="String">
 
-**Possible Types:**
+        A description of the purpose of the response format, used by the model to determine how to respond in that format.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-schema-50" name="schema" type="Object">
 
-| Type | Description |
-|------|------|
-| **String** | none means the model will not call any tools, but generate a message. auto means the model can choose between generating a message or calling one or more tools. required means the model must call one or more tools. |
-| **Object** | Specifies the tool that the model should use. Used to force the model to call a specific function. |
+        The schema of the response format, described as a JSON Schema object.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-strict-51" name="strict" type="Boolean or null">
 
-**Object Properties:**
+        Whether to enable strict schema adherence when generating output. If set to true, the model will always follow the exact schema defined in the schema field. strict is true, only a subset of JSON Schema is supported.
+      </ParameterField>
+    </ParameterChildren>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `function` | Object | Yes | Contains an object with function information |
-| `type` | String | Yes | The type of tool. Currently, only function is supported. |
+    **json_object Properties:**
 
-**function Properties:**
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-type-52" name="type" type="String" required>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `name` | String | Yes | The name of the function to be called. |
+        The type of response format being defined. Always "json_object".
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-seed-96" name="seed" type="Integer or null">
 
-#### `function_call`
+    Beta feature. If specified, our system will do its best to perform deterministic sampling, so repeated requests with the same seed and parameters should return the same results. No guarantee of determinism, you should refer to the system_fingerprint of the response parameters to monitor backend changes.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-tools-97" name="tools" type="Array">
 
-- Type: String or Object
-- Required: No
-- Default: `none` when no function, `auto` when function is present
-- Note: Deprecated, recommended to use `tool_choice`
+    A list of tools that the model might call. Currently, only functions are supported as tools. Use this parameter to provide a list of functions that the model might generate JSON input for. Up to 128 functions are supported.
 
-Controls which function (if any) the model should call:
+    **Properties:**
 
-- `none`: The model will not call any functions, but generate a message
-- `auto`: The model can choose between generating a message or calling a function
-- `{"name": "my_function"}`: Forces the model to call a specific function
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-function-53" name="function" type="Object" required>
 
-**Object Type Properties:**
+        Information about the function to be called
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-54" name="type" type="String" required>
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `name` | String | Yes | The name of the function to be called. |
+        The type of tool. Currently, only function is supported.
+      </ParameterField>
+    </ParameterChildren>
 
-#### `parallel_tool_calls`
+    **function Properties:**
 
-- Type: Boolean
-- Required: No
-- Default: true
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-name-55" name="name" type="String" required>
 
-Whether to enable parallel function calls during tool usage.
+        The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and hyphens, with a maximum length of 64.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-description-56" name="description" type="String">
 
-#### `stream`
+        A description of the function's functionality, used by the model to determine when and how to call the function.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-parameters-57" name="parameters" type="Object">
 
-- Type: Boolean or null
-- Required: No
-- Default: false
+        The parameters accepted by the function, described as a JSON Schema object. Please refer to the guide for examples, and the JSON Schema reference for format documentation. Omitting the parameters definition results in an empty parameter list for the function.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-strict-58" name="strict" type="Boolean or null">
 
-If set to true, model response data will be streamed to the client via server-sent events. Please refer to the streaming response section below for more information, and the streaming response guide for how to handle streaming events.
+        Default: false. Whether to enable strict schema adherence when generating function calls. If set to true, the model will follow the exact schema defined in the parameters field. strict is true, only a subset of JSON Schema is supported. For details, please refer to the structured output section of the function calling guide.
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-functions-98" name="functions" type="Array">
 
-#### `top_logprobs`
+    - Note: Deprecated, recommended to use `tools`
 
-- Type: Integer or null
-- Required: No
+    A list of functions that the model might generate JSON input for.
 
-An integer between 0 and 20, specifying the number of most likely tokens at each token position, each with its associated log probability. If this parameter is used, `logprobs` must be true.
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-name-59" name="name" type="String" required>
 
-#### `web_search_options`
+        The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and hyphens, with a maximum length of 64.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-description-60" name="description" type="String">
 
-- Type: Object
-- Required: No
+        A description of the function's functionality, used by the model to determine when and how to call the function.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-parameters-61" name="parameters" type="Object">
 
-This tool searches the web to obtain relevant results for the reply. Learn more about the web search tool.
+        The parameters accepted by the function, described as a JSON Schema object. Omitting the parameters definition results in an empty parameter list for the function.
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-tool-choice-99" name="tool_choice" type="String or Object">
 
-**Possible Properties:**
+    Controls which tool (if any) the model should call:
+    - `none`: The model will not call any tools, but generate a message
+    - `auto`: The model can choose between generating a message or calling one or more tools
+    - `required`: The model must call one or more tools
+    - `{"type": "function", "function": {"name": "my_function"}}`: Forces the model to call a specific tool
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `search_context_size` | String | No | Advanced guidance for the context window size for search. Optional values are low, medium, or high. medium is the default. |
-| `user_location` | Object or null | No | Approximate location parameters for the search. |
+    Defaults to `none` when no tools are present, and to `auto` when tools are present.
 
-**user_location Properties:**
+    **Possible Types:**
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `approximate` | Object | Yes | Approximate location parameters for the search. |
+    | Type | Description |
+    |------|------|
+    | **String** | none means the model will not call any tools, but generate a message. auto means the model can choose between generating a message or calling one or more tools. required means the model must call one or more tools. |
+    | **Object** | Specifies the tool that the model should use. Used to force the model to call a specific function. |
 
-**approximate Properties:**
+    **Object Properties:**
 
-| Property | Type | Required | Description |
-|------|------|------|------|
-| `city` | String | No | Free-text input for the user's city, e.g., San Francisco. |
-| `country` | String | No | The user's two-letter ISO country code, e.g., US. |
-| `region` | String | No | Free-text input for the user's region, e.g., California. |
-| `timezone` | String | No | The user's IANA timezone, e.g., America/Los_Angeles. |
-| `type` | String | Yes | The type of location approximation. Always "approximate". |
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-function-62" name="function" type="Object" required>
+
+        Contains an object with function information
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-63" name="type" type="String" required>
+
+        The type of tool. Currently, only function is supported.
+      </ParameterField>
+    </ParameterChildren>
+
+    **function Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-name-64" name="name" type="String" required>
+
+        The name of the function to be called.
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-function-call-100" name="function_call" type="String or Object">
+
+    - Default: `none` when no function, `auto` when function is present
+    - Note: Deprecated, recommended to use `tool_choice`
+
+    Controls which function (if any) the model should call:
+
+    - `none`: The model will not call any functions, but generate a message
+    - `auto`: The model can choose between generating a message or calling a function
+    - `{"name": "my_function"}`: Forces the model to call a specific function
+
+    **Object Type Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-name-65" name="name" type="String" required>
+
+        The name of the function to be called.
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-parallel-tool-calls-101" name="parallel_tool_calls" type="Boolean">
+
+    - Default: true
+
+    Whether to enable parallel function calls during tool usage.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-stream-102" name="stream" type="Boolean or null">
+
+    - Default: false
+
+    If set to true, model response data will be streamed to the client via server-sent events. Please refer to the streaming response section below for more information, and the streaming response guide for how to handle streaming events.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-top-logprobs-103" name="top_logprobs" type="Integer or null">
+
+    An integer between 0 and 20, specifying the number of most likely tokens at each token position, each with its associated log probability. If this parameter is used, `logprobs` must be true.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-web-search-options-104" name="web_search_options" type="Object">
+
+    This tool searches the web to obtain relevant results for the reply. Learn more about the web search tool.
+
+    **Possible Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-search-context-size-66" name="search_context_size" type="String">
+
+        Advanced guidance for the context window size for search. Optional values are low, medium, or high. medium is the default.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-user-location-67" name="user_location" type="Object or null">
+
+        Approximate location parameters for the search.
+      </ParameterField>
+    </ParameterChildren>
+
+    **user_location Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-approximate-68" name="approximate" type="Object" required>
+
+        Approximate location parameters for the search.
+      </ParameterField>
+    </ParameterChildren>
+
+    **approximate Properties:**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-city-69" name="city" type="String">
+
+        Free-text input for the user's city, e.g., San Francisco.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-country-70" name="country" type="String">
+
+        The user's two-letter ISO country code, e.g., US.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-region-71" name="region" type="String">
+
+        Free-text input for the user's region, e.g., California.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-timezone-72" name="timezone" type="String">
+
+        The user's IANA timezone, e.g., America/Los_Angeles.
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-73" name="type" type="String" required>
+
+        The type of location approximation. Always "approximate".
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 Response
 
@@ -1063,90 +1223,93 @@ This tool searches the web to obtain relevant results for the reply. Learn more 
 
 Returns a chat completion object, or a stream of chat completion chunk objects if the request was streamed.
 
-#### `id` 
-- Type: String
-- Description: The unique identifier of the response
+<ParameterTree>
+  <ParameterField id="openai-chat-heading-id-105" name="id" type="String">
 
-#### `object`
-- Type: String  
-- Description: The object type, value "chat.completion"
+    The unique identifier of the response
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-object-106" name="object" type="String">
 
-#### `created`
-- Type: Integer
-- Description: The timestamp of response creation
+    The object type, value "chat.completion"
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-created-107" name="created" type="Integer">
 
-#### `model`
-- Type: String
-- Description: The name of the model used
+    The timestamp of response creation
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-model-108" name="model" type="String">
 
-#### `system_fingerprint`
-- Type: String
-- Description: The system fingerprint identifier, representing the backend configuration of the model run. Can be used together with the seed request parameter to understand when backend changes that might affect determinism have occurred.
+    The name of the model used
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-system-fingerprint-109" name="system_fingerprint" type="String">
 
-#### `choices`
-- Type: Array
-- Description: A list of generated response options. If n is greater than 1, multiple options can be present.
-- Properties:
-  - `index`: The index of the option in the list of options.
-  - `message`: The chat completion message generated by the model.
-    - `role`: The role of the message author.
-    - `content`: The content of the message, which may be null.
-    - `refusal`: The rejection message generated by the model, which may be null.
-    - `annotations`: Annotations for the message, provided when applicable, e.g., when using the web search tool.
-      - `type`: The type of annotation. Always "url_citation" when it's a URL reference.
-      - `url_citation`: The URL reference in the message.
-        - `start_index`: The index of the first character of the URL reference in the message.
-        - `end_index`: The index of the last character of the URL reference in the message.
-        - `url`: The URL of the network resource.
-        - `title`: The title of the network resource.
-    - `audio`: If audio output modality was requested, this object contains data from the model's audio response.
-      - `data`: The model's Base64 encoded audio bytes, in the format specified in the request.
-      - `id`: The unique identifier for this audio response.
-      - `transcript`: The transcription of the model's audio.
-      - `expires_at`: The Unix timestamp (seconds) at which this audio response is available for multi-turn conversations on the server.
-    - `function_call`: (Deprecated) The name and parameters of the function to be called, generated by the model. Replaced by `tool_calls`.
-      - `name`: The name of the function to be called.
-      - `arguments`: The parameters to be passed to the function, generated by the model in JSON format.
-    - `tool_calls`: Tool calls generated by the model, such as function calls.
-      - `id`: The ID of the tool call.
-      - `type`: The type of tool. Currently, only function is supported.
-      - `function`: The function called by the model.
-        - `name`: The name of the function to be called.
-        - `arguments`: The parameters to be passed to the function, generated by the model in JSON format. Note that the model does not always generate valid JSON, and may produce parameters not defined in your function schema. Before calling the function, please validate the parameters in your code.
-  - `logprobs`: Log probability information.
-    - `content`: A list of message content tokens with log probability information.
-      - `token`: The token.
-      - `logprob`: The log probability of this token, if it was among the top 20 most probable tokens. Otherwise, a value of -9999.0 is used to indicate this token is very unlikely.
-      - `bytes`: A list of integers representing the UTF-8 byte representation of the token. This is useful when a character is represented by multiple tokens and their byte representations must be combined to generate the correct text representation. If a token has no byte representation, it may be null.
-      - `top_logprobs`: A list of the most probable tokens at this token position and their log probabilities. In rare cases, the number of returned top_logprobs may be less than the requested number.
-    - `refusal`: A list of message rejection tokens with log probability information.
-  - `finish_reason`: The reason the model stopped generating tokens. If the model reached a natural stopping point or provided a stop sequence, it is "stop"; if the maximum number of tokens specified in the request was reached, it is "length"; if content was omitted due to content filters, it is "content_filter"; if the model called a tool, it is "tool_calls"; if the model called a function, it is "function_call" (deprecated).
+    The system fingerprint identifier, representing the backend configuration of the model run. Can be used together with the seed request parameter to understand when backend changes that might affect determinism have occurred.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-choices-110" name="choices" type="Array">
 
-#### `usage`
-- Type: Object
-- Description: Usage statistics for the completion request.
-- Properties:
-  - `prompt_tokens`: The number of tokens in the prompt.
-  - `completion_tokens`: The number of tokens in the generated completion.
-  - `total_tokens`: The total number of tokens used in the request (prompt + completion).
-  - `prompt_tokens_details`: A breakdown of the tokens used in the prompt.
-    - `cached_tokens`: The cached tokens in the prompt.
-    - `audio_tokens`: The audio input tokens in the prompt.
-  - `completion_tokens_details`: A breakdown of the tokens used in the completion.
-    - `reasoning_tokens`: The reasoning tokens generated by the model.
-    - `audio_tokens`: The audio tokens generated by the model.
-    - `accepted_prediction_tokens`: The number of tokens in the predicted output that appeared in the completion when using predicted output.
-    - `rejected_prediction_tokens`: The number of tokens in the predicted output that did not appear in the completion when using predicted output. However, like reasoning tokens, these tokens are still counted towards the total completion tokens for billing, output, and context window limits.
+    A list of generated response options. If n is greater than 1, multiple options can be present.
+    - Properties:
+      - `index`: The index of the option in the list of options.
+      - `message`: The chat completion message generated by the model.
+        - `role`: The role of the message author.
+        - `content`: The content of the message, which may be null.
+        - `refusal`: The rejection message generated by the model, which may be null.
+        - `annotations`: Annotations for the message, provided when applicable, e.g., when using the web search tool.
+          - `type`: The type of annotation. Always "url_citation" when it's a URL reference.
+          - `url_citation`: The URL reference in the message.
+            - `start_index`: The index of the first character of the URL reference in the message.
+            - `end_index`: The index of the last character of the URL reference in the message.
+            - `url`: The URL of the network resource.
+            - `title`: The title of the network resource.
+        - `audio`: If audio output modality was requested, this object contains data from the model's audio response.
+          - `data`: The model's Base64 encoded audio bytes, in the format specified in the request.
+          - `id`: The unique identifier for this audio response.
+          - `transcript`: The transcription of the model's audio.
+          - `expires_at`: The Unix timestamp (seconds) at which this audio response is available for multi-turn conversations on the server.
+        - `function_call`: (Deprecated) The name and parameters of the function to be called, generated by the model. Replaced by `tool_calls`.
+          - `name`: The name of the function to be called.
+          - `arguments`: The parameters to be passed to the function, generated by the model in JSON format.
+        - `tool_calls`: Tool calls generated by the model, such as function calls.
+          - `id`: The ID of the tool call.
+          - `type`: The type of tool. Currently, only function is supported.
+          - `function`: The function called by the model.
+            - `name`: The name of the function to be called.
+            - `arguments`: The parameters to be passed to the function, generated by the model in JSON format. Note that the model does not always generate valid JSON, and may produce parameters not defined in your function schema. Before calling the function, please validate the parameters in your code.
+      - `logprobs`: Log probability information.
+        - `content`: A list of message content tokens with log probability information.
+          - `token`: The token.
+          - `logprob`: The log probability of this token, if it was among the top 20 most probable tokens. Otherwise, a value of -9999.0 is used to indicate this token is very unlikely.
+          - `bytes`: A list of integers representing the UTF-8 byte representation of the token. This is useful when a character is represented by multiple tokens and their byte representations must be combined to generate the correct text representation. If a token has no byte representation, it may be null.
+          - `top_logprobs`: A list of the most probable tokens at this token position and their log probabilities. In rare cases, the number of returned top_logprobs may be less than the requested number.
+        - `refusal`: A list of message rejection tokens with log probability information.
+      - `finish_reason`: The reason the model stopped generating tokens. If the model reached a natural stopping point or provided a stop sequence, it is "stop"; if the maximum number of tokens specified in the request was reached, it is "length"; if content was omitted due to content filters, it is "content_filter"; if the model called a tool, it is "tool_calls"; if the model called a function, it is "function_call" (deprecated).
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-usage-111" name="usage" type="Object">
 
-#### `service_tier`
-- Type: String or null
-- Description: Specifies the latency tier for processing the request. This parameter is relevant to customers subscribed to the scale tier service:
-  - If set to 'auto', and the project is enabled for Scale tier, the system will use scale tier credits until they are exhausted
-  - If set to 'auto', and the project is not enabled for Scale tier, the request will be processed using the default service tier, with lower normal operation time SLA and no latency guarantees
-  - If set to 'default', the request will be processed using the default service tier, with lower normal operation time SLA and no latency guarantees
-  - If set to 'flex', the request will be processed using the Flex Processing service tier. For details, please refer to the documentation.
-  - When not set, the default behavior is 'auto'
-  - When this parameter is set, the response body will include the used service_tier
+    Usage statistics for the completion request.
+    - Properties:
+      - `prompt_tokens`: The number of tokens in the prompt.
+      - `completion_tokens`: The number of tokens in the generated completion.
+      - `total_tokens`: The total number of tokens used in the request (prompt + completion).
+      - `prompt_tokens_details`: A breakdown of the tokens used in the prompt.
+        - `cached_tokens`: The cached tokens in the prompt.
+        - `audio_tokens`: The audio input tokens in the prompt.
+      - `completion_tokens_details`: A breakdown of the tokens used in the completion.
+        - `reasoning_tokens`: The reasoning tokens generated by the model.
+        - `audio_tokens`: The audio tokens generated by the model.
+        - `accepted_prediction_tokens`: The number of tokens in the predicted output that appeared in the completion when using predicted output.
+        - `rejected_prediction_tokens`: The number of tokens in the predicted output that did not appear in the completion when using predicted output. However, like reasoning tokens, these tokens are still counted towards the total completion tokens for billing, output, and context window limits.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-service-tier-112" name="service_tier" type="String or null">
+
+    Specifies the latency tier for processing the request. This parameter is relevant to customers subscribed to the scale tier service:
+      - If set to 'auto', and the project is enabled for Scale tier, the system will use scale tier credits until they are exhausted
+      - If set to 'auto', and the project is not enabled for Scale tier, the request will be processed using the default service tier, with lower normal operation time SLA and no latency guarantees
+      - If set to 'default', the request will be processed using the default service tier, with lower normal operation time SLA and no latency guarantees
+      - If set to 'flex', the request will be processed using the Flex Processing service tier. For details, please refer to the documentation.
+      - When not set, the default behavior is 'auto'
+      - When this parameter is set, the response body will include the used service_tier
+  </ParameterField>
+</ParameterTree>
 
 #### Chat Completion Object Response Example
 
@@ -1155,7 +1318,7 @@ Returns a chat completion object, or a stream of chat completion chunk objects i
   "id": "chatcmpl-B9MHDbslfkBeAs8l4bebGdFOJ6PeG",
   "object": "chat.completion",
   "created": 1741570283,
-  "model": "gpt-4o",
+  "model": "gpt-6.1-sol",
   "choices": [
     {
       "index": 0,
@@ -1193,25 +1356,28 @@ Returns a chat completion object, or a stream of chat completion chunk objects i
 
 When multiple chat completions are returned, the API may return a chat completion list object.
 
-#### `object`
-- Type: String
-- Description: The object type, always "list"
+<ParameterTree>
+  <ParameterField id="openai-chat-heading-object-113" name="object" type="String">
 
-#### `data`
-- Type: Array
-- Description: An array of chat completion objects
+    The object type, always "list"
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-data-114" name="data" type="Array">
 
-#### `first_id`
-- Type: String
-- Description: The identifier of the first chat completion in the data array
+    An array of chat completion objects
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-first-id-115" name="first_id" type="String">
 
-#### `last_id`
-- Type: String
-- Description: The identifier of the last chat completion in the data array
+    The identifier of the first chat completion in the data array
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-last-id-116" name="last_id" type="String">
 
-#### `has_more`
-- Type: Boolean
-- Description: Indicates whether there are more chat completions available
+    The identifier of the last chat completion in the data array
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-has-more-117" name="has_more" type="Boolean">
+
+    Indicates whether there are more chat completions available
+  </ParameterField>
+</ParameterTree>
 
 #### Chat Completion List Response Example
 
@@ -1222,7 +1388,7 @@ When multiple chat completions are returned, the API may return a chat completio
     {
       "object": "chat.completion",
       "id": "chatcmpl-AyPNinnUqUDYo9SAdA52NobMflmj2",
-      "model": "gpt-4o",
+      "model": "gpt-6.1-sol",
       "created": 1738960610,
       "request_id": "req_ded8ab984ec4bf840f37566c1011c417",
       "tool_choice": null,
@@ -1267,51 +1433,54 @@ When multiple chat completions are returned, the API may return a chat completio
 
 The Chat Completion Message List object represents a list of chat messages.
 
-#### `object`
-- Type: String
-- Description: The object type, always "list"
+<ParameterTree>
+  <ParameterField id="openai-chat-heading-object-118" name="object" type="String">
 
-#### `data`
-- Type: Array
-- Description: An array of chat completion message objects, each object containing the following properties:
-  - `id`: The identifier of the chat message
-  - `role`: The role of the message author
-  - `content`: The content of the message, which may be null
-  - `name`: The name of the message sender, which may be null
-  - `refusal`: The rejection message generated by the model, which may be null
-  - `annotations`: Annotations for the message, provided when applicable, e.g., when using the web search tool
-    - `type`: The type of annotation. Always "url_citation" when it's a URL reference.
-    - `url_citation`: The URL reference in the message.
-      - `start_index`: The index of the first character of the URL reference in the message.
-      - `end_index`: The index of the last character of the URL reference in the message.
-      - `url`: The URL of the network resource.
-      - `title`: The title of the network resource.
-  - `audio`: If audio output modality was requested, this object contains data from the model's audio response.
-    - `data`: The model's Base64 encoded audio bytes, in the format specified in the request.
-    - `id`: The unique identifier for this audio response.
-    - `transcript`: The transcription of the model's audio.
-    - `expires_at`: The Unix timestamp (seconds) at which this audio response is available for multi-turn conversations on the server.
-  - `function_call`: (Deprecated) The name and parameters of the function to be called, generated by the model. Replaced by `tool_calls`.
-    - `name`: The name of the function to be called.
-    - `arguments`: The parameters to be passed to the function, generated by the model in JSON format.
-  - `tool_calls`: Tool calls generated by the model, such as function calls
-    - `id`: The ID of the tool call.
-    - `type`: The type of tool. Currently, only function is supported.
-    - `function`: The function called by the model.
-      - `name`: The name of the function to be called.
-      - `arguments`: The parameters to be passed to the function, generated by the model in JSON format.
+    The object type, always "list"
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-data-119" name="data" type="Array">
 
-#### `first_id`
-- Type: String
-- Description: The identifier of the first chat message in the data array
+    An array of chat completion message objects, each object containing the following properties:
+      - `id`: The identifier of the chat message
+      - `role`: The role of the message author
+      - `content`: The content of the message, which may be null
+      - `name`: The name of the message sender, which may be null
+      - `refusal`: The rejection message generated by the model, which may be null
+      - `annotations`: Annotations for the message, provided when applicable, e.g., when using the web search tool
+        - `type`: The type of annotation. Always "url_citation" when it's a URL reference.
+        - `url_citation`: The URL reference in the message.
+          - `start_index`: The index of the first character of the URL reference in the message.
+          - `end_index`: The index of the last character of the URL reference in the message.
+          - `url`: The URL of the network resource.
+          - `title`: The title of the network resource.
+      - `audio`: If audio output modality was requested, this object contains data from the model's audio response.
+        - `data`: The model's Base64 encoded audio bytes, in the format specified in the request.
+        - `id`: The unique identifier for this audio response.
+        - `transcript`: The transcription of the model's audio.
+        - `expires_at`: The Unix timestamp (seconds) at which this audio response is available for multi-turn conversations on the server.
+      - `function_call`: (Deprecated) The name and parameters of the function to be called, generated by the model. Replaced by `tool_calls`.
+        - `name`: The name of the function to be called.
+        - `arguments`: The parameters to be passed to the function, generated by the model in JSON format.
+      - `tool_calls`: Tool calls generated by the model, such as function calls
+        - `id`: The ID of the tool call.
+        - `type`: The type of tool. Currently, only function is supported.
+        - `function`: The function called by the model.
+          - `name`: The name of the function to be called.
+          - `arguments`: The parameters to be passed to the function, generated by the model in JSON format.
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-first-id-120" name="first_id" type="String">
 
-#### `last_id`
-- Type: String
-- Description: The identifier of the last chat message in the data array
+    The identifier of the first chat message in the data array
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-last-id-121" name="last_id" type="String">
 
-#### `has_more`
-- Type: Boolean
-- Description: Indicates whether there are more chat messages available
+    The identifier of the last chat message in the data array
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-has-more-122" name="has_more" type="Boolean">
+
+    Indicates whether there are more chat messages available
+  </ParameterField>
+</ParameterTree>
 
 #### Chat Completion Message List Response Example
 

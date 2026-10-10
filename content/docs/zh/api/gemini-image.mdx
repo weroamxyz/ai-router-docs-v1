@@ -1,10 +1,9 @@
 ---
-title: Google Gemini 图像格式（Image）
+title: Google Gemini 图像生成
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Google Gemini 图像格式（Image）
 
 <Callout type="info" title="官方文档">
 [Google Gemini Generating content API](https://ai.google.dev/api/generate-content)
@@ -26,7 +25,9 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 ## 💡 请求示例
 
-### 创建图片 ✅
+<ExampleTabs items={["创建图片","使用 URL 交付生成图片","编辑图片"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 # 基础图片生成
@@ -86,7 +87,10 @@ curl "((SITE_URL))/v1beta/models/gemini-2.5-flash-image:generateContent?key=$API
 }
 ```
 
-### 使用 URL 交付生成图片
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 # 生成图片并返回临时 URL
@@ -132,7 +136,10 @@ curl "((SITE_URL))/v1beta/models/gemini-2.5-flash-image:generateContent?key=$API
 }
 ```
 
-### 编辑图片 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-3">
+
 
 ```bash
 # 图片编辑
@@ -211,6 +218,10 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-image-preview:generateContent?key=
 }
 ```
 
+</ExampleTab>
+
+</ExampleTabs>
+
 ## 📮 请求
 
 ### 端点
@@ -241,158 +252,272 @@ POST /v1beta/models/gemini-3-pro-image-preview:generateContent
 
 ### 请求体参数
 
-#### `contents`
-- 类型：数组
-- 必需：是
-- 说明：包含生成请求的内容数组。
+<ParameterTree>
+  <ParameterField id="gemini-image-heading-contents-31" name="contents" type="unknown">
 
-**Content 对象属性：**
+    - 类型：数组
+    - 必需：是
+    - 说明：包含生成请求的内容数组。
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `parts` | 数组 | 是 | 有序的内容部分，构成单个消息 |
+    **Content 对象属性：**
 
-**Part 对象属性：**
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-parts-1" name="parts" type="数组">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `text` | 字符串 | 是（创建图片时） | 期望生成或编辑图片的文本描述 |
-| `inline_data` | 对象 | 是（编辑图片时） | 输入图像数据（用于图片编辑） |
+        有序的内容部分，构成单个消息
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-##### `text` (在 parts 中)
-- 类型：字符串
-- 必需：是（创建图片时必需，编辑图片时也必需）
-- 说明：期望生成或编辑图片的文本描述。
-- 提示：
-  - 使用具体和详细的描述
-  - 包含关键的视觉元素
-  - 指定期望的艺术风格
-  - 描述构图和视角
-  - 编辑图片时，描述希望如何修改输入图像
+    **Part 对象属性：**
 
-##### `inline_data` (在 parts 中，用于图片编辑)
-- 类型：对象
-- 必需：是（编辑图片时）
-- 说明：要编辑的输入图像数据。
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-text-2" name="text" type="字符串">
 
-**InlineData 对象属性（请求中）：**
+        期望生成或编辑图片的文本描述
+        **必需:** 是（创建图片时）
+      </ParameterField>
+      <ParameterField id="gemini-image-table-inline-data-3" name="inline_data" type="对象">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `mime_type` | 字符串 | 是 | 图像的MIME类型（如 "image/jpeg"、"image/png"） |
-| `data` | 字符串 | 是 | base64编码的图像数据 |
+        输入图像数据（用于图片编辑）
+        **必需:** 是（编辑图片时）
+      </ParameterField>
+    </ParameterChildren>
 
-#### `generationConfig` (可选)
-- 类型：对象
-- 必需：否
-- 说明：用于控制生成行为的配置参数。
+    ##### `text` (在 parts 中)
+    - 类型：字符串
+    - 必需：是（创建图片时必需，编辑图片时也必需）
+    - 说明：期望生成或编辑图片的文本描述。
+    - 提示：
+      - 使用具体和详细的描述
+      - 包含关键的视觉元素
+      - 指定期望的艺术风格
+      - 描述构图和视角
+      - 编辑图片时，描述希望如何修改输入图像
 
-**GenerationConfig 对象属性：**
+    ##### `inline_data` (在 parts 中，用于图片编辑)
+    - 类型：对象
+    - 必需：是（编辑图片时）
+    - 说明：要编辑的输入图像数据。
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `responseModalities` | 数组 | 否 | 指定响应中应包含的模态类型，如 ["TEXT", "IMAGE"] |
-| `imageConfig` | 对象 | 否 | 图像生成配置参数 |
-| `responseFormat` | 对象 | 否 | 响应格式选项。将 `image.delivery` 设为 `"URI"` 可请求图片 URL。 |
+    **InlineData 对象属性（请求中）：**
 
-**ImageConfig 对象属性：**
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-mime-type-4" name="mime_type" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `aspectRatio` | 字符串 | 否 | 图像的宽高比，如 "1:1"、"16:9" 等 |
-| `imageSize` | 字符串 | 否 | 图像尺寸，如 "2K"、"4K" 等 |
+        图像的MIME类型（如 "image/jpeg"、"image/png"）
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="gemini-image-table-data-5" name="data" type="字符串">
 
-**ResponseFormat Image 对象属性：**
+        base64编码的图像数据
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="gemini-image-heading-generationconfig-32" name="generationConfig" type="unknown">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `delivery` | 字符串 | 否 | 设为大写的 `"URI"`，可为每张生成的图片请求一个 URL。省略时保留上游响应格式。 |
+    - 类型：对象
+    - 必需：否
+    - 说明：用于控制生成行为的配置参数。
+
+    **GenerationConfig 对象属性：**
+
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-responsemodalities-6" name="responseModalities" type="数组">
+
+        指定响应中应包含的模态类型，如 ["TEXT", "IMAGE"]
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="gemini-image-table-imageconfig-7" name="imageConfig" type="对象">
+
+        图像生成配置参数
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="gemini-image-table-responseformat-8" name="responseFormat" type="对象">
+
+        响应格式选项。将 `image.delivery` 设为 `"URI"` 可请求图片 URL。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
+
+    **ImageConfig 对象属性：**
+
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-aspectratio-9" name="aspectRatio" type="字符串">
+
+        图像的宽高比，如 "1:1"、"16:9" 等
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="gemini-image-table-imagesize-10" name="imageSize" type="字符串">
+
+        图像尺寸，如 "2K"、"4K" 等
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
+
+    **ResponseFormat Image 对象属性：**
+
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-delivery-11" name="delivery" type="字符串">
+
+        设为大写的 `"URI"`，可为每张生成的图片请求一个 URL。省略时保留上游响应格式。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 响应
 
 ### 成功响应
 
-#### `candidates`
-- 类型：数组
-- 说明：模型的候选回答列表
+<ParameterTree>
+  <ParameterField id="gemini-image-heading-candidates-33" name="candidates" type="unknown">
 
-**Candidate 对象属性：**
+    - 类型：数组
+    - 说明：模型的候选回答列表
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `content` | 对象 | 模型返回的生成内容 |
-| `finishReason` | 枚举 | 模型停止生成的原因 |
-| `index` | 整数 | 响应候选列表中候选项的索引 |
+    **Candidate 对象属性：**
 
-**Content 对象属性：**
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-content-12" name="content" type="对象">
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `parts` | 数组 | 生成的内容部分，可能包含文本和图像 |
-| `role` | 字符串 | 内容的生产者，通常为 "model" |
+        模型返回的生成内容
+      </ParameterField>
+      <ParameterField id="gemini-image-table-finishreason-13" name="finishReason" type="枚举">
 
-**Part 对象属性：**
+        模型停止生成的原因
+      </ParameterField>
+      <ParameterField id="gemini-image-table-index-14" name="index" type="整数">
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `text` | 字符串 | 文本内容；部分上游会在此处以 Markdown 数据 URL 的形式嵌入生成的图片 |
-| `inlineData` | 对象 | 未请求 URL 交付或回退时返回的 Base64 图片数据 |
-| `fileData` | 对象 | URL 交付成功时返回的图片 URL，或上游原生图片 URI |
+        响应候选列表中候选项的索引
+      </ParameterField>
+    </ParameterChildren>
 
-**InlineData 对象属性：**
+    **Content 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `mimeType` | 字符串 | 图像的MIME类型（如 "image/png"） |
-| `data` | 字符串 | base64编码的图像数据 |
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-parts-15" name="parts" type="数组">
 
-**FileData 对象属性：**
+        生成的内容部分，可能包含文本和图像
+      </ParameterField>
+      <ParameterField id="gemini-image-table-role-16" name="role" type="字符串">
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `mimeType` | 字符串 | 图片的 MIME 类型（例如 `image/png`） |
-| `fileUri` | 字符串 | 生成图片的 URL |
+        内容的生产者，通常为 "model"
+      </ParameterField>
+    </ParameterChildren>
 
-**FinishReason 枚举值：**
+    **Part 对象属性：**
 
-- `STOP`: 模型的自然停止点
-- `MAX_TOKENS`: 已达到请求中指定的词元数量上限
-- `SAFETY`: 出于安全考虑，系统已标记回答候选内容
-- `IMAGE_SAFETY`: 由于生成的图片违反了安全规定，因此词元生成已停止
-- `OTHER`: 原因未知
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-text-17" name="text" type="字符串">
 
-#### `usageMetadata`
-- 类型：对象
-- 说明：有关生成请求令牌用量的元数据
+        文本内容；部分上游会在此处以 Markdown 数据 URL 的形式嵌入生成的图片
+      </ParameterField>
+      <ParameterField id="gemini-image-table-inlinedata-18" name="inlineData" type="对象">
 
-**UsageMetadata 对象属性：**
+        未请求 URL 交付或回退时返回的 Base64 图片数据
+      </ParameterField>
+      <ParameterField id="gemini-image-table-filedata-19" name="fileData" type="对象">
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `promptTokenCount` | 整数 | 提示中的词元数 |
-| `candidatesTokenCount` | 整数 | 所有生成的候选回答中的词元总数 |
-| `totalTokenCount` | 整数 | 生成请求的总令牌数 |
-| `promptTokensDetails` | 数组 | 在请求输入中处理的模态列表 |
-| `candidatesTokensDetails` | 数组 | 响应中返回的模态列表 |
+        URL 交付成功时返回的图片 URL，或上游原生图片 URI
+      </ParameterField>
+    </ParameterChildren>
 
-**candidatesTokensDetails 对象属性：**
+    **InlineData 对象属性：**
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `modality` | 枚举 | 与此令牌数关联的模态（TEXT、IMAGE等） |
-| `tokenCount` | 整数 | 令牌数量 |
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-mimetype-20" name="mimeType" type="字符串">
 
-#### `modelVersion`
-- 类型：字符串
-- 说明：用于生成回答的模型版本
+        图像的MIME类型（如 "image/png"）
+      </ParameterField>
+      <ParameterField id="gemini-image-table-data-21" name="data" type="字符串">
 
-#### `responseId`
-- 类型：字符串
-- 说明：用于标识每个响应的ID
+        base64编码的图像数据
+      </ParameterField>
+    </ParameterChildren>
 
-#### `promptFeedback` (可选)
-- 类型：对象
-- 说明：与内容过滤器相关的提示反馈
+    **FileData 对象属性：**
+
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-mimetype-22" name="mimeType" type="字符串">
+
+        图片的 MIME 类型（例如 `image/png`）
+      </ParameterField>
+      <ParameterField id="gemini-image-table-fileuri-23" name="fileUri" type="字符串">
+
+        生成图片的 URL
+      </ParameterField>
+    </ParameterChildren>
+
+    **FinishReason 枚举值：**
+
+    - `STOP`: 模型的自然停止点
+    - `MAX_TOKENS`: 已达到请求中指定的词元数量上限
+    - `SAFETY`: 出于安全考虑，系统已标记回答候选内容
+    - `IMAGE_SAFETY`: 由于生成的图片违反了安全规定，因此词元生成已停止
+    - `OTHER`: 原因未知
+  </ParameterField>
+  <ParameterField id="gemini-image-heading-usagemetadata-34" name="usageMetadata" type="unknown">
+
+    - 类型：对象
+    - 说明：有关生成请求令牌用量的元数据
+
+    **UsageMetadata 对象属性：**
+
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-prompttokencount-24" name="promptTokenCount" type="整数">
+
+        提示中的词元数
+      </ParameterField>
+      <ParameterField id="gemini-image-table-candidatestokencount-25" name="candidatesTokenCount" type="整数">
+
+        所有生成的候选回答中的词元总数
+      </ParameterField>
+      <ParameterField id="gemini-image-table-totaltokencount-26" name="totalTokenCount" type="整数">
+
+        生成请求的总令牌数
+      </ParameterField>
+      <ParameterField id="gemini-image-table-prompttokensdetails-27" name="promptTokensDetails" type="数组">
+
+        在请求输入中处理的模态列表
+      </ParameterField>
+      <ParameterField id="gemini-image-table-candidatestokensdetails-28" name="candidatesTokensDetails" type="数组">
+
+        响应中返回的模态列表
+      </ParameterField>
+    </ParameterChildren>
+
+    **candidatesTokensDetails 对象属性：**
+
+    <ParameterChildren>
+      <ParameterField id="gemini-image-table-modality-29" name="modality" type="枚举">
+
+        与此令牌数关联的模态（TEXT、IMAGE等）
+      </ParameterField>
+      <ParameterField id="gemini-image-table-tokencount-30" name="tokenCount" type="整数">
+
+        令牌数量
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="gemini-image-heading-modelversion-35" name="modelVersion" type="unknown">
+
+    - 类型：字符串
+    - 说明：用于生成回答的模型版本
+  </ParameterField>
+  <ParameterField id="gemini-image-heading-responseid-36" name="responseId" type="unknown">
+
+    - 类型：字符串
+    - 说明：用于标识每个响应的ID
+  </ParameterField>
+  <ParameterField id="gemini-image-heading-promptfeedback-37" name="promptFeedback" type="unknown">
+
+    - 类型：对象
+    - 说明：与内容过滤器相关的提示反馈
+  </ParameterField>
+</ParameterTree>
 
 ### 图片对象示例
 

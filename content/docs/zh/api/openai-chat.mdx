@@ -1,10 +1,9 @@
 ---
-title: OpenAI 对话格式（Chat Completions）
+title: OpenAI 对话
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# OpenAI 对话格式（Chat Completions）
 
 <Callout type="info" title="官方文档">
 [OpenAI Chat](https://platform.openai.com/docs/api-reference/chat)
@@ -19,12 +18,6 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 | 模型 | 描述 |
 | --- | --- |
-| **gpt-4o** | 快速、智能、灵活的 GPT 模型 |
-| **gpt-4o-mini** | 快速、经济实惠的小型模型，适用于专注型任务 |
-| **gpt-4o-audio-preview** | 支持原生音频输入/输出的 GPT-4o 对话模型 |
-| **gpt-4.1** | 最智能的非推理模型 |
-| **gpt-4.1-mini** | 比 GPT-4.1 更精简、更快速的替代方案 |
-| **gpt-4.1-nano** | GPT-4.1 系列中速度最快、性价比最高的模型 |
 | **gpt-5** | 用于编码和智能体任务的上一代智能推理模型 |
 | **gpt-5-chat-latest** | 始终指向最新快照的 GPT-5 对话模型 |
 | **gpt-5-mini** | 在成本敏感、低延迟场景下表现出色 |
@@ -37,17 +30,22 @@ import { Callout } from 'fumadocs-ui/components/callout';
 | **gpt-5.6-luna** | 针对成本敏感型工作负载优化的 GPT-5.6 模型 |
 | **gpt-5.6-terra** | 5.6 系列中的中端选项，兼顾能力与经济性 |
 | **gpt-5.6-sol** | 面向复杂专业工作的前沿模型 |
+| **gpt-6-luna** | 面向专注型高吞吐任务的最高效模型。 |
+| **gpt-6-astra** | 面向要求最高工作的最强大模型。 |
+| **gpt-6.1-sol** | 以更低成本为复杂工作提供接近 Astra 的性能。 |
 
 ## 💡 请求示例
 
-### 基础文本对话 ✅
+<ExampleTabs items={["基础文本对话","图像分析对话","流式响应","函数调用","Logprobs 请求"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
 curl ((SITE_URL))/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
-    "model": "gpt-4.1",
+    "model": "gpt-6.1-sol",
     "messages": [
       {
         "role": "developer",
@@ -68,7 +66,7 @@ curl ((SITE_URL))/v1/chat/completions \
   "id": "chatcmpl-B9MBs8CjcvOU2jLn4n570S5qMJKcT",
   "object": "chat.completion",
   "created": 1741569952,
-  "model": "gpt-4.1-2025-04-14",
+  "model": "gpt-6.1-sol",
   "choices": [
     {
       "index": 0,
@@ -101,14 +99,17 @@ curl ((SITE_URL))/v1/chat/completions \
 }
 ```
 
-### 图像分析对话 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 curl ((SITE_URL))/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
-    "model": "gpt-4.1",
+    "model": "gpt-6.1-sol",
     "messages": [
       {
         "role": "user",
@@ -137,7 +138,7 @@ curl ((SITE_URL))/v1/chat/completions \
   "id": "chatcmpl-B9MHDbslfkBeAs8l4bebGdFOJ6PeG",
   "object": "chat.completion",
   "created": 1741570283,
-  "model": "gpt-4.1-2025-04-14",
+  "model": "gpt-6.1-sol",
   "choices": [
     {
       "index": 0,
@@ -171,14 +172,17 @@ curl ((SITE_URL))/v1/chat/completions \
 }
 ```
 
-### 流式响应 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-3">
+
 
 ```bash
 curl ((SITE_URL))/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
-    "model": "gpt-4.1",
+    "model": "gpt-6.1-sol",
     "messages": [
       {
         "role": "developer",
@@ -196,23 +200,26 @@ curl ((SITE_URL))/v1/chat/completions \
 **流式响应示例:**
 
 ```jsonl
-{"id":"chatcmpl-123","object":"chat.completion.chunk","created":1694268190,"model":"gpt-4o-mini", "system_fingerprint": "fp_44709d6fcb", "choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}]}
+{"id":"chatcmpl-123","object":"chat.completion.chunk","created":1694268190,"model":"gpt-6-luna", "system_fingerprint": "fp_44709d6fcb", "choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}]}
 
-{"id":"chatcmpl-123","object":"chat.completion.chunk","created":1694268190,"model":"gpt-4o-mini", "system_fingerprint": "fp_44709d6fcb", "choices":[{"index":0,"delta":{"content":"你好"},"logprobs":null,"finish_reason":null}]}
+{"id":"chatcmpl-123","object":"chat.completion.chunk","created":1694268190,"model":"gpt-6-luna", "system_fingerprint": "fp_44709d6fcb", "choices":[{"index":0,"delta":{"content":"你好"},"logprobs":null,"finish_reason":null}]}
 
 // ... 更多数据块 ...
 
-{"id":"chatcmpl-123","object":"chat.completion.chunk","created":1694268190,"model":"gpt-4o-mini", "system_fingerprint": "fp_44709d6fcb", "choices":[{"index":0,"delta":{},"logprobs":null,"finish_reason":"stop"}]}
+{"id":"chatcmpl-123","object":"chat.completion.chunk","created":1694268190,"model":"gpt-6-luna", "system_fingerprint": "fp_44709d6fcb", "choices":[{"index":0,"delta":{},"logprobs":null,"finish_reason":"stop"}]}
 ```
 
-### 函数调用 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-4">
+
 
 ```bash
 curl ((SITE_URL))/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
-    "model": "gpt-4.1",
+    "model": "gpt-6.1-sol",
     "messages": [
       {
         "role": "user",
@@ -253,7 +260,7 @@ curl ((SITE_URL))/v1/chat/completions \
   "id": "chatcmpl-abc123",
   "object": "chat.completion",
   "created": 1699896916,
-  "model": "gpt-4o-mini",
+  "model": "gpt-6-luna",
   "choices": [
     {
       "index": 0,
@@ -288,14 +295,17 @@ curl ((SITE_URL))/v1/chat/completions \
 }
 ```
 
-### Logprobs 请求 ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-5">
+
 
 ```bash
 curl ((SITE_URL))/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
-    "model": "gpt-4.1",
+    "model": "gpt-6.1-sol",
     "messages": [
       {
         "role": "user",
@@ -314,7 +324,7 @@ curl ((SITE_URL))/v1/chat/completions \
   "id": "chatcmpl-123",
   "object": "chat.completion",
   "created": 1702685778,
-  "model": "gpt-4o-mini",
+  "model": "gpt-6-luna",
   "choices": [
     {
       "index": 0,
@@ -501,6 +511,10 @@ curl ((SITE_URL))/v1/chat/completions \
 }
 ```
 
+</ExampleTab>
+
+</ExampleTabs>
+
 ## 📮 请求
 
 ### 端点
@@ -523,539 +537,834 @@ Authorization: Bearer $API_KEY
 
 ### 请求体参数
 
-#### `messages`
+<ParameterTree>
+  <ParameterField id="openai-chat-heading-messages-74" name="messages" type="unknown">
+
+    - 类型：数组
+    - 必需：是
+
+    到目前为止包含对话的消息列表。根据使用的模型，支持不同的消息类型（形式），如文本、图像和音频。
 
-- 类型：数组
-- 必需：是
+    | 消息类型 | 描述 |
+    |---------|------|
+    | **Developer message** | 开发者提供的指令，模型应遵循这些指令，无论用户发送什么消息。在 o1 模型及更新版本中，开发者消息取代了之前的系统消息。 |
+    | **System message** | 开发者提供的指令，模型应遵循这些指令，无论用户发送什么消息。在 o1 模型及更新版本中，请使用开发者消息代替。 |
+    | **User message** | 由终端用户发送的消息，包含提示或额外的上下文信息。 |
+    | **Assistant message** | 模型响应用户消息发送的消息。 |
+    | **Tool message** | 工具消息的内容。 |
+    | **Function message** | 已弃用。 |
+
+    **Developer message 属性：**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-role-1" name="role" type="字符串">
+
+        消息作者的角色，此处为 `developer`。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-content-2" name="content" type="字符串或数组">
+
+        开发者消息的内容。可以是文本内容（字符串）或内容部分数组。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-name-3" name="name" type="字符串">
+
+        参与者的可选名称。为模型提供信息以区分相同角色的参与者。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-到目前为止包含对话的消息列表。根据使用的模型，支持不同的消息类型（形式），如文本、图像和音频。
+    **System message 属性：**
 
-| 消息类型 | 描述 |
-|---------|------|
-| **Developer message** | 开发者提供的指令，模型应遵循这些指令，无论用户发送什么消息。在 o1 模型及更新版本中，开发者消息取代了之前的系统消息。 |
-| **System message** | 开发者提供的指令，模型应遵循这些指令，无论用户发送什么消息。在 o1 模型及更新版本中，请使用开发者消息代替。 |
-| **User message** | 由终端用户发送的消息，包含提示或额外的上下文信息。 |
-| **Assistant message** | 模型响应用户消息发送的消息。 |
-| **Tool message** | 工具消息的内容。 |
-| **Function message** | 已弃用。 |
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-role-4" name="role" type="字符串">
+
+        消息作者的角色，此处为 `system`。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-content-5" name="content" type="字符串或数组">
+
+        系统消息的内容。可以是文本内容（字符串）或内容部分数组。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-name-6" name="name" type="字符串">
 
-**Developer message 属性：**
-
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `role` | 字符串 | 是 | 消息作者的角色，此处为 `developer`。 |
-| `content` | 字符串或数组 | 是 | 开发者消息的内容。可以是文本内容（字符串）或内容部分数组。 |
-| `name` | 字符串 | 否 | 参与者的可选名称。为模型提供信息以区分相同角色的参与者。 |
+        参与者的可选名称。为模型提供信息以区分相同角色的参与者。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-**System message 属性：**
-
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `role` | 字符串 | 是 | 消息作者的角色，此处为 `system`。 |
-| `content` | 字符串或数组 | 是 | 系统消息的内容。可以是文本内容（字符串）或内容部分数组。 |
-| `name` | 字符串 | 否 | 参与者的可选名称。为模型提供信息以区分相同角色的参与者。 |
+    **User message 属性：**
 
-**User message 属性：**
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-role-7" name="role" type="字符串">
+
+        消息作者的角色，此处为 `user`。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-content-8" name="content" type="字符串或数组">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `role` | 字符串 | 是 | 消息作者的角色，此处为 `user`。 |
-| `content` | 字符串或数组 | 是 | 用户消息的内容。可以是文本内容（字符串）或内容部分数组。 |
-| `name` | 字符串 | 否 | 参与者的可选名称。为模型提供信息以区分相同角色的参与者。 |
+        用户消息的内容。可以是文本内容（字符串）或内容部分数组。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-name-9" name="name" type="字符串">
 
-**内容部分类型：**
+        参与者的可选名称。为模型提供信息以区分相同角色的参与者。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-| 内容部分类型 | 描述 | 可用于 |
-|------------|------|---------|
-| **文本内容部分** | 文本输入。 | 所有消息类型 |
-| **图像内容部分** | 图像输入。 | 用户消息 |
-| **音频内容部分** | 音频输入。 | 用户消息 |
-| **文件内容部分** | 文件输入，用于文本生成。 | 用户消息 |
-| **拒绝内容部分** | 模型生成的拒绝消息。 | 助手消息 |
+    **内容部分类型：**
 
-**文本内容部分属性：**
+    | 内容部分类型 | 描述 | 可用于 |
+    |------------|------|---------|
+    | **文本内容部分** | 文本输入。 | 所有消息类型 |
+    | **图像内容部分** | 图像输入。 | 用户消息 |
+    | **音频内容部分** | 音频输入。 | 用户消息 |
+    | **文件内容部分** | 文件输入，用于文本生成。 | 用户消息 |
+    | **拒绝内容部分** | 模型生成的拒绝消息。 | 助手消息 |
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `text` | 字符串 | 是 | 文本内容。 |
-| `type` | 字符串 | 是 | 内容部分的类型。 |
+    **文本内容部分属性：**
 
-**图像内容部分属性：**
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-text-10" name="text" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `image_url` | 对象 | 是 | 包含图像URL或base64编码的图像数据。 |
-| `type` | 字符串 | 是 | 内容部分的类型。 |
+        文本内容。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-11" name="type" type="字符串">
 
-**图像URL对象属性：**
+        内容部分的类型。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `url` | 字符串 | 是 | 图像的URL或base64编码的图像数据。 |
-| `detail` | 字符串 | 否 | 指定图像的详细级别。默认为 `auto`。 |
+    **图像内容部分属性：**
 
-**音频内容部分属性：**
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-image-url-12" name="image_url" type="对象">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `input_audio` | 对象 | 是 | 包含音频数据的对象。 |
-| `type` | 字符串 | 是 | 内容部分的类型。始终为 `input_audio`。 |
+        包含图像URL或base64编码的图像数据。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-13" name="type" type="字符串">
 
-**音频输入对象属性：**
+        内容部分的类型。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `data` | 字符串 | 是 | base64编码的音频数据。 |
-| `format` | 字符串 | 是 | 编码音频数据的格式。当前支持 "wav" 和 "mp3"。 |
+    **图像URL对象属性：**
 
-**文件内容部分属性：**
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-url-14" name="url" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `file` | 对象 | 是 | 包含文件数据的对象。 |
-| `type` | 字符串 | 是 | 内容部分的类型。始终为 `file`。 |
+        图像的URL或base64编码的图像数据。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-detail-15" name="detail" type="字符串">
 
-**文件对象属性：**
+        指定图像的详细级别。默认为 `auto`。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `file_data` | 字符串 | 否 | base64编码的文件数据，用于将文件作为字符串传递给模型。 |
-| `file_id` | 字符串 | 否 | 已上传文件的ID，用作输入。 |
-| `filename` | 字符串 | 否 | 文件名，用于将文件作为字符串传递给模型。 |
+    **音频内容部分属性：**
 
-**Assistant message 属性：**
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-input-audio-16" name="input_audio" type="对象">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `role` | 字符串 | 是 | 消息作者的角色，此处为 `assistant`。 |
-| `content` | 字符串或数组 | 否 | 助手消息的内容。除非指定了 `tool_calls` 或 `function_call`，否则为必需。 |
-| `name` | 字符串 | 否 | 参与者的可选名称。为模型提供信息以区分相同角色的参与者。 |
-| `audio` | 对象或null | 否 | 关于模型先前音频响应的数据。 |
-| `function_call` | 对象或null | 否 | 已弃用，由 `tool_calls` 替代。应调用的函数的名称和参数，由模型生成。 |
-| `tool_calls` | 数组 | 否 | 模型生成的工具调用，如函数调用。 |
-| `refusal` | 字符串或null | 否 | 助手的拒绝消息。 |
+        包含音频数据的对象。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-17" name="type" type="字符串">
 
-**Tool message 属性：**
+        内容部分的类型。始终为 `input_audio`。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `role` | 字符串 | 是 | 消息作者的角色，此处为 `tool`。 |
-| `content` | 字符串或数组 | 是 | 工具消息的内容。 |
-| `tool_call_id` | 字符串 | 是 | 此消息响应的工具调用。 |
+    **音频输入对象属性：**
 
-**Function message 属性：（已弃用）**
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-data-18" name="data" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `role` | 字符串 | 是 | 消息作者的角色，此处为 `function`。 |
-| `content` | 字符串或null | 是 | 函数消息的内容。 |
-| `name` | 字符串 | 是 | 要调用的函数的名称。 |
+        base64编码的音频数据。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-format-19" name="format" type="字符串">
 
-#### `model`
+        编码音频数据的格式。当前支持 "wav" 和 "mp3"。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-- 类型：字符串  
-- 必需：是
+    **文件内容部分属性：**
 
-要使用的模型 ID。有关哪些模型适用于 Chat API 的详细信息，请参阅模型端点兼容性表。
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-file-20" name="file" type="对象">
 
-#### `store` 
+        包含文件数据的对象。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-21" name="type" type="字符串">
 
-- 类型：布尔值或 null
-- 必需：否
-- 默认值：false
+        内容部分的类型。始终为 `file`。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-是否存储此聊天补全请求的输出以用于我们的模型蒸馏或评估产品。
+    **文件对象属性：**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-file-data-22" name="file_data" type="字符串">
+
+        base64编码的文件数据，用于将文件作为字符串传递给模型。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-file-id-23" name="file_id" type="字符串">
 
-#### `reasoning_effort`
+        已上传文件的ID，用作输入。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-filename-24" name="filename" type="字符串">
 
-- 类型：字符串或 null
-- 必需：否
-- 默认值：medium
-- 仅适用于 o系列 的模型
+        文件名，用于将文件作为字符串传递给模型。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-约束推理模型的推理工作。当前支持的值为 `low`、`medium` 和 `high`。减少推理工作可以加快响应速度并减少响应中用于推理的标记数。
+    **Assistant message 属性：**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-role-25" name="role" type="字符串">
+
+        消息作者的角色，此处为 `assistant`。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-content-26" name="content" type="字符串或数组">
 
-#### `metadata`
+        助手消息的内容。除非指定了 `tool_calls` 或 `function_call`，否则为必需。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-name-27" name="name" type="字符串">
 
-- 类型：map
-- 必需：否
+        参与者的可选名称。为模型提供信息以区分相同角色的参与者。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-audio-28" name="audio" type="对象或null">
 
-可以附加到对象的16个键值对集合。这对于以结构化格式存储对象的其他信息很有用,并可以通过 API 或仪表板查询对象。
+        关于模型先前音频响应的数据。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-function-call-29" name="function_call" type="对象或null">
 
-键是最大长度为64个字符的字符串。值是最大长度为512个字符的字符串。
+        已弃用，由 `tool_calls` 替代。应调用的函数的名称和参数，由模型生成。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-tool-calls-30" name="tool_calls" type="数组">
 
-#### `modalities`
+        模型生成的工具调用，如函数调用。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-refusal-31" name="refusal" type="字符串或null">
 
-- 类型：数组或 null
-- 必需：否
+        助手的拒绝消息。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-您希望模型为此请求生成的输出类型。大多数模型都能生成文本,这是默认设置:
-["text"]
+    **Tool message 属性：**
 
-该模型还可以用于生成音频。要请求此模型同时生成文本和音频响应,您可以使用:
-["text", "audio"]
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-role-32" name="role" type="字符串">
 
-#### `prediction`
+        消息作者的角色，此处为 `tool`。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-content-33" name="content" type="字符串或数组">
 
-- 类型：对象
-- 必需：否
+        工具消息的内容。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-tool-call-id-34" name="tool_call_id" type="字符串">
 
-预测输出的配置,当提前知道模型响应的大部分内容时,可以大大提高响应时间。这在您只对文件进行微小更改时最常见。
+        此消息响应的工具调用。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-**可能的类型：**
+    **Function message 属性：（已弃用）**
 
-| 类型 | 描述 |
-|------|------|
-| **静态内容** | 静态预测输出内容，例如正在重新生成的具有微小更改的文本文件内容。 |
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-role-35" name="role" type="字符串">
 
-**静态内容属性：**
+        消息作者的角色，此处为 `function`。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-content-36" name="content" type="字符串或null">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `content` | 字符串或数组 | 是 | 生成模型响应时应匹配的内容。如果生成的标记与此内容匹配，则整个模型响应可以更快地返回。 |
-| `type` | 字符串 | 是 | 要提供的预测内容类型。当前类型始终为 `content`。 |
+        函数消息的内容。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-name-37" name="name" type="字符串">
 
-**内容可能的类型：**
+        要调用的函数的名称。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-model-75" name="model" type="unknown">
 
-1. **文本内容（字符串）** - 用于预测输出的内容。这通常是您正在重新生成的文件的文本，只有微小更改。
+    - 类型：字符串
+    - 必需：是
 
-2. **内容部分数组（数组）** - 具有定义类型的内容部分数组。支持的选项因用于生成响应的模型而异。可以包含文本输入。
+    要使用的模型 ID。有关哪些模型适用于 Chat API 的详细信息，请参阅模型端点兼容性表。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-store-76" name="store" type="unknown">
 
-**内容部分数组属性：**
+    - 类型：布尔值或 null
+    - 必需：否
+    - 默认值：false
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `text` | 字符串 | 是 | 文本内容。 |
-| `type` | 字符串 | 是 | 内容部分的类型。 |
+    是否存储此聊天补全请求的输出以用于我们的模型蒸馏或评估产品。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-reasoning-effort-77" name="reasoning_effort" type="unknown">
 
-#### `audio`
+    - 类型：字符串或 null
+    - 必需：否
+    - 默认值：medium
+    - 仅适用于 o系列 的模型
 
-- 类型：对象或 null
-- 必需：否
+    约束推理模型的推理工作。当前支持的值为 `low`、`medium` 和 `high`。减少推理工作可以加快响应速度并减少响应中用于推理的标记数。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-metadata-78" name="metadata" type="unknown">
 
-音频输出的参数。当使用 `modalities: ["audio"]` 请求音频输出时需要。
+    - 类型：map
+    - 必需：否
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `format` | 字符串 | 是 | 指定输出音频格式。必须是以下之一：wav、mp3、flac、opus 或 pcm16。 |
-| `voice` | 字符串 | 是 | 模型用于响应的声音。支持的声音包括：alloy、ash、ballad、coral、echo、fable、nova、onyx、sage 和 shimmer。 |
+    可以附加到对象的16个键值对集合。这对于以结构化格式存储对象的其他信息很有用,并可以通过 API 或仪表板查询对象。
 
-#### `temperature`
+    键是最大长度为64个字符的字符串。值是最大长度为512个字符的字符串。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-modalities-79" name="modalities" type="unknown">
 
-- 类型：数字或 null
-- 必需：否
-- 默认值：1
+    - 类型：数组或 null
+    - 必需：否
 
-要使用的采样温度，介于 0 和 2 之间。较高的值（如0.8）会使输出更加随机，而较低的值（如0.2）会使其更加集中和确定性。我们通常建议更改此值或 `top_p`，但不要同时更改。
+    您希望模型为此请求生成的输出类型。大多数模型都能生成文本,这是默认设置:
+    ["text"]
 
-#### `top_p`
+    该模型还可以用于生成音频。要请求此模型同时生成文本和音频响应,您可以使用:
+    ["text", "audio"]
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-prediction-80" name="prediction" type="unknown">
 
-- 类型：数字或 null  
-- 必需：否
-- 默认值：1
+    - 类型：对象
+    - 必需：否
 
-一种替代采样温度的方法，称为核采样，其中模型考虑具有 top_p 概率质量的标记结果。因此，0.1 意味着只考虑包含前 10% 概率质量的标记。
+    预测输出的配置,当提前知道模型响应的大部分内容时,可以大大提高响应时间。这在您只对文件进行微小更改时最常见。
 
-我们通常建议更改此值或 `temperature`，但不要同时更改。
+    **可能的类型：**
 
-#### `n`
+    | 类型 | 描述 |
+    |------|------|
+    | **静态内容** | 静态预测输出内容，例如正在重新生成的具有微小更改的文本文件内容。 |
 
-- 类型：整数或 null
-- 必需：否  
-- 默认值：1
+    **静态内容属性：**
 
-为每个输入消息生成多少个聊天补全选择。请注意，您将根据所有选择生成的标记数量收费。保持 `n` 为 1 可最大限度地降低成本。
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-content-38" name="content" type="字符串或数组">
 
-#### `stop`
+        生成模型响应时应匹配的内容。如果生成的标记与此内容匹配，则整个模型响应可以更快地返回。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-39" name="type" type="字符串">
 
-- 类型：字符串/数组/null
-- 必需：否
-- 默认值：null
-- 不支持最新的推理模型和 .o3、o4-mini
+        要提供的预测内容类型。当前类型始终为 `content`。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-API 将停止生成更多标记的最多 4 个序列。返回的文本不会包含停止序列。
+    **内容可能的类型：**
 
-#### `max_tokens`
+    1. **文本内容（字符串）** - 用于预测输出的内容。这通常是您正在重新生成的文件的文本，只有微小更改。
 
-- 类型：整数或 null
-- 必需：否
+    2. **内容部分数组（数组）** - 具有定义类型的内容部分数组。支持的选项因用于生成响应的模型而异。可以包含文本输入。
 
-聊天补全中可以生成的最大标记数。此值可用于控制通过 API 生成的文本成本。
+    **内容部分数组属性：**
 
-该值现已弃用，取而代之的是 `max_completion_tokens`，并且与 `o1` 系列模型不兼容。
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-text-40" name="text" type="字符串">
 
-#### `max_completion_tokens`
+        文本内容。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-41" name="type" type="字符串">
 
-- 类型：整数或 null
-- 必需：否
+        内容部分的类型。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-audio-81" name="audio" type="unknown">
 
-补全中可以生成的标记数的上限，包括可见输出标记和推理标记。
+    - 类型：对象或 null
+    - 必需：否
 
-#### `presence_penalty`
+    音频输出的参数。当使用 `modalities: ["audio"]` 请求音频输出时需要。
 
-- 类型：数字或 null 
-- 必需：否
-- 默认值：0
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-format-42" name="format" type="字符串">
 
-介于 -2.0 和 2.0 之间的数字。正值根据新标记到目前为止在文本中出现的情况来惩罚它们，从而增加模型讨论新主题的可能性。
+        指定输出音频格式。必须是以下之一：wav、mp3、flac、opus 或 pcm16。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-voice-43" name="voice" type="字符串">
 
-#### `frequency_penalty`
+        模型用于响应的声音。支持的声音包括：alloy、ash、ballad、coral、echo、fable、nova、onyx、sage 和 shimmer。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-temperature-82" name="temperature" type="unknown">
 
-- 类型：数字或 null
-- 必需：否  
-- 默认值：0
+    - 类型：数字或 null
+    - 必需：否
+    - 默认值：1
 
-介于 -2.0 和 2.0 之间的数字。正值根据新标记到目前为止在文本中的现有频率来惩罚它们，从而降低模型逐字重复同一行的可能性。
+    要使用的采样温度，介于 0 和 2 之间。较高的值（如0.8）会使输出更加随机，而较低的值（如0.2）会使其更加集中和确定性。我们通常建议更改此值或 `top_p`，但不要同时更改。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-top-p-83" name="top_p" type="unknown">
 
-#### `logit_bias`
+    - 类型：数字或 null
+    - 必需：否
+    - 默认值：1
 
-- 类型：map
-- 必需：否
-- 默认值：null
+    一种替代采样温度的方法，称为核采样，其中模型考虑具有 top_p 概率质量的标记结果。因此，0.1 意味着只考虑包含前 10% 概率质量的标记。
 
-修改指定标记出现在补全中的可能性。
+    我们通常建议更改此值或 `temperature`，但不要同时更改。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-n-84" name="n" type="unknown">
 
-接受一个 JSON 对象，该对象将标记（由分词器中的标记 ID 指定）映射到从 -100 到 100 的关联偏差值。在数学上，偏差被添加到模型在采样之前生成的对数中。确切的效果会因模型而异，但介于 -1 和 1 之间的值应该会减少或增加选择的可能性；像 -100 或 100 这样的值应该导致相关标记被禁止或独占选择。
+    - 类型：整数或 null
+    - 必需：否
+    - 默认值：1
 
-#### `logprobs`
+    为每个输入消息生成多少个聊天补全选择。请注意，您将根据所有选择生成的标记数量收费。保持 `n` 为 1 可最大限度地降低成本。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-stop-85" name="stop" type="unknown">
 
-- 类型：布尔值或 null
-- 必需：否
-- 默认值：false
+    - 类型：字符串/数组/null
+    - 必需：否
+    - 默认值：null
+    - 不支持最新的推理模型和 .o3、o4-mini
 
-是否返回输出标记的对数概率。如果为 true，则返回 `message.content` 中每个输出标记的对数概率。
+    API 将停止生成更多标记的最多 4 个序列。返回的文本不会包含停止序列。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-max-tokens-86" name="max_tokens" type="unknown">
 
-#### `user`
+    - 类型：整数或 null
+    - 必需：否
 
-- 类型：字符串
-- 必需：否
+    聊天补全中可以生成的最大标记数。此值可用于控制通过 API 生成的文本成本。
 
-表示最终用户的唯一标识符，可以帮助 OpenAI 监控和检测滥用行为。[了解更多](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids)。
+    该值现已弃用，取而代之的是 `max_completion_tokens`，并且与 `o1` 系列模型不兼容。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-max-completion-tokens-87" name="max_completion_tokens" type="unknown">
 
-#### `service_tier`
+    - 类型：整数或 null
+    - 必需：否
 
-- 类型：字符串或 null
-- 必需：否
-- 默认值：auto
+    补全中可以生成的标记数的上限，包括可见输出标记和推理标记。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-presence-penalty-88" name="presence_penalty" type="unknown">
 
-指定用于处理请求的延迟层级。此参数与订阅了 scale tier 服务的客户相关：
+    - 类型：数字或 null
+    - 必需：否
+    - 默认值：0
 
-- 如果设置为 'auto'，且项目启用了 Scale tier，系统将使用 scale tier 信用直到用完
-- 如果设置为 'auto'，且项目未启用 Scale tier，请求将使用默认服务层级处理，具有较低的正常运行时间 SLA 且无延迟保证
-- 如果设置为 'default'，请求将使用默认服务层级处理，具有较低的正常运行时间 SLA 且无延迟保证
-- 如果设置为 'flex'，请求将使用 Flex Processing 服务层级处理。详情请参阅文档。
-- 未设置时，默认行为为 'auto'
-- 当设置此参数时，响应体将包含使用的 service_tier
+    介于 -2.0 和 2.0 之间的数字。正值根据新标记到目前为止在文本中出现的情况来惩罚它们，从而增加模型讨论新主题的可能性。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-frequency-penalty-89" name="frequency_penalty" type="unknown">
 
-#### `stream_options`
+    - 类型：数字或 null
+    - 必需：否
+    - 默认值：0
 
-- 类型：对象或 null
-- 必需：否
-- 默认值：null
+    介于 -2.0 和 2.0 之间的数字。正值根据新标记到目前为止在文本中的现有频率来惩罚它们，从而降低模型逐字重复同一行的可能性。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-logit-bias-90" name="logit_bias" type="unknown">
 
-流式响应的选项。仅在设置 `stream: true` 时使用。
+    - 类型：map
+    - 必需：否
+    - 默认值：null
 
-**可能的属性：**
+    修改指定标记出现在补全中的可能性。
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `include_usage` | 布尔值 | 否 | 如果设置，将在 data: [DONE] 消息之前流式传输一个附加块。该块上的 usage 字段显示整个请求的令牌使用统计信息，choices 字段始终为空数组。所有其他块也将包含 usage 字段，但值为 null。注意：如果流被中断，您可能不会收到包含请求总令牌使用量的最终使用块。 |
+    接受一个 JSON 对象，该对象将标记（由分词器中的标记 ID 指定）映射到从 -100 到 100 的关联偏差值。在数学上，偏差被添加到模型在采样之前生成的对数中。确切的效果会因模型而异，但介于 -1 和 1 之间的值应该会减少或增加选择的可能性；像 -100 或 100 这样的值应该导致相关标记被禁止或独占选择。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-logprobs-91" name="logprobs" type="unknown">
 
-#### `response_format`
+    - 类型：布尔值或 null
+    - 必需：否
+    - 默认值：false
 
-- 类型：对象
-- 必需：否
+    是否返回输出标记的对数概率。如果为 true，则返回 `message.content` 中每个输出标记的对数概率。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-user-92" name="user" type="unknown">
 
-指定模型必须输出的格式。
+    - 类型：字符串
+    - 必需：否
 
-- 设置为 `{ "type": "json_schema", "json_schema": {...} }` 启用结构化输出，确保模型将匹配您提供的 JSON schema。
-- 设置为 `{ "type": "json_object" }` 启用 JSON 模式，确保模型生成的消息是有效的 JSON。
+    表示最终用户的唯一标识符，可以帮助 OpenAI 监控和检测滥用行为。[了解更多](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids)。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-service-tier-93" name="service_tier" type="unknown">
 
-重要提示：使用 JSON 模式时，您还必须通过系统或用户消息自行指示模型生成 JSON。否则，模型可能会生成无尽的空白直到生成达到令牌限制。
+    - 类型：字符串或 null
+    - 必需：否
+    - 默认值：auto
 
-**可能的类型：**
+    指定用于处理请求的延迟层级。此参数与订阅了 scale tier 服务的客户相关：
 
-| 类型 | 描述 |
-|------|------|
-| **text** | 默认响应格式。用于生成文本响应。 |
-| **json_schema** | JSON Schema 响应格式。用于生成结构化 JSON 响应。了解更多关于结构化输出的信息。 |
-| **json_object** | JSON 对象响应格式。一种较老的生成 JSON 响应的方法。对于支持的模型，推荐使用 json_schema。 |
+    - 如果设置为 'auto'，且项目启用了 Scale tier，系统将使用 scale tier 信用直到用完
+    - 如果设置为 'auto'，且项目未启用 Scale tier，请求将使用默认服务层级处理，具有较低的正常运行时间 SLA 且无延迟保证
+    - 如果设置为 'default'，请求将使用默认服务层级处理，具有较低的正常运行时间 SLA 且无延迟保证
+    - 如果设置为 'flex'，请求将使用 Flex Processing 服务层级处理。详情请参阅文档。
+    - 未设置时，默认行为为 'auto'
+    - 当设置此参数时，响应体将包含使用的 service_tier
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-stream-options-94" name="stream_options" type="unknown">
 
-**text 属性：**
+    - 类型：对象或 null
+    - 必需：否
+    - 默认值：null
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `type` | 字符串 | 是 | 正在定义的响应格式类型。始终为 `text`。 |
+    流式响应的选项。仅在设置 `stream: true` 时使用。
 
-**json_schema 属性：**
+    **可能的属性：**
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `json_schema` | 对象 | 是 | 结构化输出配置选项，包括 JSON Schema。 |
-| `type` | 字符串 | 是 | 正在定义的响应格式类型。始终为 `json_schema`。 |
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-include-usage-44" name="include_usage" type="布尔值">
 
-**json_schema.json_schema 属性：**
+        如果设置，将在 data: [DONE] 消息之前流式传输一个附加块。该块上的 usage 字段显示整个请求的令牌使用统计信息，choices 字段始终为空数组。所有其他块也将包含 usage 字段，但值为 null。注意：如果流被中断，您可能不会收到包含请求总令牌使用量的最终使用块。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-response-format-95" name="response_format" type="unknown">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `name` | 字符串 | 是 | 响应格式的名称。必须是 a-z、A-Z、0-9 或包含下划线和破折号，最大长度为 64。 |
-| `description` | 字符串 | 否 | 响应格式的用途描述，模型用它来确定如何以该格式响应。 |
-| `schema` | 对象 | 否 | 响应格式的架构，描述为 JSON Schema 对象。 |
-| `strict` | 布尔值或 null | 否 | 是否在生成输出时启用严格架构遵守。如果设置为 true，模型将始终遵循 schema 字段中定义的确切架构。strict 为 true 时，仅支持 JSON Schema 的子集。 |
+    - 类型：对象
+    - 必需：否
 
-**json_object 属性：**
+    指定模型必须输出的格式。
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `type` | 字符串 | 是 | 正在定义的响应格式类型。始终为 `json_object`。 |
+    - 设置为 `{ "type": "json_schema", "json_schema": {...} }` 启用结构化输出，确保模型将匹配您提供的 JSON schema。
+    - 设置为 `{ "type": "json_object" }` 启用 JSON 模式，确保模型生成的消息是有效的 JSON。
 
-#### `seed`
+    重要提示：使用 JSON 模式时，您还必须通过系统或用户消息自行指示模型生成 JSON。否则，模型可能会生成无尽的空白直到生成达到令牌限制。
 
-- 类型：整数或 null
-- 必需：否
-Beta 功能。如果指定，我们的系统将尽最大努力进行确定性采样，使得具有相同 seed 和参数的重复请求应返回相同的结果。不保证确定性，您应参考响应参数的 system_fingerprint 以监控后端的变化。
+    **可能的类型：**
 
-#### `tools`
+    | 类型 | 描述 |
+    |------|------|
+    | **text** | 默认响应格式。用于生成文本响应。 |
+    | **json_schema** | JSON Schema 响应格式。用于生成结构化 JSON 响应。了解更多关于结构化输出的信息。 |
+    | **json_object** | JSON 对象响应格式。一种较老的生成 JSON 响应的方法。对于支持的模型，推荐使用 json_schema。 |
 
-- 类型：数组
-- 必需：否
+    **text 属性：**
 
-模型可能调用的工具列表。目前仅支持函数作为工具。使用此参数提供模型可能生成 JSON 输入的函数列表。最多支持 128 个函数。
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-type-45" name="type" type="字符串">
 
-**属性：**
+        正在定义的响应格式类型。始终为 `text`。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `function` | 对象 | 是 | 要调用的函数信息 |
-| `type` | 字符串 | 是 | 工具的类型。目前，仅支持 function。 |
+    **json_schema 属性：**
 
-**function 属性：**
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-json-schema-46" name="json_schema" type="对象">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `name` | 字符串 | 是 | 要调用的函数名称。必须是a-z、A-Z、0-9，或包含下划线和破折号，最大长度为64。 |
-| `description` | 字符串 | 否 | 函数功能的描述，模型用它来选择何时以及如何调用函数。 |
-| `parameters` | 对象 | 否 | 函数接受的参数，描述为JSON Schema对象。请参阅指南获取示例，以及JSON Schema参考了解格式文档。省略parameters定义一个空参数列表的函数。 |
-| `strict` | 布尔值或 null | 否 | 默认值：false。是否在生成函数调用时启用严格架构遵守。如果设置为 true，模型将遵循 parameters 字段中定义的确切架构。strict 为 true 时，仅支持 JSON Schema 的子集。详情请参阅函数调用指南中的结构化输出部分。 |
+        结构化输出配置选项，包括 JSON Schema。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-47" name="type" type="字符串">
 
-#### `functions`
+        正在定义的响应格式类型。始终为 `json_schema`。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-- 类型：数组
-- 必需：否
-- 注意：已弃用，推荐使用 `tools`
+    **json_schema.json_schema 属性：**
 
-模型可能生成 JSON 输入的函数列表。
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-name-48" name="name" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `name` | 字符串 | 是 | 要调用的函数名称。必须是a-z、A-Z、0-9，或包含下划线和破折号，最大长度为64。 |
-| `description` | 字符串 | 否 | 函数功能的描述，模型用它来选择何时以及如何调用函数。 |
-| `parameters` | 对象 | 否 | 函数接受的参数，描述为JSON Schema对象。省略parameters定义一个空参数列表的函数。 |
+        响应格式的名称。必须是 a-z、A-Z、0-9 或包含下划线和破折号，最大长度为 64。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-description-49" name="description" type="字符串">
 
-#### `tool_choice`
+        响应格式的用途描述，模型用它来确定如何以该格式响应。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-schema-50" name="schema" type="对象">
 
-- 类型：字符串或对象
-- 必需：否
+        响应格式的架构，描述为 JSON Schema 对象。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-strict-51" name="strict" type="布尔值或 null">
 
-控制模型调用哪个工具（如果有）：
-- `none`：模型不会调用任何工具，而是生成消息
-- `auto`：模型可以在生成消息或调用一个或多个工具之间选择
-- `required`：模型必须调用一个或多个工具
-- `{"type": "function", "function": {"name": "my_function"}}`：强制模型调用特定工具
+        是否在生成输出时启用严格架构遵守。如果设置为 true，模型将始终遵循 schema 字段中定义的确切架构。strict 为 true 时，仅支持 JSON Schema 的子集。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
 
-当没有工具时默认为 `none`，有工具时默认为 `auto`。
+    **json_object 属性：**
 
-**可能的类型：**
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-type-52" name="type" type="字符串">
 
-| 类型 | 描述 |
-|------|------|
-| **字符串** | none 表示模型不会调用任何工具，而是生成消息。auto 表示模型可以在生成消息或调用一个或多个工具之间选择。required 表示模型必须调用一个或多个工具。 |
-| **对象** | 指定模型应使用的工具。用于强制模型调用特定函数。 |
+        正在定义的响应格式类型。始终为 `json_object`。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-seed-96" name="seed" type="unknown">
 
-**对象属性：**
+    - 类型：整数或 null
+    - 必需：否
+    Beta 功能。如果指定，我们的系统将尽最大努力进行确定性采样，使得具有相同 seed 和参数的重复请求应返回相同的结果。不保证确定性，您应参考响应参数的 system_fingerprint 以监控后端的变化。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-tools-97" name="tools" type="unknown">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `function` | 对象 | 是 | 包含函数信息的对象 |
-| `type` | 字符串 | 是 | 工具的类型。目前，仅支持 function。 |
+    - 类型：数组
+    - 必需：否
 
-**function 属性：**
+    模型可能调用的工具列表。目前仅支持函数作为工具。使用此参数提供模型可能生成 JSON 输入的函数列表。最多支持 128 个函数。
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `name` | 字符串 | 是 | 要调用的函数名称。 |
+    **属性：**
 
-#### `function_call`
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-function-53" name="function" type="对象">
 
-- 类型：字符串或对象
-- 必需：否
-- 默认值：没有函数时为 `none`，有函数时为 `auto`
-- 注意：已弃用，推荐使用 `tool_choice`
+        要调用的函数信息
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-54" name="type" type="字符串">
 
-控制模型调用哪个函数（如果有）：
+        工具的类型。目前，仅支持 function。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
 
-- `none`：模型不会调用函数，而是生成消息
-- `auto`：模型可以在生成消息或调用函数之间选择
-- `{"name": "my_function"}`：强制模型调用特定函数
+    **function 属性：**
 
-**对象类型属性：**
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-name-55" name="name" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `name` | 字符串 | 是 | 要调用的函数名称。 |
+        要调用的函数名称。必须是a-z、A-Z、0-9，或包含下划线和破折号，最大长度为64。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-description-56" name="description" type="字符串">
 
-#### `parallel_tool_calls`
+        函数功能的描述，模型用它来选择何时以及如何调用函数。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-parameters-57" name="parameters" type="对象">
 
-- 类型：布尔值
-- 必需：否
-- 默认值：true
+        函数接受的参数，描述为JSON Schema对象。请参阅指南获取示例，以及JSON Schema参考了解格式文档。省略parameters定义一个空参数列表的函数。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-strict-58" name="strict" type="布尔值或 null">
 
-是否在工具使用期间启用并行函数调用。
+        默认值：false。是否在生成函数调用时启用严格架构遵守。如果设置为 true，模型将遵循 parameters 字段中定义的确切架构。strict 为 true 时，仅支持 JSON Schema 的子集。详情请参阅函数调用指南中的结构化输出部分。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-functions-98" name="functions" type="unknown">
 
-#### `stream`
+    - 类型：数组
+    - 必需：否
+    - 注意：已弃用，推荐使用 `tools`
 
-- 类型：布尔值或 null
-- 必需：否
-- 默认值：false
+    模型可能生成 JSON 输入的函数列表。
 
-如果设置为 true，模型响应数据将在生成时通过服务器发送事件流式传输到客户端。请参阅下方的流式响应部分获取更多信息，以及流式响应指南了解如何处理流式事件。
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-name-59" name="name" type="字符串">
 
-#### `top_logprobs`
+        要调用的函数名称。必须是a-z、A-Z、0-9，或包含下划线和破折号，最大长度为64。
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-description-60" name="description" type="字符串">
 
-- 类型：整数或 null
-- 必需：否
+        函数功能的描述，模型用它来选择何时以及如何调用函数。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-parameters-61" name="parameters" type="对象">
 
-0 到 20 之间的整数，指定在每个标记位置返回的最可能标记的数量，每个标记都有关联的对数概率。如果使用此参数，必须将 `logprobs` 设置为 true。
+        函数接受的参数，描述为JSON Schema对象。省略parameters定义一个空参数列表的函数。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-tool-choice-99" name="tool_choice" type="unknown">
 
-#### `web_search_options`
+    - 类型：字符串或对象
+    - 必需：否
 
-- 类型：对象
-- 必需：否
+    控制模型调用哪个工具（如果有）：
+    - `none`：模型不会调用任何工具，而是生成消息
+    - `auto`：模型可以在生成消息或调用一个或多个工具之间选择
+    - `required`：模型必须调用一个或多个工具
+    - `{"type": "function", "function": {"name": "my_function"}}`：强制模型调用特定工具
 
-此工具搜索网络以获取相关结果用于回复。了解更多关于网络搜索工具的信息。
+    当没有工具时默认为 `none`，有工具时默认为 `auto`。
 
-**可能的属性：**
+    **可能的类型：**
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `search_context_size` | 字符串 | 否 | 默认值：medium。用于搜索的上下文窗口空间量的高级指导。可选值为 low、medium 或 high。medium 是默认值。 |
-| `user_location` | 对象或 null | 否 | 搜索的近似位置参数。 |
+    | 类型 | 描述 |
+    |------|------|
+    | **字符串** | none 表示模型不会调用任何工具，而是生成消息。auto 表示模型可以在生成消息或调用一个或多个工具之间选择。required 表示模型必须调用一个或多个工具。 |
+    | **对象** | 指定模型应使用的工具。用于强制模型调用特定函数。 |
 
-**user_location 属性：**
+    **对象属性：**
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `approximate` | 对象 | 是 | 搜索的近似位置参数。 |
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-function-62" name="function" type="对象">
 
-**approximate 属性：**
+        包含函数信息的对象
+        **必需:** 是
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-63" name="type" type="字符串">
 
-| 属性 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `city` | 字符串 | 否 | 用户城市的自由文本输入，例如 San Francisco。 |
-| `country` | 字符串 | 否 | 用户的两字母 ISO 国家代码，例如 US。 |
-| `region` | 字符串 | 否 | 用户地区的自由文本输入，例如 California。 |
-| `timezone` | 字符串 | 否 | 用户的 IANA 时区，例如 America/Los_Angeles。 |
-| `type` | 字符串 | 是 | 位置近似类型。始终为 approximate。 |
+        工具的类型。目前，仅支持 function。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
+
+    **function 属性：**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-name-64" name="name" type="字符串">
+
+        要调用的函数名称。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-function-call-100" name="function_call" type="unknown">
+
+    - 类型：字符串或对象
+    - 必需：否
+    - 默认值：没有函数时为 `none`，有函数时为 `auto`
+    - 注意：已弃用，推荐使用 `tool_choice`
+
+    控制模型调用哪个函数（如果有）：
+
+    - `none`：模型不会调用函数，而是生成消息
+    - `auto`：模型可以在生成消息或调用函数之间选择
+    - `{"name": "my_function"}`：强制模型调用特定函数
+
+    **对象类型属性：**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-name-65" name="name" type="字符串">
+
+        要调用的函数名称。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-parallel-tool-calls-101" name="parallel_tool_calls" type="unknown">
+
+    - 类型：布尔值
+    - 必需：否
+    - 默认值：true
+
+    是否在工具使用期间启用并行函数调用。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-stream-102" name="stream" type="unknown">
+
+    - 类型：布尔值或 null
+    - 必需：否
+    - 默认值：false
+
+    如果设置为 true，模型响应数据将在生成时通过服务器发送事件流式传输到客户端。请参阅下方的流式响应部分获取更多信息，以及流式响应指南了解如何处理流式事件。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-top-logprobs-103" name="top_logprobs" type="unknown">
+
+    - 类型：整数或 null
+    - 必需：否
+
+    0 到 20 之间的整数，指定在每个标记位置返回的最可能标记的数量，每个标记都有关联的对数概率。如果使用此参数，必须将 `logprobs` 设置为 true。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-web-search-options-104" name="web_search_options" type="unknown">
+
+    - 类型：对象
+    - 必需：否
+
+    此工具搜索网络以获取相关结果用于回复。了解更多关于网络搜索工具的信息。
+
+    **可能的属性：**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-search-context-size-66" name="search_context_size" type="字符串">
+
+        默认值：medium。用于搜索的上下文窗口空间量的高级指导。可选值为 low、medium 或 high。medium 是默认值。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-user-location-67" name="user_location" type="对象或 null">
+
+        搜索的近似位置参数。
+        **必需:** 否
+      </ParameterField>
+    </ParameterChildren>
+
+    **user_location 属性：**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-approximate-68" name="approximate" type="对象">
+
+        搜索的近似位置参数。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
+
+    **approximate 属性：**
+
+    <ParameterChildren>
+      <ParameterField id="openai-chat-table-city-69" name="city" type="字符串">
+
+        用户城市的自由文本输入，例如 San Francisco。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-country-70" name="country" type="字符串">
+
+        用户的两字母 ISO 国家代码，例如 US。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-region-71" name="region" type="字符串">
+
+        用户地区的自由文本输入，例如 California。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-timezone-72" name="timezone" type="字符串">
+
+        用户的 IANA 时区，例如 America/Los_Angeles。
+        **必需:** 否
+      </ParameterField>
+      <ParameterField id="openai-chat-table-type-73" name="type" type="字符串">
+
+        位置近似类型。始终为 approximate。
+        **必需:** 是
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 响应
 
@@ -1063,90 +1372,101 @@ Beta 功能。如果指定，我们的系统将尽最大努力进行确定性采
 
 返回一个聊天补全对象,如果请求被流式传输,则返回聊天补全块对象的流式序列。
 
-#### `id` 
-- 类型：字符串
-- 说明：响应的唯一标识符
+<ParameterTree>
+  <ParameterField id="openai-chat-heading-id-105" name="id" type="unknown">
 
-#### `object`
-- 类型：字符串  
-- 说明：对象类型,值为 "chat.completion"
+    - 类型：字符串
+    - 说明：响应的唯一标识符
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-object-106" name="object" type="unknown">
 
-#### `created`
-- 类型：整数
-- 说明：响应创建时间戳
+    - 类型：字符串
+    - 说明：对象类型,值为 "chat.completion"
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-created-107" name="created" type="unknown">
 
-#### `model`
-- 类型：字符串
-- 说明：使用的模型名称
+    - 类型：整数
+    - 说明：响应创建时间戳
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-model-108" name="model" type="unknown">
 
-#### `system_fingerprint`
-- 类型：字符串
-- 说明：系统指纹标识符，表示模型运行的后端配置。可以与seed请求参数一起使用，以了解何时进行了可能影响确定性的后端更改。
+    - 类型：字符串
+    - 说明：使用的模型名称
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-system-fingerprint-109" name="system_fingerprint" type="unknown">
 
-#### `choices`
-- 类型：数组
-- 说明：包含生成的回复选项列表。如果 n 大于 1，则可以有多个选项。
-- 属性:
-  - `index`: 选项在选项列表中的索引。
-  - `message`: 模型生成的聊天补全消息。
-    - `role`: 消息作者的角色。
-    - `content`: 消息的内容，可能为 null。
-    - `refusal`: 模型生成的拒绝消息，可能为 null。
-    - `annotations`: 消息的注释，在适用时提供，例如使用网络搜索工具时。
-      - `type`: 注释类型，URL引用时始终为 "url_citation"。
-      - `url_citation`: 使用网络搜索时的URL引用。
-        - `start_index`: URL引用在消息中的第一个字符的索引。
-        - `end_index`: URL引用在消息中的最后一个字符的索引。
-        - `url`: 网络资源的URL。
-        - `title`: 网络资源的标题。
-    - `audio`: 如果请求了音频输出模态，此对象包含来自模型的音频响应的数据。
-      - `data`: 模型生成的Base64编码音频字节，格式在请求中指定。
-      - `id`: 此音频响应的唯一标识符。
-      - `transcript`: 模型生成的音频的转录。
-      - `expires_at`: 此音频响应在服务器上可用于多轮对话的Unix时间戳（秒）。
-    - `function_call`: （已弃用）应调用的函数的名称和参数，由模型生成。已被 `tool_calls` 替代。
-      - `name`: 要调用的函数的名称。
-      - `arguments`: 用于调用函数的参数，由模型以JSON格式生成。
-    - `tool_calls`: 模型生成的工具调用，如函数调用。
-      - `id`: 工具调用的ID。
-      - `type`: 工具的类型。目前，仅支持 function。
-      - `function`: 模型调用的函数。
-        - `name`: 要调用的函数的名称。
-        - `arguments`: 用于调用函数的参数，由模型以JSON格式生成。注意，模型并不总是生成有效的JSON，并且可能会产生您函数架构中未定义的参数。在调用函数之前，请在代码中验证参数。
-  - `logprobs`: 对数概率信息。
-    - `content`: 带有对数概率信息的消息内容标记列表。
-      - `token`: 标记。
-      - `logprob`: 此标记的对数概率，如果它在前20个最可能的标记内。否则，使用-9999.0的值表示此标记非常不可能。
-      - `bytes`: 表示标记的UTF-8字节表示的整数列表。在字符由多个标记表示且必须组合它们的字节表示以生成正确的文本表示的情况下很有用。如果标记没有字节表示，则可能为null。
-      - `top_logprobs`: 在此标记位置上最可能的标记及其对数概率的列表。在罕见情况下，返回的top_logprobs数量可能少于请求的数量。
-    - `refusal`: 带有对数概率信息的消息拒绝标记列表。
-  - `finish_reason`: 模型停止生成标记的原因。如果模型到达自然停止点或提供的停止序列，则为 "stop"；如果达到请求中指定的最大标记数，则为 "length"；如果由于内容过滤器标记而省略内容，则为 "content_filter"；如果模型调用了工具，则为 "tool_calls"；如果模型调用了函数，则为 "function_call"（已弃用）。
+    - 类型：字符串
+    - 说明：系统指纹标识符，表示模型运行的后端配置。可以与seed请求参数一起使用，以了解何时进行了可能影响确定性的后端更改。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-choices-110" name="choices" type="unknown">
 
-#### `usage`
-- 类型：对象
-- 说明：补全请求的使用统计信息。
-- 属性:
-  - `prompt_tokens`: 提示中的标记数。
-  - `completion_tokens`: 生成的补全中的标记数。
-  - `total_tokens`: 请求中使用的标记总数（提示 + 补全）。
-  - `prompt_tokens_details`: 提示中使用的标记的细分。
-    - `cached_tokens`: 提示中存在的缓存标记。
-    - `audio_tokens`: 提示中存在的音频输入标记。
-  - `completion_tokens_details`: 补全中使用的标记的细分。
-    - `reasoning_tokens`: 模型生成的推理标记。
-    - `audio_tokens`: 模型生成的音频标记。
-    - `accepted_prediction_tokens`: 使用预测输出时，预测中出现在补全中的标记数。
-    - `rejected_prediction_tokens`: 使用预测输出时，预测中未出现在补全中的标记数。但是，与推理标记一样，这些标记仍计入计费、输出和上下文窗口限制的总补全标记中。
+    - 类型：数组
+    - 说明：包含生成的回复选项列表。如果 n 大于 1，则可以有多个选项。
+    - 属性:
+      - `index`: 选项在选项列表中的索引。
+      - `message`: 模型生成的聊天补全消息。
+        - `role`: 消息作者的角色。
+        - `content`: 消息的内容，可能为 null。
+        - `refusal`: 模型生成的拒绝消息，可能为 null。
+        - `annotations`: 消息的注释，在适用时提供，例如使用网络搜索工具时。
+          - `type`: 注释类型，URL引用时始终为 "url_citation"。
+          - `url_citation`: 使用网络搜索时的URL引用。
+            - `start_index`: URL引用在消息中的第一个字符的索引。
+            - `end_index`: URL引用在消息中的最后一个字符的索引。
+            - `url`: 网络资源的URL。
+            - `title`: 网络资源的标题。
+        - `audio`: 如果请求了音频输出模态，此对象包含来自模型的音频响应的数据。
+          - `data`: 模型生成的Base64编码音频字节，格式在请求中指定。
+          - `id`: 此音频响应的唯一标识符。
+          - `transcript`: 模型生成的音频的转录。
+          - `expires_at`: 此音频响应在服务器上可用于多轮对话的Unix时间戳（秒）。
+        - `function_call`: （已弃用）应调用的函数的名称和参数，由模型生成。已被 `tool_calls` 替代。
+          - `name`: 要调用的函数的名称。
+          - `arguments`: 用于调用函数的参数，由模型以JSON格式生成。
+        - `tool_calls`: 模型生成的工具调用，如函数调用。
+          - `id`: 工具调用的ID。
+          - `type`: 工具的类型。目前，仅支持 function。
+          - `function`: 模型调用的函数。
+            - `name`: 要调用的函数的名称。
+            - `arguments`: 用于调用函数的参数，由模型以JSON格式生成。注意，模型并不总是生成有效的JSON，并且可能会产生您函数架构中未定义的参数。在调用函数之前，请在代码中验证参数。
+      - `logprobs`: 对数概率信息。
+        - `content`: 带有对数概率信息的消息内容标记列表。
+          - `token`: 标记。
+          - `logprob`: 此标记的对数概率，如果它在前20个最可能的标记内。否则，使用-9999.0的值表示此标记非常不可能。
+          - `bytes`: 表示标记的UTF-8字节表示的整数列表。在字符由多个标记表示且必须组合它们的字节表示以生成正确的文本表示的情况下很有用。如果标记没有字节表示，则可能为null。
+          - `top_logprobs`: 在此标记位置上最可能的标记及其对数概率的列表。在罕见情况下，返回的top_logprobs数量可能少于请求的数量。
+        - `refusal`: 带有对数概率信息的消息拒绝标记列表。
+      - `finish_reason`: 模型停止生成标记的原因。如果模型到达自然停止点或提供的停止序列，则为 "stop"；如果达到请求中指定的最大标记数，则为 "length"；如果由于内容过滤器标记而省略内容，则为 "content_filter"；如果模型调用了工具，则为 "tool_calls"；如果模型调用了函数，则为 "function_call"（已弃用）。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-usage-111" name="usage" type="unknown">
 
-#### `service_tier`
-- 类型：字符串或 null
-- 说明：指定用于处理请求的延迟层级。此参数与订阅了 scale tier 服务的客户相关：
-  - 如果设置为 'auto'，且项目启用了 Scale tier，系统将使用 scale tier 信用直到用完
-  - 如果设置为 'auto'，且项目未启用 Scale tier，请求将使用默认服务层级处理，具有较低的正常运行时间 SLA 且无延迟保证
-  - 如果设置为 'default'，请求将使用默认服务层级处理，具有较低的正常运行时间 SLA 且无延迟保证
-  - 如果设置为 'flex'，请求将使用 Flex Processing 服务层级处理
-  - 未设置时，默认行为为 'auto'
-  - 当设置此参数时，响应体将包含使用的 service_tier
+    - 类型：对象
+    - 说明：补全请求的使用统计信息。
+    - 属性:
+      - `prompt_tokens`: 提示中的标记数。
+      - `completion_tokens`: 生成的补全中的标记数。
+      - `total_tokens`: 请求中使用的标记总数（提示 + 补全）。
+      - `prompt_tokens_details`: 提示中使用的标记的细分。
+        - `cached_tokens`: 提示中存在的缓存标记。
+        - `audio_tokens`: 提示中存在的音频输入标记。
+      - `completion_tokens_details`: 补全中使用的标记的细分。
+        - `reasoning_tokens`: 模型生成的推理标记。
+        - `audio_tokens`: 模型生成的音频标记。
+        - `accepted_prediction_tokens`: 使用预测输出时，预测中出现在补全中的标记数。
+        - `rejected_prediction_tokens`: 使用预测输出时，预测中未出现在补全中的标记数。但是，与推理标记一样，这些标记仍计入计费、输出和上下文窗口限制的总补全标记中。
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-service-tier-112" name="service_tier" type="unknown">
+
+    - 类型：字符串或 null
+    - 说明：指定用于处理请求的延迟层级。此参数与订阅了 scale tier 服务的客户相关：
+      - 如果设置为 'auto'，且项目启用了 Scale tier，系统将使用 scale tier 信用直到用完
+      - 如果设置为 'auto'，且项目未启用 Scale tier，请求将使用默认服务层级处理，具有较低的正常运行时间 SLA 且无延迟保证
+      - 如果设置为 'default'，请求将使用默认服务层级处理，具有较低的正常运行时间 SLA 且无延迟保证
+      - 如果设置为 'flex'，请求将使用 Flex Processing 服务层级处理
+      - 未设置时，默认行为为 'auto'
+      - 当设置此参数时，响应体将包含使用的 service_tier
+  </ParameterField>
+</ParameterTree>
 
 #### 聊天补全对象响应示例
 
@@ -1155,7 +1475,7 @@ Beta 功能。如果指定，我们的系统将尽最大努力进行确定性采
   "id": "chatcmpl-B9MHDbslfkBeAs8l4bebGdFOJ6PeG",
   "object": "chat.completion",
   "created": 1741570283,
-  "model": "gpt-4o",
+  "model": "gpt-6.1-sol",
   "choices": [
     {
       "index": 0,
@@ -1193,25 +1513,33 @@ Beta 功能。如果指定，我们的系统将尽最大努力进行确定性采
 
 当返回多个聊天补全时，API 可能会返回聊天补全列表对象。
 
-#### `object`
-- 类型：字符串
-- 说明：对象类型，始终为 "list"
+<ParameterTree>
+  <ParameterField id="openai-chat-heading-object-113" name="object" type="unknown">
 
-#### `data`
-- 类型：数组
-- 说明：聊天补全对象的数组
+    - 类型：字符串
+    - 说明：对象类型，始终为 "list"
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-data-114" name="data" type="unknown">
 
-#### `first_id`
-- 类型：字符串
-- 说明：数据数组中第一个聊天补全的标识符
+    - 类型：数组
+    - 说明：聊天补全对象的数组
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-first-id-115" name="first_id" type="unknown">
 
-#### `last_id`
-- 类型：字符串
-- 说明：数据数组中最后一个聊天补全的标识符
+    - 类型：字符串
+    - 说明：数据数组中第一个聊天补全的标识符
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-last-id-116" name="last_id" type="unknown">
 
-#### `has_more`
-- 类型：布尔值
-- 说明：表示是否有更多聊天补全可用
+    - 类型：字符串
+    - 说明：数据数组中最后一个聊天补全的标识符
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-has-more-117" name="has_more" type="unknown">
+
+    - 类型：布尔值
+    - 说明：表示是否有更多聊天补全可用
+  </ParameterField>
+</ParameterTree>
 
 #### 聊天补全列表响应示例
 
@@ -1222,7 +1550,7 @@ Beta 功能。如果指定，我们的系统将尽最大努力进行确定性采
     {
       "object": "chat.completion",
       "id": "chatcmpl-AyPNinnUqUDYo9SAdA52NobMflmj2",
-      "model": "gpt-4o",
+      "model": "gpt-6.1-sol",
       "created": 1738960610,
       "request_id": "req_ded8ab984ec4bf840f37566c1011c417",
       "tool_choice": null,
@@ -1267,51 +1595,59 @@ Beta 功能。如果指定，我们的系统将尽最大努力进行确定性采
 
 聊天补全消息列表对象表示聊天消息的列表。
 
-#### `object`
-- 类型：字符串
-- 说明：对象类型，始终为 "list"
+<ParameterTree>
+  <ParameterField id="openai-chat-heading-object-118" name="object" type="unknown">
 
-#### `data`
-- 类型：数组
-- 说明：聊天补全消息对象的数组，每个消息对象包含以下属性：
-  - `id`: 聊天消息的标识符
-  - `role`: 消息作者的角色
-  - `content`: 消息的内容，可能为 null
-  - `name`: 消息发送者的名称，可能为 null
-  - `refusal`: 模型生成的拒绝消息，可能为 null
-  - `annotations`: 消息的注释，在适用时提供，例如使用网络搜索工具时
-    - `type`: 注释类型，URL引用时始终为 "url_citation"
-    - `url_citation`: 使用网络搜索时的URL引用
-      - `start_index`: URL引用在消息中的第一个字符的索引
-      - `end_index`: URL引用在消息中的最后一个字符的索引
-      - `url`: 网络资源的URL
-      - `title`: 网络资源的标题
-  - `audio`: 如果请求了音频输出模态，此对象包含来自模型的音频响应的数据
-    - `data`: 模型生成的Base64编码音频字节，格式在请求中指定
-    - `id`: 此音频响应的唯一标识符
-    - `transcript`: 模型生成的音频的转录
-    - `expires_at`: 此音频响应在服务器上可用于多轮对话的Unix时间戳（秒）
-  - `function_call`: （已弃用）应调用的函数的名称和参数，由模型生成。已被 `tool_calls` 替代
-    - `name`: 要调用的函数的名称
-    - `arguments`: 用于调用函数的参数，由模型以JSON格式生成
-  - `tool_calls`: 模型生成的工具调用，如函数调用
-    - `id`: 工具调用的ID
-    - `type`: 工具的类型。目前，仅支持 function
-    - `function`: 模型调用的函数
-      - `name`: 要调用的函数的名称
-      - `arguments`: 用于调用函数的参数，由模型以JSON格式生成
+    - 类型：字符串
+    - 说明：对象类型，始终为 "list"
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-data-119" name="data" type="unknown">
 
-#### `first_id`
-- 类型：字符串
-- 说明：数据数组中第一个聊天消息的标识符
+    - 类型：数组
+    - 说明：聊天补全消息对象的数组，每个消息对象包含以下属性：
+      - `id`: 聊天消息的标识符
+      - `role`: 消息作者的角色
+      - `content`: 消息的内容，可能为 null
+      - `name`: 消息发送者的名称，可能为 null
+      - `refusal`: 模型生成的拒绝消息，可能为 null
+      - `annotations`: 消息的注释，在适用时提供，例如使用网络搜索工具时
+        - `type`: 注释类型，URL引用时始终为 "url_citation"
+        - `url_citation`: 使用网络搜索时的URL引用
+          - `start_index`: URL引用在消息中的第一个字符的索引
+          - `end_index`: URL引用在消息中的最后一个字符的索引
+          - `url`: 网络资源的URL
+          - `title`: 网络资源的标题
+      - `audio`: 如果请求了音频输出模态，此对象包含来自模型的音频响应的数据
+        - `data`: 模型生成的Base64编码音频字节，格式在请求中指定
+        - `id`: 此音频响应的唯一标识符
+        - `transcript`: 模型生成的音频的转录
+        - `expires_at`: 此音频响应在服务器上可用于多轮对话的Unix时间戳（秒）
+      - `function_call`: （已弃用）应调用的函数的名称和参数，由模型生成。已被 `tool_calls` 替代
+        - `name`: 要调用的函数的名称
+        - `arguments`: 用于调用函数的参数，由模型以JSON格式生成
+      - `tool_calls`: 模型生成的工具调用，如函数调用
+        - `id`: 工具调用的ID
+        - `type`: 工具的类型。目前，仅支持 function
+        - `function`: 模型调用的函数
+          - `name`: 要调用的函数的名称
+          - `arguments`: 用于调用函数的参数，由模型以JSON格式生成
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-first-id-120" name="first_id" type="unknown">
 
-#### `last_id`
-- 类型：字符串
-- 说明：数据数组中最后一个聊天消息的标识符
+    - 类型：字符串
+    - 说明：数据数组中第一个聊天消息的标识符
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-last-id-121" name="last_id" type="unknown">
 
-#### `has_more`
-- 类型：布尔值
-- 说明：表示是否有更多聊天消息可用
+    - 类型：字符串
+    - 说明：数据数组中最后一个聊天消息的标识符
+  </ParameterField>
+  <ParameterField id="openai-chat-heading-has-more-122" name="has_more" type="unknown">
+
+    - 类型：布尔值
+    - 说明：表示是否有更多聊天消息可用
+  </ParameterField>
+</ParameterTree>
 
 #### 聊天补全消息列表响应示例
 

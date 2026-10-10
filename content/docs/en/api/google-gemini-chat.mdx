@@ -1,10 +1,9 @@
 ---
-title: Google Gemini Chat Format (Generate Content)
+title: Google Gemini Chat
+sectionLayout: api
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-
-# Google Gemini Chat Format (Generate Content)
 
 <Callout type="info" title="Official Documentation">
 [Google Gemini Generating content API](https://ai.google.dev/api/generate-content)
@@ -19,22 +18,23 @@ Currently supported models include:
 
 | Model | Description |
 | --- | --- |
-| **gemini-2.5-flash** | Best price-performance model for low-latency, high-volume tasks that require reasoning |
-| **gemini-2.5-pro** | Most advanced 2.5-family model for complex tasks, with deep reasoning and coding capabilities |
 | **gemini-3-flash-preview** | Frontier-class performance rivaling larger models at a fraction of the cost (preview) |
 | **gemini-3.1-flash-lite** | Frontier-class performance rivaling larger models at a fraction of the cost |
 | **gemini-3.1-pro-preview** | Advanced intelligence, complex problem-solving, and powerful agentic and vibe coding capabilities (preview) |
 | **gemini-3.5-flash-lite** | Fastest, most cost-effective 3.5 model, built for high-throughput execution |
 | **gemini-3.5-flash** | Legacy Flash model providing baseline speed and foundational performance for routine, high-throughput workloads |
 | **gemini-3.6-flash** | Previous-generation Flash model balancing speed and multimodal capabilities across general agentic and everyday tasks |
-| **gemini-3.7-flash** | Latest and most capable Flash model, built for complex coding, agentic workflows, and reliable multi-step execution |
+| **gemini-3.7-flash** | Intelligent everyday driver, built for complex coding, agentic workflows, and reliable multi-step execution |
+| **gemini-3.8-flash** | Most intelligent Flash model yet, built for long-horizon coding and autonomous agents |
 
 ## 💡 Request Examples
 
-### Basic Text Chat ✅
+<ExampleTabs items={["Basic Text Chat","Image Analysis Chat","Function Calling","JSON Schema Response","Audio Processing","Video Processing","PDF Processing","Chat Dialog","Streaming Response","Code Execution","Generation Config","Safety Settings","System Instruction"]}>
+<ExampleTab id="request-example-1">
+
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -44,7 +44,10 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
        }'
 ```
 
-### Image Analysis Chat ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-2">
+
 
 ```bash
 # Use temporary file to save base64 encoded image data
@@ -72,13 +75,16 @@ cat > "$TEMP_JSON" << EOF
 }
 EOF
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d "@$TEMP_JSON"
 ```
 
-### Function Calling ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-3">
+
 
 ```bash
 cat > tools.json << EOF
@@ -112,7 +118,7 @@ cat > tools.json << EOF
 } 
 EOF
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -d @<(echo '
   {
@@ -137,10 +143,13 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
 ')
 ```
 
-### JSON Schema Response ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-4">
+
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
 -H 'Content-Type: application/json' \
 -d '{
     "contents": [{
@@ -163,7 +172,10 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
 }'
 ```
 
-### Audio Processing 🟡
+</ExampleTab>
+
+<ExampleTab id="request-example-5">
+
 
 <Callout type="warn" title="File Upload Limitations">
 Only supports uploading audio via `inline_data` in base64 format, does not support `file_data.file_uri` or File API.
@@ -178,7 +190,7 @@ else
 fi
 AUDIO_B64=$(base64 $B64FLAGS "$AUDIO_PATH")
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -191,7 +203,10 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
   }'
 ```
 
-### Video Processing 🟡
+</ExampleTab>
+
+<ExampleTab id="request-example-6">
+
 
 <Callout type="warn" title="File Upload Limitations">
 Only supports uploading video via `inline_data` in base64 format, does not support `file_data.file_uri` or File API.
@@ -206,7 +221,7 @@ else
 fi
 VIDEO_B64=$(base64 $B64FLAGS "$VIDEO_PATH")
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -219,7 +234,10 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
   }'
 ```
 
-### PDF Processing 🟡
+</ExampleTab>
+
+<ExampleTab id="request-example-7">
+
 
 <Callout type="warn" title="File Upload Limitations">
 仅支持通过 `inline_data` 以 base64 方式上传 PDF，不支持 `file_data.file_uri` 或 File API。
@@ -236,7 +254,7 @@ PDF_B64=$(base64 $B64FLAGS "$PDF_PATH")
 
 echo $MIME_TYPE
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{
@@ -249,10 +267,13 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
   }'
 ```
 
-### Chat Dialog ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-8">
+
 
 ```bash
-curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
+curl ((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -270,10 +291,13 @@ curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KE
     }'
 ```
 
-### Streaming Response ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-9">
+
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=sse&key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:streamGenerateContent?alt=sse&key=$API_KEY" \
     -H 'Content-Type: application/json' \
     --no-buffer \
     -d '{
@@ -283,10 +307,13 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=
     }'
 ```
 
-### Code Execution ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-10">
+
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -299,10 +326,13 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
     }'
 ```
 
-### Generation Config ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-11">
+
 
 ```bash
-curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY \
+curl ((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{
@@ -323,7 +353,10 @@ curl ((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KE
     }'
 ```
 
-### Safety Settings ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-12">
+
 
 ```bash
 echo '{
@@ -335,16 +368,19 @@ echo '{
         "parts":[{
             "text": "'I support Martians Soccer Club and I think Jupiterians Football Club sucks! Write a ironic phrase about them.'"}]}]}' > request.json
 
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d @request.json
 ```
 
-### System Instruction ✅
+</ExampleTab>
+
+<ExampleTab id="request-example-13">
+
 
 ```bash
-curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_KEY" \
+curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" \
 -H 'Content-Type: application/json' \
 -d '{ "system_instruction": {
     "parts":
@@ -353,6 +389,10 @@ curl "((SITE_URL))/v1beta/models/gemini-3-pro-preview:generateContent?key=$API_K
       "parts": {
         "text": "Hello there"}}}'
 ```
+
+</ExampleTab>
+
+</ExampleTabs>
 
 ## 📮 Request
 
@@ -380,276 +420,453 @@ Where `$API_KEY` is your Google AI API key.
 
 ### Path Parameters
 
-#### `model`
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-heading-model-147" name="model" type="string" required>
 
-- Type: string
-- Required: yes
+    The name of the model to generate completions for.
 
-The name of the model to generate completions for.
-
-Format: `models/{model}`, e.g. `models/gemini-3-pro-preview`
+    Format: `models/{model}`, e.g. `models/gemini-3.8-flash`
+  </ParameterField>
+</ParameterTree>
 
 ### Request Body Parameters
 
-#### `contents`
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-heading-contents-148" name="contents" type="array" required>
 
-- Type: array
-- Required: yes
+    The content of the current conversation with the model. For a single-turn query, this is a single instance. For chat-like multi-turn queries, this is a repeated field containing the conversation history and the latest request.
 
-The content of the current conversation with the model. For a single-turn query, this is a single instance. For chat-like multi-turn queries, this is a repeated field containing the conversation history and the latest request.
+    **Content object properties:**
 
-**Content object properties:**
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-parts-1" name="parts" type="array" required>
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `parts` | array | yes | Ordered content parts that make up a single message |
-| `role` | string | no | The producer of the content in the conversation. `user`, `model`, `function`, or `tool` |
+        Ordered content parts that make up a single message
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-role-2" name="role" type="string">
 
-**Part object properties:**
+        The producer of the content in the conversation. `user`, `model`, `function`, or `tool`
+      </ParameterField>
+    </ParameterChildren>
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `text` | string | no | Pure text content |
-| `inlineData` | object | no | Inline media byte data |
-| `fileData` | object | no | URI reference to the uploaded file |
-| `functionCall` | object | no | Function call request |
-| `functionResponse` | object | no | Function call response |
-| `executableCode` | object | no | Executable code |
-| `codeExecutionResult` | object | no | Code execution result |
+    **Part object properties:**
 
-**InlineData object properties:**
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-text-3" name="text" type="string">
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `mimeType` | string | yes | Media MIME type |
-| `data` | string | yes | Base64 encoded media data |
+        Pure text content
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-inlinedata-4" name="inlineData" type="object">
 
-**FileData object properties:**
+        Inline media byte data
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-filedata-5" name="fileData" type="object">
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `mimeType` | string | yes | File MIME type |
-| `fileUri` | string | yes | File URI |
+        URI reference to the uploaded file
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-functioncall-6" name="functionCall" type="object">
 
-#### `tools`
+        Function call request
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-functionresponse-7" name="functionResponse" type="object">
 
-- Type: array
-- Required: no
+        Function call response
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-executablecode-8" name="executableCode" type="object">
 
-A list of tools that the model might use to generate the next response. Supported tools include functions and code execution.
+        Executable code
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-codeexecutionresult-9" name="codeExecutionResult" type="object">
 
-**Tool object properties:**
+        Code execution result
+      </ParameterField>
+    </ParameterChildren>
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `functionDeclarations` | array | no | Optional list of function declarations |
-| `codeExecution` | object | no | Enable model to execute code |
+    **InlineData object properties:**
 
-**FunctionDeclaration object properties:**
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-mimetype-10" name="mimeType" type="string" required>
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | string | yes | Function name |
-| `description` | string | no | Function description |
-| `parameters` | object | no | Function parameters, in JSON Schema format |
+        Media MIME type
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-data-11" name="data" type="string" required>
 
-**FunctionCall object properties:**
+        Base64 encoded media data
+      </ParameterField>
+    </ParameterChildren>
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | string | yes | Name of the function to call |
-| `args` | object | no | Key-value pairs of function arguments |
+    **FileData object properties:**
 
-**FunctionResponse object properties:**
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-mimetype-12" name="mimeType" type="string" required>
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | string | yes | Name of the called function |
-| `response` | object | yes | Response data of the function call |
+        File MIME type
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-fileuri-13" name="fileUri" type="string" required>
 
-**ExecutableCode object properties:**
+        File URI
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-tools-149" name="tools" type="array">
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `language` | enum | yes | Programming language of the code |
-| `code` | string | yes | Code to execute |
+    A list of tools that the model might use to generate the next response. Supported tools include functions and code execution.
 
-**CodeExecutionResult object properties:**
+    **Tool object properties:**
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `outcome` | enum | yes | Code execution result status |
-| `output` | string | no | Output content of the code execution |
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-functiondeclarations-14" name="functionDeclarations" type="array">
 
-**CodeExecution object properties:**
+        Optional list of function declarations
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-codeexecution-15" name="codeExecution" type="object">
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| \{\} | Empty object | - | Empty configuration object to enable code execution |
+        Enable model to execute code
+      </ParameterField>
+    </ParameterChildren>
 
-#### `toolConfig`
+    **FunctionDeclaration object properties:**
 
-- Type: object
-- Required: no
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-name-16" name="name" type="string" required>
 
-Tool configuration for any tools specified in the request.
+        Function name
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-description-17" name="description" type="string">
 
-**ToolConfig object properties:**
+        Function description
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-parameters-18" name="parameters" type="object">
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `functionCallingConfig` | object | no | Function calling configuration |
+        Function parameters, in JSON Schema format
+      </ParameterField>
+    </ParameterChildren>
 
-**FunctionCallingConfig object properties:**
+    **FunctionCall object properties:**
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `mode` | enum | no | Specifies the mode of function calling |
-| `allowedFunctionNames` | array | no | List of function names allowed to be called |
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-name-19" name="name" type="string" required>
 
-**FunctionCallingMode enum values:**
+        Name of the function to call
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-args-20" name="args" type="object">
 
-- `MODE_UNSPECIFIED`: Default mode, model decides whether to call a function
-- `AUTO`: Model automatically decides when to call a function 
-- `ANY`: Model must call a function
-- `NONE`: Model cannot call a function
+        Key-value pairs of function arguments
+      </ParameterField>
+    </ParameterChildren>
 
-#### `safetySettings`
+    **FunctionResponse object properties:**
 
-- Type: array
-- Required: no
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-name-21" name="name" type="string" required>
 
-A list of SafetySetting instances to filter out unsafe content.
-
-**SafetySetting object properties:**
+        Name of the called function
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-response-22" name="response" type="object" required>
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `category` | enum | yes | Safety category |
-| `threshold` | enum | yes | Blocking threshold |
+        Response data of the function call
+      </ParameterField>
+    </ParameterChildren>
 
-**HarmCategory enum values:**
-
-- `HARM_CATEGORY_HARASSMENT`: Harassment content
-- `HARM_CATEGORY_HATE_SPEECH`: Hate speech and content
-- `HARM_CATEGORY_SEXUALLY_EXPLICIT`: Explicitly sexual content
-- `HARM_CATEGORY_DANGEROUS_CONTENT`: Dangerous content
-- `HARM_CATEGORY_CIVIC_INTEGRITY`: Content that might be used to undermine civic integrity
+    **ExecutableCode object properties:**
 
-**HarmBlockThreshold enum values:**
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-language-23" name="language" type="enum" required>
 
-- `BLOCK_LOW_AND_ABOVE`: Allows content with a NEGLIGIBLE score to be published
-- `BLOCK_MEDIUM_AND_ABOVE`: Allows content with a NEGLIGIBLE and LOW score to be published
-- `BLOCK_ONLY_HIGH`: Allows content with a NEGLIGIBLE, LOW, and MEDIUM risk level to be published
-- `BLOCK_NONE`: Allows all content
-- `OFF`: Turns off safety filters
+        Programming language of the code
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-code-24" name="code" type="string" required>
 
-**Complete HarmBlockThreshold enum values:**
+        Code to execute
+      </ParameterField>
+    </ParameterChildren>
 
-- `HARM_BLOCK_THRESHOLD_UNSPECIFIED`: Threshold not specified
-- `BLOCK_LOW_AND_ABOVE`: Blocks harmful content with a probability of medium or higher, only allowing NEGLIGIBLE level content
-- `BLOCK_MEDIUM_AND_ABOVE`: Blocks harmful content with a probability of medium or higher, allowing NEGLIGIBLE and LOW level content
-- `BLOCK_ONLY_HIGH`: Only blocks harmful content with a high probability, allowing NEGLIGIBLE, LOW, and MEDIUM level content
-- `BLOCK_NONE`: Does not block any content, allowing all levels
-- `OFF`: Completely turns off safety filters
+    **CodeExecutionResult object properties:**
 
-#### `systemInstruction`
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-outcome-25" name="outcome" type="enum" required>
 
-- Type: object (Content)
-- Required: no
+        Code execution result status
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-output-26" name="output" type="string">
 
-System instruction set by the developer. Currently only supports text.
+        Output content of the code execution
+      </ParameterField>
+    </ParameterChildren>
 
-#### `generationConfig`
+    **CodeExecution object properties:**
 
-- Type: object
-- Required: no
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-field-27" name="\{\}" type="Empty object">
 
-Model generation and output configuration options.
+        Empty configuration object to enable code execution
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-toolconfig-150" name="toolConfig" type="object">
 
-**GenerationConfig object properties:**
+    Tool configuration for any tools specified in the request.
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `stopSequences` | array | no | Set of character sequences to stop generation (up to 5) |
-| `responseMimeType` | string | no | MIME type of the generated candidate text |
-| `responseSchema` | object | no | Output schema of the generated candidate text |
-| `responseModalities` | array | no | Response modalities requested |
-| `candidateCount` | integer | no | Number of generated answers to return |
-| `maxOutputTokens` | integer | no | Maximum number of tokens in the candidate answers |
-| `temperature` | number | no | Controls the randomness of output, range [0.0, 2.0] |
-| `topP` | number | no | Cumulative probability upper bound of tokens to consider during sampling |
-| `topK` | integer | no | Maximum number of tokens to consider during sampling |
-| `seed` | integer | no | Seed used for decoding |
-| `presencePenalty` | number | no | Presence penalty |
-| `frequencyPenalty` | number | no | Frequency penalty |
-| `responseLogprobs` | boolean | no | Whether to export logprobs results in the response |
-| `logprobs` | integer | no | Number of top logprobs returned |
-| `enableEnhancedCivicAnswers` | boolean | no | Enables enhanced civic service answers |
-| `speechConfig` | object | no | Speech generation configuration |
-| `thinkingConfig` | object | no | Thinking function configuration |
-| `mediaResolution` | enum | no | Specified media resolution |
+    **ToolConfig object properties:**
 
-**Supported MIME types:**
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-functioncallingconfig-28" name="functionCallingConfig" type="object">
 
-- `text/plain`: (default) Text output
-- `application/json`: JSON response
-- `text/x.enum`: ENUM as string response
+        Function calling configuration
+      </ParameterField>
+    </ParameterChildren>
 
-**Modality enum values:**
+    **FunctionCallingConfig object properties:**
 
-- `TEXT`: Indicates model should return text
-- `IMAGE`: Indicates model should return image
-- `AUDIO`: Indicates model should return audio
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-mode-29" name="mode" type="enum">
 
-**Schema object properties:**
+        Specifies the mode of function calling
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-allowedfunctionnames-30" name="allowedFunctionNames" type="array">
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `type` | enum | yes | Data type |
-| `description` | string | no | Field description |
-| `enum` | array | no | List of enum values (when type is string) |
-| `example` | any | no | Example value |
-| `nullable` | boolean | no | Whether it can be null |
-| `format` | string | no | String format (e.g., date, date-time) |
-| `items` | object | no | Schema for array items (when type is array) |
-| `properties` | object | no | Schema for object properties (when type is object) |
-| `required` | array | no | List of required property names |
-| `minimum` | number | no | Minimum value for numbers |
-| `maximum` | number | no | Maximum value for numbers |
-| `minItems` | integer | no | Minimum length for arrays |
-| `maxItems` | integer | no | Maximum length for arrays |
-| `minLength` | integer | no | Minimum length for strings |
-| `maxLength` | integer | no | Maximum length for strings |
+        List of function names allowed to be called
+      </ParameterField>
+    </ParameterChildren>
 
-**Type enum values:**
+    **FunctionCallingMode enum values:**
 
-- `TYPE_UNSPECIFIED`: Type not specified
-- `STRING`: String type
-- `NUMBER`: Number type
-- `INTEGER`: Integer type
-- `BOOLEAN`: Boolean type
-- `ARRAY`: Array type
-- `OBJECT`: Object type
+    - `MODE_UNSPECIFIED`: Default mode, model decides whether to call a function
+    - `AUTO`: Model automatically decides when to call a function
+    - `ANY`: Model must call a function
+    - `NONE`: Model cannot call a function
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-safetysettings-151" name="safetySettings" type="array">
 
-**Supported programming languages (ExecutableCode):**
+    A list of SafetySetting instances to filter out unsafe content.
 
-- `LANGUAGE_UNSPECIFIED`: Language not specified
-- `PYTHON`: Python programming language
+    **SafetySetting object properties:**
 
-**Code execution result enum (Outcome):**
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-category-31" name="category" type="enum" required>
 
-- `OUTCOME_UNSPECIFIED`: Result not specified
-- `OUTCOME_OK`: Code execution successful
-- `OUTCOME_FAILED`: Code execution failed
-- `OUTCOME_DEADLINE_EXCEEDED`: Code execution timed out
+        Safety category
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-threshold-32" name="threshold" type="enum" required>
 
-#### `cachedContent`
+        Blocking threshold
+      </ParameterField>
+    </ParameterChildren>
 
-- Type: string
-- Required: no
+    **HarmCategory enum values:**
 
-The name of cached content, used as context for providing predictions. Format: `cachedContents/{cachedContent}`
+    - `HARM_CATEGORY_HARASSMENT`: Harassment content
+    - `HARM_CATEGORY_HATE_SPEECH`: Hate speech and content
+    - `HARM_CATEGORY_SEXUALLY_EXPLICIT`: Explicitly sexual content
+    - `HARM_CATEGORY_DANGEROUS_CONTENT`: Dangerous content
+    - `HARM_CATEGORY_CIVIC_INTEGRITY`: Content that might be used to undermine civic integrity
+
+    **HarmBlockThreshold enum values:**
+
+    - `BLOCK_LOW_AND_ABOVE`: Allows content with a NEGLIGIBLE score to be published
+    - `BLOCK_MEDIUM_AND_ABOVE`: Allows content with a NEGLIGIBLE and LOW score to be published
+    - `BLOCK_ONLY_HIGH`: Allows content with a NEGLIGIBLE, LOW, and MEDIUM risk level to be published
+    - `BLOCK_NONE`: Allows all content
+    - `OFF`: Turns off safety filters
+
+    **Complete HarmBlockThreshold enum values:**
+
+    - `HARM_BLOCK_THRESHOLD_UNSPECIFIED`: Threshold not specified
+    - `BLOCK_LOW_AND_ABOVE`: Blocks harmful content with a probability of medium or higher, only allowing NEGLIGIBLE level content
+    - `BLOCK_MEDIUM_AND_ABOVE`: Blocks harmful content with a probability of medium or higher, allowing NEGLIGIBLE and LOW level content
+    - `BLOCK_ONLY_HIGH`: Only blocks harmful content with a high probability, allowing NEGLIGIBLE, LOW, and MEDIUM level content
+    - `BLOCK_NONE`: Does not block any content, allowing all levels
+    - `OFF`: Completely turns off safety filters
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-systeminstruction-152" name="systemInstruction" type="object (Content)">
+
+    System instruction set by the developer. Currently only supports text.
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-generationconfig-153" name="generationConfig" type="object">
+
+    Model generation and output configuration options.
+
+    **GenerationConfig object properties:**
+
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-stopsequences-33" name="stopSequences" type="array">
+
+        Set of character sequences to stop generation (up to 5)
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-responsemimetype-34" name="responseMimeType" type="string">
+
+        MIME type of the generated candidate text
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-responseschema-35" name="responseSchema" type="object">
+
+        Output schema of the generated candidate text
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-responsemodalities-36" name="responseModalities" type="array">
+
+        Response modalities requested
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-candidatecount-37" name="candidateCount" type="integer">
+
+        Number of generated answers to return
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-maxoutputtokens-38" name="maxOutputTokens" type="integer">
+
+        Maximum number of tokens in the candidate answers
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-temperature-39" name="temperature" type="number">
+
+        Controls the randomness of output, range [0.0, 2.0]
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-topp-40" name="topP" type="number">
+
+        Cumulative probability upper bound of tokens to consider during sampling
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-topk-41" name="topK" type="integer">
+
+        Maximum number of tokens to consider during sampling
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-seed-42" name="seed" type="integer">
+
+        Seed used for decoding
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-presencepenalty-43" name="presencePenalty" type="number">
+
+        Presence penalty
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-frequencypenalty-44" name="frequencyPenalty" type="number">
+
+        Frequency penalty
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-responselogprobs-45" name="responseLogprobs" type="boolean">
+
+        Whether to export logprobs results in the response
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-logprobs-46" name="logprobs" type="integer">
+
+        Number of top logprobs returned
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-enableenhancedcivicanswers-47" name="enableEnhancedCivicAnswers" type="boolean">
+
+        Enables enhanced civic service answers
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-speechconfig-48" name="speechConfig" type="object">
+
+        Speech generation configuration
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-thinkingconfig-49" name="thinkingConfig" type="object">
+
+        Thinking function configuration
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-mediaresolution-50" name="mediaResolution" type="enum">
+
+        Specified media resolution
+      </ParameterField>
+    </ParameterChildren>
+
+    **Supported MIME types:**
+
+    - `text/plain`: (default) Text output
+    - `application/json`: JSON response
+    - `text/x.enum`: ENUM as string response
+
+    **Modality enum values:**
+
+    - `TEXT`: Indicates model should return text
+    - `IMAGE`: Indicates model should return image
+    - `AUDIO`: Indicates model should return audio
+
+    **Schema object properties:**
+
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-type-51" name="type" type="enum" required>
+
+        Data type
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-description-52" name="description" type="string">
+
+        Field description
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-enum-53" name="enum" type="array">
+
+        List of enum values (when type is string)
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-example-54" name="example" type="any">
+
+        Example value
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-nullable-55" name="nullable" type="boolean">
+
+        Whether it can be null
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-format-56" name="format" type="string">
+
+        String format (e.g., date, date-time)
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-items-57" name="items" type="object">
+
+        Schema for array items (when type is array)
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-properties-58" name="properties" type="object">
+
+        Schema for object properties (when type is object)
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-required-59" name="required" type="array">
+
+        List of required property names
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-minimum-60" name="minimum" type="number">
+
+        Minimum value for numbers
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-maximum-61" name="maximum" type="number">
+
+        Maximum value for numbers
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-minitems-62" name="minItems" type="integer">
+
+        Minimum length for arrays
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-maxitems-63" name="maxItems" type="integer">
+
+        Maximum length for arrays
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-minlength-64" name="minLength" type="integer">
+
+        Minimum length for strings
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-maxlength-65" name="maxLength" type="integer">
+
+        Maximum length for strings
+      </ParameterField>
+    </ParameterChildren>
+
+    **Type enum values:**
+
+    - `TYPE_UNSPECIFIED`: Type not specified
+    - `STRING`: String type
+    - `NUMBER`: Number type
+    - `INTEGER`: Integer type
+    - `BOOLEAN`: Boolean type
+    - `ARRAY`: Array type
+    - `OBJECT`: Object type
+
+    **Supported programming languages (ExecutableCode):**
+
+    - `LANGUAGE_UNSPECIFIED`: Language not specified
+    - `PYTHON`: Python programming language
+
+    **Code execution result enum (Outcome):**
+
+    - `OUTCOME_UNSPECIFIED`: Result not specified
+    - `OUTCOME_OK`: Code execution successful
+    - `OUTCOME_FAILED`: Code execution failed
+    - `OUTCOME_DEADLINE_EXCEEDED`: Code execution timed out
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-cachedcontent-154" name="cachedContent" type="string">
+
+    The name of cached content, used as context for providing predictions. Format: `cachedContents/{cachedContent}`
+  </ParameterField>
+</ParameterTree>
 
 ## 📥 Response
 
@@ -657,92 +874,162 @@ The name of cached content, used as context for providing predictions. Format: `
 
 Answer from models that support multiple candidate answers. The system reports safety ratings and content filtering for the prompt and each candidate.
 
-#### `candidates`
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-heading-candidates-155" name="candidates" type="array">
 
-- Type: array
-- Description: List of candidate answers from the model
+    List of candidate answers from the model
 
-**Candidate object properties:**
+    **Candidate object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `content` | object | Generated content returned by the model |
-| `finishReason` | enum | Reason for the model to stop generating tokens |
-| `safetyRatings` | array | List of safety ratings for the candidate answer |
-| `citationMetadata` | object | Reference information for the generated candidate |
-| `tokenCount` | integer | Token count for this candidate |
-| `groundingAttributions` | array | Information about sources that contributed to generating a grounded answer |
-| `groundingMetadata` | object | Reference metadata for the candidate object |
-| `avgLogprobs` | number | Average log probability score for the candidate |
-| `logprobsResult` | object | Log probability scores for answer tokens and preceding tokens |
-| `urlRetrievalMetadata` | object | Metadata related to URL context retrieval tool |
-| `urlContextMetadata` | object | Metadata related to URL context retrieval tool |
-| `index` | integer | Index of the candidate in the response candidate list |
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-content-66" name="content" type="object">
 
-**FinishReason enum values:**
+        Generated content returned by the model
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-finishreason-67" name="finishReason" type="enum">
 
-- `STOP`: Natural stopping point or provided stop sequence for the model
-- `MAX_TOKENS`: Maximum token limit specified in the request reached
-- `SAFETY`: Answer candidate content marked for safety reasons
-- `RECITATION`: Answer candidate content marked for recitation reasons
-- `LANGUAGE`: Answer candidate content marked for using unsupported language
-- `OTHER`: Reason unknown
-- `BLOCKLIST`: Token generation operation stopped because content contains prohibited words
-- `PROHIBITED_CONTENT`: Token generation operation stopped because content might contain prohibited content
-- `SPII`: Token generation operation stopped because content might contain sensitive personal information
-- `MALFORMED_FUNCTION_CALL`: Model-generated function call invalid
-- `IMAGE_SAFETY`: Token generation stopped because generated image violated safety rules
+        Reason for the model to stop generating tokens
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-safetyratings-68" name="safetyRatings" type="array">
 
-#### `promptFeedback`
+        List of safety ratings for the candidate answer
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-citationmetadata-69" name="citationMetadata" type="object">
 
-- Type: object
-- Description: Prompt feedback related to content filtering
+        Reference information for the generated candidate
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-tokencount-70" name="tokenCount" type="integer">
 
-**PromptFeedback object properties:**
+        Token count for this candidate
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-groundingattributions-71" name="groundingAttributions" type="array">
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `blockReason` | enum | Reason for blocking the prompt |
-| `safetyRatings` | array | Safety rating for the prompt |
+        Information about sources that contributed to generating a grounded answer
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-groundingmetadata-72" name="groundingMetadata" type="object">
 
-**BlockReason enum values:**
+        Reference metadata for the candidate object
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-avglogprobs-73" name="avgLogprobs" type="number">
 
-- `BLOCK_REASON_UNSPECIFIED`: Default value, this value is not used
-- `SAFETY`: System blocked prompt due to safety reasons
-- `OTHER`: Prompt blocked due to unknown reasons
-- `BLOCKLIST`: System blocked this prompt because it contained terms in the blocklist
-- `PROHIBITED_CONTENT`: System blocked this prompt because it contained prohibited content
-- `IMAGE_SAFETY`: Candidate image blocked because it generated unsafe content
+        Average log probability score for the candidate
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-logprobsresult-74" name="logprobsResult" type="object">
 
-#### `usageMetadata`
+        Log probability scores for answer tokens and preceding tokens
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-urlretrievalmetadata-75" name="urlRetrievalMetadata" type="object">
 
-- Type: object
-- Description: Metadata about token usage for the generation request
+        Metadata related to URL context retrieval tool
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-urlcontextmetadata-76" name="urlContextMetadata" type="object">
 
-**UsageMetadata object properties:**
+        Metadata related to URL context retrieval tool
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-index-77" name="index" type="integer">
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `promptTokenCount` | integer | Token count in the prompt |
-| `cachedContentTokenCount` | integer | Token count in the cached part of the prompt |
-| `candidatesTokenCount` | integer | Total token count in all generated candidate answers |
-| `totalTokenCount` | integer | Total token count for the generation request |
-| `toolUsePromptTokenCount` | integer | Token count in the prompt for tool usage |
-| `thoughtsTokenCount` | integer | Token count for the thinking model's thoughts |
-| `promptTokensDetails` | array | List of modalities processed in the request input |
-| `candidatesTokensDetails` | array | List of modalities returned in the response |
-| `cacheTokensDetails` | array | List of modalities in the cached content of the request input |
-| `toolUsePromptTokensDetails` | array | List of modalities processed for tool usage in the request input |
+        Index of the candidate in the response candidate list
+      </ParameterField>
+    </ParameterChildren>
 
-#### `modelVersion`
+    **FinishReason enum values:**
 
-- Type: string
-- Description: Model version used to generate the answer
+    - `STOP`: Natural stopping point or provided stop sequence for the model
+    - `MAX_TOKENS`: Maximum token limit specified in the request reached
+    - `SAFETY`: Answer candidate content marked for safety reasons
+    - `RECITATION`: Answer candidate content marked for recitation reasons
+    - `LANGUAGE`: Answer candidate content marked for using unsupported language
+    - `OTHER`: Reason unknown
+    - `BLOCKLIST`: Token generation operation stopped because content contains prohibited words
+    - `PROHIBITED_CONTENT`: Token generation operation stopped because content might contain prohibited content
+    - `SPII`: Token generation operation stopped because content might contain sensitive personal information
+    - `MALFORMED_FUNCTION_CALL`: Model-generated function call invalid
+    - `IMAGE_SAFETY`: Token generation stopped because generated image violated safety rules
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-promptfeedback-156" name="promptFeedback" type="object">
 
-#### `responseId`
+    Prompt feedback related to content filtering
 
-- Type: string
-- Description: ID for each response
+    **PromptFeedback object properties:**
+
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-blockreason-78" name="blockReason" type="enum">
+
+        Reason for blocking the prompt
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-safetyratings-79" name="safetyRatings" type="array">
+
+        Safety rating for the prompt
+      </ParameterField>
+    </ParameterChildren>
+
+    **BlockReason enum values:**
+
+    - `BLOCK_REASON_UNSPECIFIED`: Default value, this value is not used
+    - `SAFETY`: System blocked prompt due to safety reasons
+    - `OTHER`: Prompt blocked due to unknown reasons
+    - `BLOCKLIST`: System blocked this prompt because it contained terms in the blocklist
+    - `PROHIBITED_CONTENT`: System blocked this prompt because it contained prohibited content
+    - `IMAGE_SAFETY`: Candidate image blocked because it generated unsafe content
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-usagemetadata-157" name="usageMetadata" type="object">
+
+    Metadata about token usage for the generation request
+
+    **UsageMetadata object properties:**
+
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-prompttokencount-80" name="promptTokenCount" type="integer">
+
+        Token count in the prompt
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-cachedcontenttokencount-81" name="cachedContentTokenCount" type="integer">
+
+        Token count in the cached part of the prompt
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-candidatestokencount-82" name="candidatesTokenCount" type="integer">
+
+        Total token count in all generated candidate answers
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-totaltokencount-83" name="totalTokenCount" type="integer">
+
+        Total token count for the generation request
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-tooluseprompttokencount-84" name="toolUsePromptTokenCount" type="integer">
+
+        Token count in the prompt for tool usage
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-thoughtstokencount-85" name="thoughtsTokenCount" type="integer">
+
+        Token count for the thinking model's thoughts
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-prompttokensdetails-86" name="promptTokensDetails" type="array">
+
+        List of modalities processed in the request input
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-candidatestokensdetails-87" name="candidatesTokensDetails" type="array">
+
+        List of modalities returned in the response
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-cachetokensdetails-88" name="cacheTokensDetails" type="array">
+
+        List of modalities in the cached content of the request input
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-tooluseprompttokensdetails-89" name="toolUsePromptTokensDetails" type="array">
+
+        List of modalities processed for tool usage in the request input
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-modelversion-158" name="modelVersion" type="string">
+
+    Model version used to generate the answer
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-heading-responseid-159" name="responseId" type="string">
+
+    ID for each response
+  </ParameterField>
+</ParameterTree>
 
 #### Full response example
 
@@ -814,7 +1101,7 @@ Answer from models that support multiple candidate answers. The system reports s
       }
     ]
   },
-  "modelVersion": "gemini-3-pro-preview",
+  "modelVersion": "gemini-3.8-flash",
   "responseId": "response-12345"
 }
 ```
@@ -825,11 +1112,20 @@ Answer from models that support multiple candidate answers. The system reports s
 
 **SafetyRating object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `category` | enum | Category of this rating |
-| `probability` | enum | Harmful probability for this content |
-| `blocked` | boolean | Whether this content was blocked due to this rating |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-category-90" name="category" type="enum">
+
+    Category of this rating
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-probability-91" name="probability" type="enum">
+
+    Harmful probability for this content
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-blocked-92" name="blocked" type="boolean">
+
+    Whether this content was blocked due to this rating
+  </ParameterField>
+</ParameterTree>
 
 **HarmProbability enum values:**
 
@@ -842,18 +1138,33 @@ Answer from models that support multiple candidate answers. The system reports s
 
 **CitationMetadata object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `citationSources` | array | Source references for specific replies |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-citationsources-93" name="citationSources" type="array">
+
+    Source references for specific replies
+  </ParameterField>
+</ParameterTree>
 
 **CitationSource object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `startIndex` | integer | Start index of the response segment attributed to this source |
-| `endIndex` | integer | End index of the attribution (exclusive) |
-| `uri` | string | URI attributed to the text portion from this source |
-| `license` | string | License of the GitHub project attributed to the source fragment |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-startindex-94" name="startIndex" type="integer">
+
+    Start index of the response segment attributed to this source
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-endindex-95" name="endIndex" type="integer">
+
+    End index of the attribution (exclusive)
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-uri-96" name="uri" type="string">
+
+    URI attributed to the text portion from this source
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-license-97" name="license" type="string">
+
+    License of the GitHub project attributed to the source fragment
+  </ParameterField>
+</ParameterTree>
 
 ### Code Execution
 
@@ -898,84 +1209,162 @@ When code execution tools are enabled, the model can generate and execute code t
 
 **GroundingMetadata object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `groundingChunks` | array | List of supporting reference documents retrieved from specified grounding sources |
-| `groundingSupports` | array | Grounding support list |
-| `webSearchQueries` | array | Web search queries for subsequent web searches |
-| `searchEntryPoint` | object | Google search entry point for subsequent web searches |
-| `retrievalMetadata` | object | Metadata related to retrieval in the baseline process |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-groundingchunks-98" name="groundingChunks" type="array">
+
+    List of supporting reference documents retrieved from specified grounding sources
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-groundingsupports-99" name="groundingSupports" type="array">
+
+    Grounding support list
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-websearchqueries-100" name="webSearchQueries" type="array">
+
+    Web search queries for subsequent web searches
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-searchentrypoint-101" name="searchEntryPoint" type="object">
+
+    Google search entry point for subsequent web searches
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-retrievalmetadata-102" name="retrievalMetadata" type="object">
+
+    Metadata related to retrieval in the baseline process
+  </ParameterField>
+</ParameterTree>
 
 **GroundingAttribution object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `sourceId` | object | Identifier of the source that contributed to this attribution |
-| `content` | object | Content of the source that contributed to this attribution |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-sourceid-103" name="sourceId" type="object">
+
+    Identifier of the source that contributed to this attribution
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-content-104" name="content" type="object">
+
+    Content of the source that contributed to this attribution
+  </ParameterField>
+</ParameterTree>
 
 **AttributionSourceId object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `groundingPassage` | object | Identifier of the embedded paragraph |
-| `semanticRetrieverChunk` | object | Identifier of the Chunk extracted by Semantic Retriever |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-groundingpassage-105" name="groundingPassage" type="object">
+
+    Identifier of the embedded paragraph
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-semanticretrieverchunk-106" name="semanticRetrieverChunk" type="object">
+
+    Identifier of the Chunk extracted by Semantic Retriever
+  </ParameterField>
+</ParameterTree>
 
 **GroundingPassageId object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `passageId` | string | ID of the paragraph matching GroundingPassage.id from GenerateAnswerRequest |
-| `partIndex` | integer | Index of the part in GroundingPassage.content |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-passageid-107" name="passageId" type="string">
+
+    ID of the paragraph matching GroundingPassage.id from GenerateAnswerRequest
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-partindex-108" name="partIndex" type="integer">
+
+    Index of the part in GroundingPassage.content
+  </ParameterField>
+</ParameterTree>
 
 **SemanticRetrieverChunk object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `source` | string | Source name matching SemanticRetrieverConfig.source from the request |
-| `chunk` | string | Name of the Chunk containing the attributed text |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-source-109" name="source" type="string">
+
+    Source name matching SemanticRetrieverConfig.source from the request
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-chunk-110" name="chunk" type="string">
+
+    Name of the Chunk containing the attributed text
+  </ParameterField>
+</ParameterTree>
 
 **SearchEntryPoint object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `renderedContent` | string | Web content code segment embeddable in a webpage or app WebView |
-| `sdkBlob` | string | Base64 encoded JSON, representing an array of search terms and search URL tuples |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-renderedcontent-111" name="renderedContent" type="string">
+
+    Web content code segment embeddable in a webpage or app WebView
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-sdkblob-112" name="sdkBlob" type="string">
+
+    Base64 encoded JSON, representing an array of search terms and search URL tuples
+  </ParameterField>
+</ParameterTree>
 
 **Segment object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `partIndex` | integer | Index of the Part object within its parent Content object |
-| `startIndex` | integer | Start index of the given part in bytes |
-| `endIndex` | integer | End index of the given chunk in bytes |
-| `text` | string | Text corresponding to the fragment in the response |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-partindex-113" name="partIndex" type="integer">
+
+    Index of the Part object within its parent Content object
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-startindex-114" name="startIndex" type="integer">
+
+    Start index of the given part in bytes
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-endindex-115" name="endIndex" type="integer">
+
+    End index of the given chunk in bytes
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-text-116" name="text" type="string">
+
+    Text corresponding to the fragment in the response
+  </ParameterField>
+</ParameterTree>
 
 **RetrievalMetadata object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `googleSearchDynamicRetrievalScore` | number | Probability score of information from Google search helping to answer the question, range [0,1] |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-googlesearchdynamicretrievalscore-117" name="googleSearchDynamicRetrievalScore" type="number">
+
+    Probability score of information from Google search helping to answer the question, range [0,1]
+  </ParameterField>
+</ParameterTree>
 
 **GroundingChunk object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `web` | object | Grounding chunk from the web |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-web-118" name="web" type="object">
+
+    Grounding chunk from the web
+  </ParameterField>
+</ParameterTree>
 
 **Web object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `uri` | string | URI reference for the chunk |
-| `title` | string | Title of the data block |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-uri-119" name="uri" type="string">
+
+    URI reference for the chunk
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-title-120" name="title" type="string">
+
+    Title of the data block
+  </ParameterField>
+</ParameterTree>
 
 **GroundingSupport object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `groundingChunkIndices` | array | List of indices, used to specify citations related to copyright claims |
-| `confidenceScores` | array | Confidence scores for supporting reference documents, range 0-1 |
-| `segment` | object | Content segment to which this support request belongs |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-groundingchunkindices-121" name="groundingChunkIndices" type="array">
+
+    List of indices, used to specify citations related to copyright claims
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-confidencescores-122" name="confidenceScores" type="array">
+
+    Confidence scores for supporting reference documents, range 0-1
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-segment-123" name="segment" type="object">
+
+    Content segment to which this support request belongs
+  </ParameterField>
+</ParameterTree>
 
 ### Multimodal Processing
 
@@ -991,10 +1380,16 @@ Gemini API supports processing multiple modalities of input and output:
 
 **ModalityTokenCount object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `modality` | enum | Modality associated with this token count |
-| `tokenCount` | integer | Token count |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-modality-124" name="modality" type="enum">
+
+    Modality associated with this token count
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-tokencount-125" name="tokenCount" type="integer">
+
+    Token count
+  </ParameterField>
+</ParameterTree>
 
 **MediaResolution enum values:**
 
@@ -1006,45 +1401,75 @@ Gemini API supports processing multiple modalities of input and output:
 
 **ThinkingConfig object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `includeThoughts` | boolean | Whether to include thinking content in the answer |
-| `thinkingBudget` | integer | Number of idea tokens the model should generate |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-includethoughts-126" name="includeThoughts" type="boolean">
+
+    Whether to include thinking content in the answer
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-thinkingbudget-127" name="thinkingBudget" type="integer">
+
+    Number of idea tokens the model should generate
+  </ParameterField>
+</ParameterTree>
 
 ### Speech Generation
 
 **SpeechConfig object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `voiceConfig` | object | Configuration for single voice output |
-| `multiSpeakerVoiceConfig` | object | Configuration for multi-speaker settings |
-| `languageCode` | string | Language code for speech synthesis |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-voiceconfig-128" name="voiceConfig" type="object">
+
+    Configuration for single voice output
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-multispeakervoiceconfig-129" name="multiSpeakerVoiceConfig" type="object">
+
+    Configuration for multi-speaker settings
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-languagecode-130" name="languageCode" type="string">
+
+    Language code for speech synthesis
+  </ParameterField>
+</ParameterTree>
 
 **VoiceConfig object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `prebuiltVoiceConfig` | object | Configuration for the prebuilt voice to use |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-prebuiltvoiceconfig-131" name="prebuiltVoiceConfig" type="object">
+
+    Configuration for the prebuilt voice to use
+  </ParameterField>
+</ParameterTree>
 
 **PrebuiltVoiceConfig object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `voiceName` | string | Name of the prebuilt voice to use |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-voicename-132" name="voiceName" type="string">
+
+    Name of the prebuilt voice to use
+  </ParameterField>
+</ParameterTree>
 
 **MultiSpeakerVoiceConfig object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `speakerVoiceConfigs` | array | All enabled speaker voices |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-speakervoiceconfigs-133" name="speakerVoiceConfigs" type="array">
+
+    All enabled speaker voices
+  </ParameterField>
+</ParameterTree>
 
 **SpeakerVoiceConfig object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `speaker` | string | Name of the speaker to use |
-| `voiceConfig` | object | Configuration for the voice to use |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-speaker-134" name="speaker" type="string">
+
+    Name of the speaker to use
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-voiceconfig-135" name="voiceConfig" type="object">
+
+    Configuration for the voice to use
+  </ParameterField>
+</ParameterTree>
 
 **Supported language codes:**
 
@@ -1070,51 +1495,84 @@ Gemini API supports processing multiple modalities of input and output:
 
 **LogprobsResult object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `topCandidates` | array | Array of candidates sorted by log probability in descending order |
-| `chosenCandidates` | array | Array of chosen candidates, not necessarily in topCandidates (length equals total decoding steps) |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-topcandidates-136" name="topCandidates" type="array">
+
+    Array of candidates sorted by log probability in descending order
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-chosencandidates-137" name="chosenCandidates" type="array">
+
+    Array of chosen candidates, not necessarily in topCandidates (length equals total decoding steps)
+  </ParameterField>
+</ParameterTree>
 
 **TopCandidates object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `candidates` | array | Candidates sorted by log probability in descending order |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-candidates-138" name="candidates" type="array">
+
+    Candidates sorted by log probability in descending order
+  </ParameterField>
+</ParameterTree>
 
 **Candidate (Logprobs) object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `token` | string | Token string value for the candidate |
-| `tokenId` | integer | Token ID value for the candidate |
-| `logProbability` | number | Log probability for the candidate |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-token-139" name="token" type="string">
+
+    Token string value for the candidate
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-tokenid-140" name="tokenId" type="integer">
+
+    Token ID value for the candidate
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-logprobability-141" name="logProbability" type="number">
+
+    Log probability for the candidate
+  </ParameterField>
+</ParameterTree>
 
 ### URL Retrieval Function
 
 **UrlRetrievalMetadata object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `urlRetrievalContexts` | array | List of URL retrieval contexts |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-urlretrievalcontexts-142" name="urlRetrievalContexts" type="array">
+
+    List of URL retrieval contexts
+  </ParameterField>
+</ParameterTree>
 
 **UrlRetrievalContext object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `retrievedUrl` | string | URL retrieved by the tool |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-retrievedurl-143" name="retrievedUrl" type="string">
+
+    URL retrieved by the tool
+  </ParameterField>
+</ParameterTree>
 
 **UrlContextMetadata object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `urlMetadata` | array | List of URL contexts |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-urlmetadata-144" name="urlMetadata" type="array">
+
+    List of URL contexts
+  </ParameterField>
+</ParameterTree>
 
 **UrlMetadata object properties:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `retrievedUrl` | string | URL retrieved by the tool |
-| `urlRetrievalStatus` | enum | URL retrieval status |
+<ParameterTree>
+  <ParameterField id="google-gemini-chat-table-retrievedurl-145" name="retrievedUrl" type="string">
+
+    URL retrieved by the tool
+  </ParameterField>
+  <ParameterField id="google-gemini-chat-table-urlretrievalstatus-146" name="urlRetrievalStatus" type="enum">
+
+    URL retrieval status
+  </ParameterField>
+</ParameterTree>
 
 **UrlRetrievalStatus enum values:**
 
