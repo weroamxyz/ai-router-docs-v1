@@ -8,11 +8,11 @@ import { Callout } from 'fumadocs-ui/components/callout';
 <Callout type="info" title="官方文档">
 [OpenAI Images](https://platform.openai.com/docs/api-reference/images)
 </Callout>
-## 📝 简介
+## 简介
 
 给定文本提示和/或输入图片，模型将生成新的图片。OpenAI 提供多种强大的图像生成模型，可以根据自然语言描述创建、编辑和修改图像。
 
-## 🤖 支持的模型
+## 支持的模型
 
 目前支持的模型包括：
 
@@ -22,7 +22,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 | **gpt-image-2.5-sunburst** | 功能最强大的 GPT-Image-2.5 模型，针对精确的图像生成和编辑进行了优化。同时支持日期快照 `gpt-image-2.5-sunburst-2026-09-08`。 |
 | **gpt-image-2.5-flare** | 快速的 GPT-Image-2.5 模型，适用于高质量的日常图像生成和编辑。同时支持日期快照 `gpt-image-2.5-flare-2026-09-08`。 |
 
-## 💡 请求示例
+## 请求示例
 
 <ExampleTabs items={["创建图片","编辑图片"]}>
 <ExampleTab id="request-example-1">
@@ -145,7 +145,7 @@ curl ((SITE_URL))/v1/images/edits \
 
 </ExampleTabs>
 
-## 📮 请求
+## 请求
 
 ### 端点
 
@@ -362,7 +362,7 @@ Authorization: Bearer $API_KEY
 
 高于 `2560x1440` 的分辨率属于实验性功能。
 
-## 📥 响应
+## 响应
 
 ### 成功响应
 
@@ -477,7 +477,7 @@ URL 交付适用于返回完整 JSON 的非流式请求。不要将 `response_fo
 | `503` | `image_url_delivery_unavailable` | 当前模型、API 密钥或运行环境尚未提供 URL 交付。可改用 `b64_json`，或等待管理员启用。 |
 | `503` | 其他 `image_delivery_*` 错误 | URL 交付容量或运行状态暂时不可用。按退避策略重试。 |
 
-## 🌟 最佳实践
+## 最佳实践
 
 ### Prompt 编写建议
 

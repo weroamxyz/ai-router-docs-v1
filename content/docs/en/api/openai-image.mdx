@@ -8,11 +8,11 @@ import { Callout } from 'fumadocs-ui/components/callout';
 <Callout type="info" title="Official Documentation">
 [OpenAI Images](https://platform.openai.com/docs/api-reference/images)
 </Callout>
-## 📝 Introduction
+## Introduction
 
 Given a text prompt and/or input image, the model will generate new images. OpenAI provides multiple powerful image generation models that can create, edit, and modify images based on natural language descriptions.
 
-## 🤖 Supported Models
+## Supported Models
 
 Currently supported models include:
 
@@ -22,7 +22,7 @@ Currently supported models include:
 | **gpt-image-2.5-sunburst** | Most capable GPT-Image-2.5 model, optimized for precise image generation and editing. The dated snapshot `gpt-image-2.5-sunburst-2026-09-08` is also supported. |
 | **gpt-image-2.5-flare** | Fast GPT-Image-2.5 model for high-quality everyday image generation and editing. The dated snapshot `gpt-image-2.5-flare-2026-09-08` is also supported. |
 
-## 💡 Request Examples
+## Request Examples
 
 <ExampleTabs items={["Create Image","Edit Image"]}>
 <ExampleTab id="request-example-1">
@@ -145,7 +145,7 @@ curl ((SITE_URL))/v1/images/edits \
 
 </ExampleTabs>
 
-## 📮 Request
+## Request
 
 ### Endpoints
 
@@ -333,7 +333,7 @@ For `gpt-image-2`, `gpt-image-2.5-sunburst`, and `gpt-image-2.5-flare` (includin
 
 Resolutions above `2560x1440` are experimental.
 
-## 📥 Response
+## Response
 
 ### Successful Response
 
@@ -448,7 +448,7 @@ URL delivery applies to non-streaming requests that return one complete JSON res
 | `503` | `image_url_delivery_unavailable` | URL delivery is not enabled for the current model, API key, or environment. Use `b64_json` or wait for an administrator to enable it. |
 | `503` | Other `image_delivery_*` errors | URL-delivery capacity or runtime state is temporarily unavailable. Retry with backoff. |
 
-## 🌟 Best Practices
+## Best Practices
 
 ### Prompt Writing Tips
 

@@ -9,7 +9,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 - [OpenAI Realtime WebRTC](https://platform.openai.com/docs/guides/realtime-webrtc)
 - [OpenAI Realtime WebSocket](https://platform.openai.com/docs/guides/realtime-websocket)
 </Callout>
-## 📝 Overview
+## Overview
 
 ### Introduction
 OpenAI Realtime API provides two connection methods:
@@ -34,7 +34,7 @@ OpenAI Realtime API provides two connection methods:
 - Audio transcription capabilities
 - WebSocket server-side integration
 
-## 🤖 Supported Models
+## Supported Models
 
 Currently supported models include:
 
@@ -44,7 +44,7 @@ Currently supported models include:
 | **gpt-4o-realtime-preview-2024-12-17** | GPT-4o Realtime model (2024-12-17 version) |
 | **gpt-4o-mini-realtime-preview** | GPT-4o Mini Realtime model |
 
-## 🔐 Authentication & Security
+## Authentication & Security
 
 ### Authentication Methods
 1. Standard API Key (server-side only)
@@ -72,7 +72,7 @@ Authorization: Bearer $API_KEY
 - Implement appropriate access controls
 - Monitor for unusual activity
 
-## 🔌 Connection Establishment
+## Connection Establishment
 
 ### WebRTC Connection
 - URL: `((SITE_URL))/v1/realtime`
@@ -126,7 +126,7 @@ sequenceDiagram
 - Input: `addTrack()`
 - Output: `ontrack` event
 
-## 💬 Conversation Interaction
+## Conversation Interaction
 
 ### Conversation Modes
 1. Text-only conversations
@@ -146,7 +146,7 @@ sequenceDiagram
 - Status updates
 - Error events
 
-## ⚙️ Configuration Options
+## Configuration Options
 
 ### Audio Configuration
 - Input formats
@@ -173,9 +173,9 @@ sequenceDiagram
 - Silence duration
 - Prefix padding
 
-## 💡 Request Examples
+## Request Examples
 
-### WebSocket Connection ✅
+### WebSocket Connection
 
 <ExampleTabs items={["Node.js (ws module)","Python (websocket-client)","Browser (Standard WebSocket)","Message Send/Receive Example","WebSocket Python Audio Example"]}>
 <ExampleTab id="request-example-1">
@@ -850,7 +850,7 @@ if __name__ == "__main__":
 
 </ExampleTabs>
 
-## ⚠️ Error Handling
+## Error Handling
 
 ### Common Errors
 1. Connection errors
@@ -872,7 +872,7 @@ if __name__ == "__main__":
 3. Error retry
 4. Graceful degradation
 
-## 📝 Event Reference
+## Event Reference
 
 ### Common Request Headers
 

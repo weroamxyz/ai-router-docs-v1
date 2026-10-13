@@ -9,7 +9,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 - [OpenAI Realtime WebRTC](https://platform.openai.com/docs/guides/realtime-webrtc)
 - [OpenAI Realtime WebSocket](https://platform.openai.com/docs/guides/realtime-websocket)
 </Callout>
-## 📝 概述
+## 概述
 
 ### 简介
 OpenAI Realtime API 提供两种连接方式：
@@ -34,7 +34,7 @@ OpenAI Realtime API 提供两种连接方式：
 - 音频转写功能
 - WebSocket 服务器端集成
 
-## 🤖 支持的模型
+## 支持的模型
 
 目前支持的模型包括：
 
@@ -44,7 +44,7 @@ OpenAI Realtime API 提供两种连接方式：
 | **gpt-4o-realtime-preview-2024-12-17** | GPT-4o 实时对话模型（2024-12-17 版本） |
 | **gpt-4o-mini-realtime-preview** | GPT-4o Mini 实时对话模型 |
 
-## 🔐 认证与安全
+## 认证与安全
 
 ### 认证方式
 1. 标准 API 密钥 (仅服务器端使用)
@@ -72,7 +72,7 @@ Authorization: Bearer $API_KEY
 - 实现适当的访问控制
 - 监控异常活动
 
-## 🔌 连接建立
+## 连接建立
 
 ### WebRTC 连接
 - URL: `((SITE_URL))/v1/realtime`
@@ -126,7 +126,7 @@ sequenceDiagram
 - 输入: `addTrack()`
 - 输出: `ontrack` 事件
 
-## 💬 对话交互
+## 对话交互
 
 ### 对话模式
 1. 纯文本对话
@@ -146,7 +146,7 @@ sequenceDiagram
 - 状态更新
 - 错误事件
 
-## ⚙️ 配置选项
+## 配置选项
 
 ### 音频配置
 - 输入格式
@@ -173,9 +173,9 @@ sequenceDiagram
 - 静音时长
 - 前缀填充
 
-## 💡 请求示例
+## 请求示例
 
-### WebSocket 连接 ✅
+### WebSocket 连接
 
 <ExampleTabs items={["Node.js (ws模块)","Python (websocket-client)","浏览器 (标准WebSocket)","消息收发示例","WebSocket Python语音示例"]}>
 <ExampleTab id="request-example-1">
@@ -849,7 +849,7 @@ if __name__ == "__main__":
 
 </ExampleTabs>
 
-## ⚠️ 错误处理
+## 错误处理
 
 ### 常见错误
 1. 连接错误
@@ -871,7 +871,7 @@ if __name__ == "__main__":
 3. 错误重试
 4. 降级处理
 
-## 📝 事件参考
+## 事件参考
 
 ### 通用请求头
 

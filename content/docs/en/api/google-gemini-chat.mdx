@@ -8,11 +8,11 @@ import { Callout } from 'fumadocs-ui/components/callout';
 <Callout type="info" title="Official Documentation">
 [Google Gemini Generating content API](https://ai.google.dev/api/generate-content)
 </Callout>
-## 📝 Introduction
+## Introduction
 
 Google Gemini API supports generating content using images, audio, code, tools, etc. Given input GenerateContentRequest generates model responses. Supports text generation, visual understanding, audio processing, long context, code execution, JSON schema, function calling, and many other features.
 
-## 🤖 Supported Models
+## Supported Models
 
 Currently supported models include:
 
@@ -27,7 +27,7 @@ Currently supported models include:
 | **gemini-3.7-flash** | Intelligent everyday driver, built for complex coding, agentic workflows, and reliable multi-step execution |
 | **gemini-3.8-flash** | Most intelligent Flash model yet, built for long-horizon coding and autonomous agents |
 
-## 💡 Request Examples
+## Request Examples
 
 <ExampleTabs items={["Basic Text Chat","Image Analysis Chat","Function Calling","JSON Schema Response","Audio Processing","Video Processing","PDF Processing","Chat Dialog","Streaming Response","Code Execution","Generation Config","Safety Settings","System Instruction"]}>
 <ExampleTab id="request-example-1">
@@ -394,7 +394,7 @@ curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" 
 
 </ExampleTabs>
 
-## 📮 Request
+## Request
 
 ### Endpoints
 
@@ -915,7 +915,7 @@ Where `$API_KEY` is your Google AI API key.
   </ParameterField>
 </ParameterTree>
 
-## 📥 Response
+## Response
 
 ### GenerateContentResponse
 
@@ -1390,7 +1390,7 @@ Answer from models that support multiple candidate answers. The system reports s
 }
 ```
 
-## 🔧 Feature Interactions
+## Feature Interactions
 
 The fields below are not additional top-level parameters. Each feature is enabled by a field in the request tree and, when applicable, produces data at a corresponding path in `GenerateContentResponse`.
 
@@ -1500,7 +1500,7 @@ Response: usageMetadata.promptTokensDetails[]
 
 Supported media depends on the selected model. Common modalities include text, images, audio, video, and PDF documents.
 
-## 🔍 Error Handling
+## Error Handling
 
 ### Common Error Codes
 

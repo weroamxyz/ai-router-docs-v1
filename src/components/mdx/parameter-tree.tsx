@@ -138,7 +138,7 @@ export function ParameterField({
       >
         <span className="flex min-w-0 items-center gap-2">
           <ChevronRight className="text-fd-muted-foreground size-4 shrink-0 transition-transform group-data-[state=open]:rotate-90" />
-          <code className="text-fd-primary truncate font-medium">{name}</code>
+          <code className="text-parameter truncate font-medium">{name}</code>
           <code className="text-fd-muted-foreground truncate text-xs">
             {type}
           </code>
@@ -147,7 +147,7 @@ export function ParameterField({
           className={cn(
             'rounded-full px-2 py-0.5 text-[11px] font-medium',
             required
-              ? 'bg-fd-primary/10 text-fd-primary'
+              ? 'bg-parameter/10 text-parameter'
               : 'bg-fd-muted text-fd-muted-foreground'
           )}
         >

@@ -8,11 +8,11 @@ import { Callout } from 'fumadocs-ui/components/callout';
 <Callout type="info" title="官方文档">
 [Google Gemini Generating content API](https://ai.google.dev/api/generate-content)
 </Callout>
-## 📝 简介
+## 简介
 
 Google Gemini API 支持使用图片、音频、代码、工具等生成内容。给定输入 GenerateContentRequest 生成模型响应。支持文本生成、视觉理解、音频处理、长上下文、代码执行、JSON 模式、函数调用等多种功能。
 
-## 🤖 支持的模型
+## 支持的模型
 
 目前支持的模型包括：
 
@@ -27,7 +27,7 @@ Google Gemini API 支持使用图片、音频、代码、工具等生成内容�
 | **gemini-3.7-flash** | 智能的日常主力模型，专为复杂编码、智能体工作流和可靠的多步执行打造 |
 | **gemini-3.8-flash** | 迄今最智能的 Flash 模型，专为长周期编码和自主智能体打造 |
 
-## 💡 请求示例
+## 请求示例
 
 <ExampleTabs items={["基础文本对话","图像分析对话","函数调用","JSON 模式响应","音频处理","视频处理","PDF处理","聊天对话","流式响应","代码执行","生成配置","安全设置","系统指令"]}>
 <ExampleTab id="request-example-1">
@@ -394,7 +394,7 @@ curl "((SITE_URL))/v1beta/models/gemini-3.8-flash:generateContent?key=$API_KEY" 
 
 </ExampleTabs>
 
-## 📮 请求
+## 请求
 
 ### 端点
 
@@ -991,7 +991,7 @@ POST ((SITE_URL))/v1beta/{model=models/*}:streamGenerateContent
   </ParameterField>
 </ParameterTree>
 
-## 📥 响应
+## 响应
 
 ### GenerateContentResponse
 
@@ -1471,7 +1471,7 @@ POST ((SITE_URL))/v1beta/{model=models/*}:streamGenerateContent
 }
 ```
 
-## 🔧 功能交互
+## 功能交互
 
 以下字段并不是额外的顶级参数。每项功能都由请求参数树中的字段启用，并在适用时通过 `GenerateContentResponse` 中对应的路径返回数据。
 
@@ -1581,7 +1581,7 @@ POST ((SITE_URL))/v1beta/{model=models/*}:streamGenerateContent
 
 支持的媒体类型取决于所选模型。常见模态包括文本、图片、音频、视频和 PDF 文档。
 
-## 🔍 错误处理
+## 错误处理
 
 ### 常见错误码
 
