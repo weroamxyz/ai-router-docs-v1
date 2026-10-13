@@ -8,11 +8,11 @@ import { Callout } from 'fumadocs-ui/components/callout';
 <Callout type="info" title="Official Documentation">
 [Alibaba Cloud Models Usage (Image and Video Generation)](https://www.alibabacloud.com/help/en/model-studio)
 </Callout>
-## 📝 Introduction
+## Introduction
 
 Given a text prompt, the model will generate new images. Qwen/Alibaba Cloud provides powerful image generation and editing models that can create images based on natural language descriptions or edit existing images.
 
-## 🤖 Supported Models
+## Supported Models
 
 Currently supported models include:
 
@@ -24,7 +24,7 @@ Currently supported models include:
 | **qwen-image-edit** | Qwen image editing model |
 | **wan2.5-i2i-preview** | Wan 2.5 image-to-image preview model |
 
-## 💡 Request Examples
+## Request Examples
 
 <ExampleTabs items={["Create Image","Edit Image"]}>
 <ExampleTab id="request-example-1">
@@ -90,7 +90,7 @@ curl -X POST "((SITE_URL))/v1/images/edits" \
 
 </ExampleTabs>
 
-## 📮 Request
+## Request
 
 ### Endpoint
 
@@ -191,7 +191,7 @@ Image editing uses multipart form request format.
   </ParameterField>
 </ParameterTree>
 
-## 📥 Response
+## Response
 
 ### Success Response
 
@@ -273,7 +273,7 @@ If the request fails, an error response will be returned:
 }
 ```
 
-## 🌟 Best Practices
+## Best Practices
 
 ### Prompt Writing Suggestions
 
