@@ -523,6 +523,14 @@ Where `$API_KEY` is your Google AI API key.
 
         Enable model to execute code
       </ParameterField>
+      <ParameterField id="google-gemini-chat-table-googlesearch-160" name="googleSearch" type="object">
+
+        Enable Google Search grounding. Pass an empty object to use the default configuration.
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-urlcontext-161" name="urlContext" type="object">
+
+        Enable the URL Context tool so the model can retrieve content from URLs supplied in the prompt.
+      </ParameterField>
     </ParameterChildren>
 
     **FunctionDeclaration object properties:**
@@ -573,7 +581,7 @@ Where `$API_KEY` is your Google AI API key.
     <ParameterChildren>
       <ParameterField id="google-gemini-chat-table-language-23" name="language" type="enum" required>
 
-        Programming language of the code
+        Programming language of the code: `LANGUAGE_UNSPECIFIED` or `PYTHON`
       </ParameterField>
       <ParameterField id="google-gemini-chat-table-code-24" name="code" type="string" required>
 
@@ -586,7 +594,7 @@ Where `$API_KEY` is your Google AI API key.
     <ParameterChildren>
       <ParameterField id="google-gemini-chat-table-outcome-25" name="outcome" type="enum" required>
 
-        Code execution result status
+        Execution status: `OUTCOME_UNSPECIFIED`, `OUTCOME_OK`, `OUTCOME_FAILED`, or `OUTCOME_DEADLINE_EXCEEDED`
       </ParameterField>
       <ParameterField id="google-gemini-chat-table-output-26" name="output" type="string">
 
@@ -700,6 +708,69 @@ Where `$API_KEY` is your Google AI API key.
       <ParameterField id="google-gemini-chat-table-responseschema-35" name="responseSchema" type="object">
 
         Output schema of the generated candidate text
+
+        <ParameterChildren>
+          <ParameterField id="google-gemini-chat-table-type-51" name="type" type="enum" required>
+
+            Data type: `TYPE_UNSPECIFIED`, `STRING`, `NUMBER`, `INTEGER`, `BOOLEAN`, `ARRAY`, or `OBJECT`
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-description-52" name="description" type="string">
+
+            Field description
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-enum-53" name="enum" type="array">
+
+            List of enum values when `type` is `STRING`
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-example-54" name="example" type="any">
+
+            Example value
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-nullable-55" name="nullable" type="boolean">
+
+            Whether the value can be null
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-format-56" name="format" type="string">
+
+            String format, such as `date` or `date-time`
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-items-57" name="items" type="object">
+
+            Schema for array items
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-properties-58" name="properties" type="object">
+
+            Schemas for object properties
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-required-59" name="required" type="array">
+
+            Required property names
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-minimum-60" name="minimum" type="number">
+
+            Minimum numeric value
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-maximum-61" name="maximum" type="number">
+
+            Maximum numeric value
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-minitems-62" name="minItems" type="integer">
+
+            Minimum array length
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-maxitems-63" name="maxItems" type="integer">
+
+            Maximum array length
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-minlength-64" name="minLength" type="integer">
+
+            Minimum string length
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-maxlength-65" name="maxLength" type="integer">
+
+            Maximum string length
+          </ParameterField>
+        </ParameterChildren>
       </ParameterField>
       <ParameterField id="google-gemini-chat-table-responsemodalities-36" name="responseModalities" type="array">
 
@@ -752,14 +823,76 @@ Where `$API_KEY` is your Google AI API key.
       <ParameterField id="google-gemini-chat-table-speechconfig-48" name="speechConfig" type="object">
 
         Speech generation configuration
+
+        <ParameterChildren>
+          <ParameterField id="google-gemini-chat-table-voiceconfig-128" name="voiceConfig" type="object">
+
+            Configuration for single-voice output
+
+            <ParameterChildren>
+              <ParameterField id="google-gemini-chat-table-prebuiltvoiceconfig-131" name="prebuiltVoiceConfig" type="object">
+
+                Selects a prebuilt voice
+
+                <ParameterChildren>
+                  <ParameterField id="google-gemini-chat-table-voicename-132" name="voiceName" type="string">
+
+                    Name of the prebuilt voice
+                  </ParameterField>
+                </ParameterChildren>
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-multispeakervoiceconfig-129" name="multiSpeakerVoiceConfig" type="object">
+
+            Multi-speaker configuration; mutually exclusive with `voiceConfig`
+
+            <ParameterChildren>
+              <ParameterField id="google-gemini-chat-table-speakervoiceconfigs-133" name="speakerVoiceConfigs" type="array">
+
+                Voice configuration for each speaker
+
+                <ParameterChildren>
+                  <ParameterField id="google-gemini-chat-table-speaker-134" name="speaker" type="string">
+
+                    Speaker name used in the prompt
+                  </ParameterField>
+                  <ParameterField id="google-gemini-chat-table-voiceconfig-135" name="voiceConfig" type="object">
+
+                    Voice configuration for this speaker
+                  </ParameterField>
+                </ParameterChildren>
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-languagecode-130" name="languageCode" type="string">
+
+            BCP-47 language code used for speech recognition and synthesis
+          </ParameterField>
+        </ParameterChildren>
       </ParameterField>
       <ParameterField id="google-gemini-chat-table-thinkingconfig-49" name="thinkingConfig" type="object">
 
         Thinking function configuration
+
+        <ParameterChildren>
+          <ParameterField id="google-gemini-chat-table-includethoughts-126" name="includeThoughts" type="boolean">
+
+            Whether available thought summaries should be included in the response
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-thinkingbudget-127" name="thinkingBudget" type="integer">
+
+            Number of thinking tokens the model may generate
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-thinkinglevel-162" name="thinkingLevel" type="enum">
+
+            Model-supported qualitative thinking level
+          </ParameterField>
+        </ParameterChildren>
       </ParameterField>
       <ParameterField id="google-gemini-chat-table-mediaresolution-50" name="mediaResolution" type="enum">
 
-        Specified media resolution
+        Resolution used to process input media: `MEDIA_RESOLUTION_LOW`, `MEDIA_RESOLUTION_MEDIUM`, or `MEDIA_RESOLUTION_HIGH`
       </ParameterField>
     </ParameterChildren>
 
@@ -775,92 +908,6 @@ Where `$API_KEY` is your Google AI API key.
     - `IMAGE`: Indicates model should return image
     - `AUDIO`: Indicates model should return audio
 
-    **Schema object properties:**
-
-    <ParameterChildren>
-      <ParameterField id="google-gemini-chat-table-type-51" name="type" type="enum" required>
-
-        Data type
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-description-52" name="description" type="string">
-
-        Field description
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-enum-53" name="enum" type="array">
-
-        List of enum values (when type is string)
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-example-54" name="example" type="any">
-
-        Example value
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-nullable-55" name="nullable" type="boolean">
-
-        Whether it can be null
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-format-56" name="format" type="string">
-
-        String format (e.g., date, date-time)
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-items-57" name="items" type="object">
-
-        Schema for array items (when type is array)
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-properties-58" name="properties" type="object">
-
-        Schema for object properties (when type is object)
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-required-59" name="required" type="array">
-
-        List of required property names
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-minimum-60" name="minimum" type="number">
-
-        Minimum value for numbers
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-maximum-61" name="maximum" type="number">
-
-        Maximum value for numbers
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-minitems-62" name="minItems" type="integer">
-
-        Minimum length for arrays
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-maxitems-63" name="maxItems" type="integer">
-
-        Maximum length for arrays
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-minlength-64" name="minLength" type="integer">
-
-        Minimum length for strings
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-maxlength-65" name="maxLength" type="integer">
-
-        Maximum length for strings
-      </ParameterField>
-    </ParameterChildren>
-
-    **Type enum values:**
-
-    - `TYPE_UNSPECIFIED`: Type not specified
-    - `STRING`: String type
-    - `NUMBER`: Number type
-    - `INTEGER`: Integer type
-    - `BOOLEAN`: Boolean type
-    - `ARRAY`: Array type
-    - `OBJECT`: Object type
-
-    **Supported programming languages (ExecutableCode):**
-
-    - `LANGUAGE_UNSPECIFIED`: Language not specified
-    - `PYTHON`: Python programming language
-
-    **Code execution result enum (Outcome):**
-
-    - `OUTCOME_UNSPECIFIED`: Result not specified
-    - `OUTCOME_OK`: Code execution successful
-    - `OUTCOME_FAILED`: Code execution failed
-    - `OUTCOME_DEADLINE_EXCEEDED`: Code execution timed out
   </ParameterField>
   <ParameterField id="google-gemini-chat-heading-cachedcontent-154" name="cachedContent" type="string">
 
@@ -893,10 +940,51 @@ Answer from models that support multiple candidate answers. The system reports s
       <ParameterField id="google-gemini-chat-table-safetyratings-68" name="safetyRatings" type="array">
 
         List of safety ratings for the candidate answer
+
+        <ParameterChildren>
+          <ParameterField id="google-gemini-chat-table-category-90" name="category" type="enum">
+
+            Harm category evaluated for this candidate
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-probability-91" name="probability" type="enum">
+
+            Estimated probability of harmful content: `NEGLIGIBLE`, `LOW`, `MEDIUM`, or `HIGH`
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-blocked-92" name="blocked" type="boolean">
+
+            Whether this content was blocked because of the rating
+          </ParameterField>
+        </ParameterChildren>
       </ParameterField>
       <ParameterField id="google-gemini-chat-table-citationmetadata-69" name="citationMetadata" type="object">
 
         Reference information for the generated candidate
+
+        <ParameterChildren>
+          <ParameterField id="google-gemini-chat-table-citationsources-93" name="citationSources" type="array">
+
+            Source references for passages in the generated response
+
+            <ParameterChildren>
+              <ParameterField id="google-gemini-chat-table-startindex-94" name="startIndex" type="integer">
+
+                Inclusive start index of the attributed response segment
+              </ParameterField>
+              <ParameterField id="google-gemini-chat-table-endindex-95" name="endIndex" type="integer">
+
+                Exclusive end index of the attributed response segment
+              </ParameterField>
+              <ParameterField id="google-gemini-chat-table-uri-96" name="uri" type="string">
+
+                URI attributed to the response segment
+              </ParameterField>
+              <ParameterField id="google-gemini-chat-table-license-97" name="license" type="string">
+
+                License associated with the attributed source, when available
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+        </ParameterChildren>
       </ParameterField>
       <ParameterField id="google-gemini-chat-table-tokencount-70" name="tokenCount" type="integer">
 
@@ -905,10 +993,147 @@ Answer from models that support multiple candidate answers. The system reports s
       <ParameterField id="google-gemini-chat-table-groundingattributions-71" name="groundingAttributions" type="array">
 
         Information about sources that contributed to generating a grounded answer
+
+        <ParameterChildren>
+          <ParameterField id="google-gemini-chat-table-sourceid-103" name="sourceId" type="object">
+
+            Identifier for the source contributing to this attribution
+
+            <ParameterChildren>
+              <ParameterField id="google-gemini-chat-table-groundingpassage-105" name="groundingPassage" type="object">
+
+                Identifier for an inline grounding passage
+
+                <ParameterChildren>
+                  <ParameterField id="google-gemini-chat-table-passageid-107" name="passageId" type="string">
+
+                    Grounding passage ID
+                  </ParameterField>
+                  <ParameterField id="google-gemini-chat-table-partindex-108" name="partIndex" type="integer">
+
+                    Index of the part within the grounding passage
+                  </ParameterField>
+                </ParameterChildren>
+              </ParameterField>
+              <ParameterField id="google-gemini-chat-table-semanticretrieverchunk-106" name="semanticRetrieverChunk" type="object">
+
+                Identifier for a chunk returned by Semantic Retriever
+
+                <ParameterChildren>
+                  <ParameterField id="google-gemini-chat-table-source-109" name="source" type="string">
+
+                    Semantic Retriever source name
+                  </ParameterField>
+                  <ParameterField id="google-gemini-chat-table-chunk-110" name="chunk" type="string">
+
+                    Name of the attributed chunk
+                  </ParameterField>
+                </ParameterChildren>
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-content-104" name="content" type="object">
+
+            Content supplied by the attributed source
+          </ParameterField>
+        </ParameterChildren>
       </ParameterField>
       <ParameterField id="google-gemini-chat-table-groundingmetadata-72" name="groundingMetadata" type="object">
 
         Reference metadata for the candidate object
+
+        <ParameterChildren>
+          <ParameterField id="google-gemini-chat-table-groundingchunks-98" name="groundingChunks" type="array">
+
+            Supporting references retrieved from the grounding source
+
+            <ParameterChildren>
+              <ParameterField id="google-gemini-chat-table-web-118" name="web" type="object">
+
+                Web grounding source
+
+                <ParameterChildren>
+                  <ParameterField id="google-gemini-chat-table-uri-119" name="uri" type="string">
+
+                    URI of the supporting source
+                  </ParameterField>
+                  <ParameterField id="google-gemini-chat-table-title-120" name="title" type="string">
+
+                    Title of the supporting source
+                  </ParameterField>
+                </ParameterChildren>
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-groundingsupports-99" name="groundingSupports" type="array">
+
+            Links response segments to entries in `groundingChunks`
+
+            <ParameterChildren>
+              <ParameterField id="google-gemini-chat-table-groundingchunkindices-121" name="groundingChunkIndices" type="array">
+
+                Indices of the supporting `groundingChunks`
+              </ParameterField>
+              <ParameterField id="google-gemini-chat-table-confidencescores-122" name="confidenceScores" type="array">
+
+                Confidence scores for the supporting references
+              </ParameterField>
+              <ParameterField id="google-gemini-chat-table-segment-123" name="segment" type="object">
+
+                Segment of generated content supported by these references
+
+                <ParameterChildren>
+                  <ParameterField id="google-gemini-chat-table-partindex-113" name="partIndex" type="integer">
+
+                    Index of the part within the candidate content
+                  </ParameterField>
+                  <ParameterField id="google-gemini-chat-table-startindex-114" name="startIndex" type="integer">
+
+                    Inclusive byte offset where the segment starts
+                  </ParameterField>
+                  <ParameterField id="google-gemini-chat-table-endindex-115" name="endIndex" type="integer">
+
+                    Exclusive byte offset where the segment ends
+                  </ParameterField>
+                  <ParameterField id="google-gemini-chat-table-text-116" name="text" type="string">
+
+                    Text represented by the segment
+                  </ParameterField>
+                </ParameterChildren>
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-websearchqueries-100" name="webSearchQueries" type="array">
+
+            Search queries issued during grounding
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-searchentrypoint-101" name="searchEntryPoint" type="object">
+
+            Google Search entry point for displaying grounded results
+
+            <ParameterChildren>
+              <ParameterField id="google-gemini-chat-table-renderedcontent-111" name="renderedContent" type="string">
+
+                Search UI content that can be embedded in a webpage or WebView
+              </ParameterField>
+              <ParameterField id="google-gemini-chat-table-sdkblob-112" name="sdkBlob" type="string">
+
+                Base64-encoded search metadata consumed by Google SDKs
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-retrievalmetadata-102" name="retrievalMetadata" type="object">
+
+            Metadata about dynamic retrieval
+
+            <ParameterChildren>
+              <ParameterField id="google-gemini-chat-table-googlesearchdynamicretrievalscore-117" name="googleSearchDynamicRetrievalScore" type="number">
+
+                Likelihood that Google Search would improve the answer, from 0 to 1
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+        </ParameterChildren>
       </ParameterField>
       <ParameterField id="google-gemini-chat-table-avglogprobs-73" name="avgLogprobs" type="number">
 
@@ -917,14 +1142,60 @@ Answer from models that support multiple candidate answers. The system reports s
       <ParameterField id="google-gemini-chat-table-logprobsresult-74" name="logprobsResult" type="object">
 
         Log probability scores for answer tokens and preceding tokens
-      </ParameterField>
-      <ParameterField id="google-gemini-chat-table-urlretrievalmetadata-75" name="urlRetrievalMetadata" type="object">
 
-        Metadata related to URL context retrieval tool
+        Returned when `generationConfig.responseLogprobs` is enabled.
+
+        <ParameterChildren>
+          <ParameterField id="google-gemini-chat-table-topcandidates-136" name="topCandidates" type="array">
+
+            Top token candidates for every decoding step
+
+            <ParameterChildren>
+              <ParameterField id="google-gemini-chat-table-candidates-138" name="candidates" type="array">
+
+                Candidates sorted by descending log probability
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-chosencandidates-137" name="chosenCandidates" type="array">
+
+            Token selected at every decoding step
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-token-139" name="token" type="string">
+
+            Candidate token
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-tokenid-140" name="tokenId" type="integer">
+
+            Candidate token ID
+          </ParameterField>
+          <ParameterField id="google-gemini-chat-table-logprobability-141" name="logProbability" type="number">
+
+            Log probability of the candidate token
+          </ParameterField>
+        </ParameterChildren>
       </ParameterField>
       <ParameterField id="google-gemini-chat-table-urlcontextmetadata-76" name="urlContextMetadata" type="object">
 
         Metadata related to URL context retrieval tool
+
+        <ParameterChildren>
+          <ParameterField id="google-gemini-chat-table-urlmetadata-144" name="urlMetadata" type="array">
+
+            Retrieval result for each URL
+
+            <ParameterChildren>
+              <ParameterField id="google-gemini-chat-table-retrievedurl-145" name="retrievedUrl" type="string">
+
+                URL retrieved by the tool
+              </ParameterField>
+              <ParameterField id="google-gemini-chat-table-urlretrievalstatus-146" name="urlRetrievalStatus" type="enum">
+
+                Retrieval outcome, such as `URL_RETRIEVAL_STATUS_SUCCESS` or `URL_RETRIEVAL_STATUS_ERROR`
+              </ParameterField>
+            </ParameterChildren>
+          </ParameterField>
+        </ParameterChildren>
       </ParameterField>
       <ParameterField id="google-gemini-chat-table-index-77" name="index" type="integer">
 
@@ -959,7 +1230,7 @@ Answer from models that support multiple candidate answers. The system reports s
       </ParameterField>
       <ParameterField id="google-gemini-chat-table-safetyratings-79" name="safetyRatings" type="array">
 
-        Safety rating for the prompt
+        Safety ratings for the prompt. Each item uses the same `category`, `probability`, and `blocked` fields documented under `candidates[].safetyRatings`.
       </ParameterField>
     </ParameterChildren>
 
@@ -1018,6 +1289,19 @@ Answer from models that support multiple candidate answers. The system reports s
       <ParameterField id="google-gemini-chat-table-tooluseprompttokensdetails-89" name="toolUsePromptTokensDetails" type="array">
 
         List of modalities processed for tool usage in the request input
+      </ParameterField>
+    </ParameterChildren>
+
+    Each token-detail array contains `ModalityTokenCount` objects:
+
+    <ParameterChildren>
+      <ParameterField id="google-gemini-chat-table-modality-124" name="modality" type="enum">
+
+        Modality associated with the token count, such as `TEXT`, `IMAGE`, `VIDEO`, `AUDIO`, or `DOCUMENT`
+      </ParameterField>
+      <ParameterField id="google-gemini-chat-table-tokencount-125" name="tokenCount" type="integer">
+
+        Number of tokens for that modality
       </ParameterField>
     </ParameterChildren>
   </ParameterField>
@@ -1106,525 +1390,115 @@ Answer from models that support multiple candidate answers. The system reports s
 }
 ```
 
-## 🔧 Advanced Features
+## 🔧 Feature Interactions
 
-### Safety Ratings
-
-**SafetyRating object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-category-90" name="category" type="enum">
-
-    Category of this rating
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-probability-91" name="probability" type="enum">
-
-    Harmful probability for this content
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-blocked-92" name="blocked" type="boolean">
-
-    Whether this content was blocked due to this rating
-  </ParameterField>
-</ParameterTree>
-
-**HarmProbability enum values:**
-
-- `NEGLIGIBLE`: Harmful probability negligible
-- `LOW`: Harmful probability low
-- `MEDIUM`: Harmful probability medium
-- `HIGH`: Harmful probability high
-
-### Citation Metadata
-
-**CitationMetadata object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-citationsources-93" name="citationSources" type="array">
-
-    Source references for specific replies
-  </ParameterField>
-</ParameterTree>
-
-**CitationSource object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-startindex-94" name="startIndex" type="integer">
-
-    Start index of the response segment attributed to this source
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-endindex-95" name="endIndex" type="integer">
-
-    End index of the attribution (exclusive)
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-uri-96" name="uri" type="string">
-
-    URI attributed to the text portion from this source
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-license-97" name="license" type="string">
-
-    License of the GitHub project attributed to the source fragment
-  </ParameterField>
-</ParameterTree>
+The fields below are not additional top-level parameters. Each feature is enabled by a field in the request tree and, when applicable, produces data at a corresponding path in `GenerateContentResponse`.
 
 ### Code Execution
 
-When code execution tools are enabled, the model can generate and execute code to solve problems.
+Enable code execution with `tools[].codeExecution`. The generated code and its execution result are returned as content parts:
 
-**Code execution example response:**
+```text
+Request:  tools[].codeExecution
+Response: candidates[].content.parts[].executableCode
+          candidates[].content.parts[].codeExecutionResult
+```
 
 ```json
 {
-  "candidates": [
+  "tools": [
     {
-      "content": {
-        "parts": [
-          {
-            "text": "我来计算斐波那契数列的第10项："
-          },
-          {
-            "executableCode": {
-              "language": "PYTHON",
-              "code": "def fibonacci(n):\n    if n <= 1:\n        return n\n    else:\n        return fibonacci(n-1) + fibonacci(n-2)\n\nresult = fibonacci(10)\nprint(f'第10项斐波那契数是: {result}')"
-            }
-          },
-          {
-            "codeExecutionResult": {
-              "outcome": "OK",
-              "output": "第10项斐波那契数是: 55"
-            }
-          },
-          {
-            "text": "所以斐波那契数列的第10项是55。"
-          }
-        ],
-        "role": "model"
-      },
-      "finishReason": "STOP"
+      "codeExecution": {}
+    }
+  ],
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "Calculate the tenth Fibonacci number."
+        }
+      ]
     }
   ]
 }
 ```
 
-### Grounding
+### Grounding and URL Context
 
-**GroundingMetadata object properties:**
+Enable Google Search grounding or URL retrieval through the `tools` array. Supporting sources and retrieval status are returned as candidate metadata:
 
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-groundingchunks-98" name="groundingChunks" type="array">
+```text
+Request:  tools[].googleSearch
+Response: candidates[].groundingMetadata
 
-    List of supporting reference documents retrieved from specified grounding sources
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-groundingsupports-99" name="groundingSupports" type="array">
+Request:  tools[].urlContext
+Response: candidates[].urlContextMetadata
+```
 
-    Grounding support list
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-websearchqueries-100" name="webSearchQueries" type="array">
+Grounding chunks contain the retrieved sources. Grounding supports associate portions of the generated answer with those chunks.
 
-    Web search queries for subsequent web searches
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-searchentrypoint-101" name="searchEntryPoint" type="object">
+### Thinking
 
-    Google search entry point for subsequent web searches
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-retrievalmetadata-102" name="retrievalMetadata" type="object">
+Thinking is configured inside `generationConfig`:
 
-    Metadata related to retrieval in the baseline process
-  </ParameterField>
-</ParameterTree>
+```text
+Request:  generationConfig.thinkingConfig
+Response: candidates[].content.parts[]   (thought parts, when requested and available)
+          usageMetadata.thoughtsTokenCount
+```
 
-**GroundingAttribution object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-sourceid-103" name="sourceId" type="object">
-
-    Identifier of the source that contributed to this attribution
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-content-104" name="content" type="object">
-
-    Content of the source that contributed to this attribution
-  </ParameterField>
-</ParameterTree>
-
-**AttributionSourceId object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-groundingpassage-105" name="groundingPassage" type="object">
-
-    Identifier of the embedded paragraph
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-semanticretrieverchunk-106" name="semanticRetrieverChunk" type="object">
-
-    Identifier of the Chunk extracted by Semantic Retriever
-  </ParameterField>
-</ParameterTree>
-
-**GroundingPassageId object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-passageid-107" name="passageId" type="string">
-
-    ID of the paragraph matching GroundingPassage.id from GenerateAnswerRequest
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-partindex-108" name="partIndex" type="integer">
-
-    Index of the part in GroundingPassage.content
-  </ParameterField>
-</ParameterTree>
-
-**SemanticRetrieverChunk object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-source-109" name="source" type="string">
-
-    Source name matching SemanticRetrieverConfig.source from the request
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-chunk-110" name="chunk" type="string">
-
-    Name of the Chunk containing the attributed text
-  </ParameterField>
-</ParameterTree>
-
-**SearchEntryPoint object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-renderedcontent-111" name="renderedContent" type="string">
-
-    Web content code segment embeddable in a webpage or app WebView
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-sdkblob-112" name="sdkBlob" type="string">
-
-    Base64 encoded JSON, representing an array of search terms and search URL tuples
-  </ParameterField>
-</ParameterTree>
-
-**Segment object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-partindex-113" name="partIndex" type="integer">
-
-    Index of the Part object within its parent Content object
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-startindex-114" name="startIndex" type="integer">
-
-    Start index of the given part in bytes
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-endindex-115" name="endIndex" type="integer">
-
-    End index of the given chunk in bytes
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-text-116" name="text" type="string">
-
-    Text corresponding to the fragment in the response
-  </ParameterField>
-</ParameterTree>
-
-**RetrievalMetadata object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-googlesearchdynamicretrievalscore-117" name="googleSearchDynamicRetrievalScore" type="number">
-
-    Probability score of information from Google search helping to answer the question, range [0,1]
-  </ParameterField>
-</ParameterTree>
-
-**GroundingChunk object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-web-118" name="web" type="object">
-
-    Grounding chunk from the web
-  </ParameterField>
-</ParameterTree>
-
-**Web object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-uri-119" name="uri" type="string">
-
-    URI reference for the chunk
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-title-120" name="title" type="string">
-
-    Title of the data block
-  </ParameterField>
-</ParameterTree>
-
-**GroundingSupport object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-groundingchunkindices-121" name="groundingChunkIndices" type="array">
-
-    List of indices, used to specify citations related to copyright claims
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-confidencescores-122" name="confidenceScores" type="array">
-
-    Confidence scores for supporting reference documents, range 0-1
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-segment-123" name="segment" type="object">
-
-    Content segment to which this support request belongs
-  </ParameterField>
-</ParameterTree>
-
-### Multimodal Processing
-
-Gemini API supports processing multiple modalities of input and output:
-
-**Supported input modalities:**
-
-- `TEXT`: Pure text
-- `IMAGE`: Images (JPEG, PNG, WebP, HEIC, HEIF)
-- `AUDIO`: Audio (WAV, MP3, AIFF, AAC, OGG, FLAC)
-- `VIDEO`: Videos (MP4, MPEG, MOV, AVI, FLV, MPG, WEBM, WMV, 3GPP)
-- `DOCUMENT`: Documents (PDF)
-
-**ModalityTokenCount object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-modality-124" name="modality" type="enum">
-
-    Modality associated with this token count
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-tokencount-125" name="tokenCount" type="integer">
-
-    Token count
-  </ParameterField>
-</ParameterTree>
-
-**MediaResolution enum values:**
-
-- `MEDIA_RESOLUTION_LOW`: Low resolution (64 tokens)
-- `MEDIA_RESOLUTION_MEDIUM`: Medium resolution (256 tokens)
-- `MEDIA_RESOLUTION_HIGH`: High resolution (256 tokens for scaling and re-framing)
-
-### Thinking Function
-
-**ThinkingConfig object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-includethoughts-126" name="includeThoughts" type="boolean">
-
-    Whether to include thinking content in the answer
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-thinkingbudget-127" name="thinkingBudget" type="integer">
-
-    Number of idea tokens the model should generate
-  </ParameterField>
-</ParameterTree>
+Set `includeThoughts` to request available thought summaries and use `thinkingBudget` or `thinkingLevel` only with models that support those controls.
 
 ### Speech Generation
 
-**SpeechConfig object properties:**
+Speech output requires an audio response modality and a speech configuration:
 
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-voiceconfig-128" name="voiceConfig" type="object">
+```text
+Request:  generationConfig.responseModalities
+          generationConfig.speechConfig
+Response: candidates[].content.parts[]   (audio media parts)
+```
 
-    Configuration for single voice output
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-multispeakervoiceconfig-129" name="multiSpeakerVoiceConfig" type="object">
+Single-voice settings belong under `speechConfig.voiceConfig`. Multi-speaker settings belong under `speechConfig.multiSpeakerVoiceConfig`; the two configurations are mutually exclusive.
 
-    Configuration for multi-speaker settings
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-languagecode-130" name="languageCode" type="string">
+### Log Probabilities
 
-    Language code for speech synthesis
-  </ParameterField>
-</ParameterTree>
+Enable log probabilities in the request and read the token-level results from each candidate:
 
-**VoiceConfig object properties:**
+```text
+Request:  generationConfig.responseLogprobs
+          generationConfig.logprobs
+Response: candidates[].avgLogprobs
+          candidates[].logprobsResult
+```
 
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-prebuiltvoiceconfig-131" name="prebuiltVoiceConfig" type="object">
+`logprobs` is only valid when `responseLogprobs` is enabled.
 
-    Configuration for the prebuilt voice to use
-  </ParameterField>
-</ParameterTree>
+### Safety
 
-**PrebuiltVoiceConfig object properties:**
+`safetySettings` controls the blocking thresholds applied to the request and generated candidates. Ratings are returned separately:
 
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-voicename-132" name="voiceName" type="string">
+```text
+Request:  safetySettings[]
+Response: promptFeedback.safetyRatings[]
+          candidates[].safetyRatings[]
+```
 
-    Name of the prebuilt voice to use
-  </ParameterField>
-</ParameterTree>
+A blocked prompt is reported through `promptFeedback.blockReason`. A candidate stopped for safety reasons reports the condition through `finishReason` and `safetyRatings`.
 
-**MultiSpeakerVoiceConfig object properties:**
+### Multimodal Processing
 
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-speakervoiceconfigs-133" name="speakerVoiceConfigs" type="array">
+Supply inline or uploaded media as content parts. Resolution is an input setting, while modality token counts are response metadata:
 
-    All enabled speaker voices
-  </ParameterField>
-</ParameterTree>
+```text
+Request:  contents[].parts[].inlineData
+          contents[].parts[].fileData
+          generationConfig.mediaResolution
+Response: usageMetadata.promptTokensDetails[]
+          usageMetadata.candidatesTokensDetails[]
+```
 
-**SpeakerVoiceConfig object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-speaker-134" name="speaker" type="string">
-
-    Name of the speaker to use
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-voiceconfig-135" name="voiceConfig" type="object">
-
-    Configuration for the voice to use
-  </ParameterField>
-</ParameterTree>
-
-**Supported language codes:**
-
-- `zh-CN`: Chinese (Simplified)
-- `en-US`: English (US)
-- `ja-JP`: Japanese
-- `ko-KR`: Korean
-- `fr-FR`: French
-- `de-DE`: German
-- `es-ES`: Spanish
-- `pt-BR`: Portuguese (Brazil)
-- `hi-IN`: Hindi
-- `ar-XA`: Arabic
-- `it-IT`: Italian
-- `tr-TR`: Turkish
-- `vi-VN`: Vietnamese
-- `th-TH`: Thai
-- `ru-RU`: Russian
-- `pl-PL`: Polish
-- `nl-NL`: Dutch
-
-### Logprobs Results
-
-**LogprobsResult object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-topcandidates-136" name="topCandidates" type="array">
-
-    Array of candidates sorted by log probability in descending order
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-chosencandidates-137" name="chosenCandidates" type="array">
-
-    Array of chosen candidates, not necessarily in topCandidates (length equals total decoding steps)
-  </ParameterField>
-</ParameterTree>
-
-**TopCandidates object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-candidates-138" name="candidates" type="array">
-
-    Candidates sorted by log probability in descending order
-  </ParameterField>
-</ParameterTree>
-
-**Candidate (Logprobs) object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-token-139" name="token" type="string">
-
-    Token string value for the candidate
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-tokenid-140" name="tokenId" type="integer">
-
-    Token ID value for the candidate
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-logprobability-141" name="logProbability" type="number">
-
-    Log probability for the candidate
-  </ParameterField>
-</ParameterTree>
-
-### URL Retrieval Function
-
-**UrlRetrievalMetadata object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-urlretrievalcontexts-142" name="urlRetrievalContexts" type="array">
-
-    List of URL retrieval contexts
-  </ParameterField>
-</ParameterTree>
-
-**UrlRetrievalContext object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-retrievedurl-143" name="retrievedUrl" type="string">
-
-    URL retrieved by the tool
-  </ParameterField>
-</ParameterTree>
-
-**UrlContextMetadata object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-urlmetadata-144" name="urlMetadata" type="array">
-
-    List of URL contexts
-  </ParameterField>
-</ParameterTree>
-
-**UrlMetadata object properties:**
-
-<ParameterTree>
-  <ParameterField id="google-gemini-chat-table-retrievedurl-145" name="retrievedUrl" type="string">
-
-    URL retrieved by the tool
-  </ParameterField>
-  <ParameterField id="google-gemini-chat-table-urlretrievalstatus-146" name="urlRetrievalStatus" type="enum">
-
-    URL retrieval status
-  </ParameterField>
-</ParameterTree>
-
-**UrlRetrievalStatus enum values:**
-
-- `URL_RETRIEVAL_STATUS_SUCCESS`: URL retrieval successful
-- `URL_RETRIEVAL_STATUS_ERROR`: URL retrieval failed due to an error
-
-### Complete Harm Categories
-
-**HarmCategory enum values:**
-
-- `HARM_CATEGORY_UNSPECIFIED`: Category not specified
-- `HARM_CATEGORY_DEROGATORY`: PaLM - Negative or harmful comments targeting identity and/or protected attributes
-- `HARM_CATEGORY_TOXICITY`: PaLM - Rude, impolite, or profane content
-- `HARM_CATEGORY_VIOLENCE`: PaLM - Scenarios depicting violence against individuals or groups
-- `HARM_CATEGORY_SEXUAL`: PaLM - References to sexual behavior or other explicit content
-- `HARM_CATEGORY_MEDICAL`: PaLM - Promoting unverified medical advice
-- `HARM_CATEGORY_DANGEROUS`: PaLM - Dangerous content promotes, encourages, or facilitates harmful behavior
-- `HARM_CATEGORY_HARASSMENT`: Gemini - Harassment content
-- `HARM_CATEGORY_HATE_SPEECH`: Gemini - Hate speech and content
-- `HARM_CATEGORY_SEXUALLY_EXPLICIT`: Gemini - Explicitly sexual content
-- `HARM_CATEGORY_DANGEROUS_CONTENT`: Gemini - Dangerous content
-- `HARM_CATEGORY_CIVIC_INTEGRITY`: Gemini - Content that might be used to undermine civic integrity
-
-**HarmProbability enum values:**
-
-- `HARM_PROBABILITY_UNSPECIFIED`: Probability not specified
-- `NEGLIGIBLE`: Harmful probability negligible
-- `LOW`: Harmful probability low
-- `MEDIUM`: Harmful probability medium
-- `HIGH`: Harmful probability high
-
-**Modality enum values:**
-
-- `MODALITY_UNSPECIFIED`: Modality not specified
-- `TEXT`: Pure text
-- `IMAGE`: Image
-- `VIDEO`: Video
-- `AUDIO`: Audio
-- `DOCUMENT`: Document, e.g., PDF
-
-**MediaResolution enum values:**
-
-- `MEDIA_RESOLUTION_UNSPECIFIED`: Media resolution not set
-- `MEDIA_RESOLUTION_LOW`: Media resolution set to low (64 tokens)
-- `MEDIA_RESOLUTION_MEDIUM`: Media resolution set to medium (256 tokens)
-- `MEDIA_RESOLUTION_HIGH`: Media resolution set to high (using 256 tokens for scaling and re-framing)
-
-**UrlRetrievalStatus enum values:**
-
-- `URL_RETRIEVAL_STATUS_UNSPECIFIED`: Default value, this value is not used
-- `URL_RETRIEVAL_STATUS_SUCCESS`: URL retrieval successful
-- `URL_RETRIEVAL_STATUS_ERROR`: URL retrieval failed due to an error
+Supported media depends on the selected model. Common modalities include text, images, audio, video, and PDF documents.
 
 ## 🔍 Error Handling
 
