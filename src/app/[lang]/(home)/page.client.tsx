@@ -25,17 +25,17 @@ export function Hero() {
         style={{
           backgroundColor: '#060b18',
           backgroundImage: [
-            'radial-gradient(ellipse 120% 80% at 10% 20%, rgba(14,165,233,.18), transparent 50%)',
-            'radial-gradient(ellipse 100% 70% at 80% 30%, rgba(99,102,241,.16), transparent 50%)',
-            'radial-gradient(ellipse 80% 60% at 50% 85%, rgba(79,70,229,.12), transparent 50%)',
+            'radial-gradient(ellipse 120% 80% at 10% 20%, rgba(168,85,247,.18), transparent 50%)',
+            'radial-gradient(ellipse 100% 70% at 80% 30%, rgba(139,92,246,.16), transparent 50%)',
+            'radial-gradient(ellipse 80% 60% at 50% 85%, rgba(192,132,252,.12), transparent 50%)',
           ].join(','),
         }}
       />
 
       {showShaders && (
         <GrainGradient
-          className={cn('absolute inset-0 duration-1000 animate-fd-fade-in')}
-          colors={['#0ea5e9', '#6366f1', '#4f46e5', '#00000000']}
+          className={cn('animate-fd-fade-in absolute inset-0 duration-1000')}
+          colors={['#a855f7', '#8b5cf6', '#c084fc', '#00000000']}
           colorBack="#060b18"
           softness={1}
           intensity={0.55}
@@ -59,7 +59,7 @@ export function Typewriter({ text }: { text: string }) {
     }
     const t = setTimeout(
       () => setDisplayed(text.slice(0, displayed.length + 1)),
-      90,
+      90
     );
     return () => clearTimeout(t);
   }, [displayed, text, done]);
@@ -71,7 +71,7 @@ export function Typewriter({ text }: { text: string }) {
         <span className="ml-1 inline-block h-[0.85em] w-[3px] animate-pulse bg-current align-middle" />
       )}
       {done && (
-        <span className="ml-2 inline-block size-3 animate-pulse rounded-full bg-sky-400 align-middle" />
+        <span className="ml-2 inline-block size-3 animate-pulse rounded-full bg-violet-400 align-middle" />
       )}
     </>
   );

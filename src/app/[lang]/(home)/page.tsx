@@ -151,7 +151,7 @@ export default async function Page({
         </h1>
 
         {/* Subtitle badge */}
-        <p className="mt-6 rounded-full border border-sky-500/30 bg-sky-500/10 px-5 py-2 text-sm font-medium text-sky-300/90 backdrop-blur-sm md:text-base">
+        <p className="mt-6 rounded-full border border-violet-500/30 bg-violet-500/10 px-5 py-2 text-sm font-medium text-violet-300/90 backdrop-blur-sm md:text-base">
           {c.subtitle}
         </p>
 
@@ -197,10 +197,10 @@ export default async function Page({
             <ArrowRight />
 
             {/* Gateway node */}
-            <div className="flex flex-1 flex-col items-center gap-3 rounded-2xl border border-sky-500/35 bg-sky-500/8 px-4 py-4 backdrop-blur-sm md:px-6">
+            <div className="flex flex-1 flex-col items-center gap-3 rounded-2xl border border-violet-500/35 bg-violet-500/8 px-4 py-4 backdrop-blur-sm md:px-6">
               <div className="flex items-center gap-2">
                 <span className="text-lg">⚡</span>
-                <span className="font-semibold text-sky-300 text-sm md:text-base">
+                <span className="text-sm font-semibold text-violet-300 md:text-base">
                   {c.arch.gateway}
                 </span>
               </div>
@@ -244,7 +244,7 @@ export default async function Page({
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
           <Link
             href={getLocalePath(lang, 'docs')}
-            className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-6 py-3 font-medium text-white transition-colors hover:bg-sky-400"
+            className="inline-flex items-center gap-2 rounded-full bg-violet-500 px-6 py-3 font-medium text-white transition-colors hover:bg-violet-400"
           >
             <BookOpen className="size-4" />
             {c.getStarted}

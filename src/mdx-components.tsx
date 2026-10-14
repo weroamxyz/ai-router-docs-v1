@@ -4,6 +4,12 @@ import { QQGroupQuiz } from '@/components/qq-group-quiz';
 import { APIPage } from '@/components/api-page';
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
 import { SiteBaseUrl } from '@/components/mdx/site-base-url';
+import { ExampleTab, ExampleTabs } from '@/components/mdx/example-tabs';
+import {
+  ParameterChildren,
+  ParameterField,
+  ParameterTree,
+} from '@/components/mdx/parameter-tree';
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -14,6 +20,11 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     APIPage: APIPage as any,
     SiteBaseUrl,
+    ExampleTab,
+    ExampleTabs,
+    ParameterChildren,
+    ParameterField,
+    ParameterTree,
     ...components,
   };
 }

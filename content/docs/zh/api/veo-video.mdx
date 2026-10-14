@@ -1,252 +1,378 @@
 ---
-title: Veo 模型文生视频接口文档
+title: Veo 视频生成
+sectionLayout: api
 ---
 
-# Veo 模型文生视频接口文档
-
-Veo 是 Google 开发的高质量文本到视频生成模型,本文档描述了使用 Google Veo 模型进行文本到视频生成的完整 API 接口规范。
+Google Veo 通过同一套异步视频 API 提供文生视频、图生视频、首末帧生成和参考图生成能力。
 
 ---
 
 ## 支持的模型
 
-目前支持的模型包括：
-
-| 模型 | 描述 |
+| 模型 | 说明 |
 | --- | --- |
-| **veo-3.0-generate-001** | Veo 3.0 文本到视频生成模型 |
-| **veo-3.0-fast-generate-001** | Veo 3.0 快速文本到视频生成模型 |
-| **veo-3.1-generate-preview** | Veo 3.1 文本到视频生成模型 |
-| **veo-3.1-fast-generate-preview** | Veo 3.1 快速文本到视频生成模型 |
+| **veo-3.1-generate-preview** | Veo 3.1 视频生成模型，支持本文列出的所有模式 |
+| **veo-3.1-fast-generate-preview** | 更快的 Veo 3.1 生成模型，不支持参考图模式 |
 
 ---
 
 ## 概述
 
-Veo 模型文生视频功能提供异步任务处理机制：
+所有生成模式都使用 `POST /v1/video/generations`。请求字段决定生成模式：不传图像字段时为文生视频；传入 `image` 时为图生视频；增加 `metadata.lastFrame` 可控制末帧；传入 `metadata.referenceImages` 则使用素材或风格参考图。
 
-1. 提交任务：发送文本提示词，创建视频生成任务
-2. 查询状态：通过任务 ID 查询生成进度和状态
-3. 获取结果：任务完成后获取生成的视频文件
+视频生成采用异步流程：
+
+1. 提交生成任务。
+2. 使用返回的任务 ID 轮询状态。
+3. 从返回的 URL 或 base64 数据中获取视频。
 
 ### 任务状态流转
 
 ```
-queued → in_progress → succeeded
-                ↓
-            failed
+queued → processing → succeeded
+                 ↓
+               failed
 ```
 
-- queued: 任务已提交，等待处理
-- in_progress: 任务正在处理中
-- succeeded: 任务成功完成，视频已生成
-- failed: 任务失败
-
-> **查询接口说明：** 本 API 提供两个查询接口，返回结构和状态值有所不同：
-> - `GET /v1/video/generations/{task_id}` — 包装格式 `{"code":"success","data":{...}}`，成功时状态值为 `"succeeded"`。
-> - `GET /v1/videos/{task_id}` — 扁平格式 `{"id":"...","status":"completed",...}`，成功时状态值为 `"completed"`。
->
-> 两个接口均可用于轮询任务状态，解析时注意不同的 `status` 字段值。
+> 根据渠道不同，完成的视频可能通过 `bytes_base64_encoded` 返回 base64 数据，也可能通过 `url` 返回访问地址。
 
 ---
 
 ## 接口列表
 
 | 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | /v1/video/generations | 提交视频生成任务（标准格式） |
-| GET | /v1/video/generations/\{task_id\} | 查询任务状态（标准格式） |
-| POST | /v1/videos | 提交视频生成任务 |
-| GET | /v1/videos/\{task_id\} | 查询任务状态 |
-| GET | /v1/videos/\{task_id\}/content | 获取视频内容（流式下载） |
+| --- | --- | --- |
+| POST | [/v1/video/generations](#1-提交视频生成任务-v1videogenerations) | 提交视频生成任务 |
+| GET | [/v1/video/generations/\{task_id\}](#2-查询任务状态-v1videogenerationstask_id) | 查询任务状态并获取结果 |
 
-## 调用示例
+## 1. 提交视频生成任务 (/v1/video/generations)
 
-### 请求体
+选择与输入类型匹配的标签页，并按需调整通用元数据参数。
 
-```json
-{
-  "model": "veo-3.0-generate-001",
-  "prompt": "A cat playing piano in a beautiful garden",
-  "metadata": {
-    "aspectRatio": "16:9",
-    "durationSeconds": 8.0,
-    "negativePrompt": "blurry, low quality",
-    "personGeneration": "allow_all",
-    "resolution": "1080p",
-    "sampleCount": 1,
-    "storageUri": "gs://your-bucket/path"
-  }
-}
-```
+### 调用示例
 
-### 请求参数说明:
+<ExampleTabs items={['文生视频', '图生视频', '首末帧', '参考图']}>
+  <ExampleTab id="text-to-video-example">
+    不传任何图像字段，仅根据文本生成视频。
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| model | string | 是 | 模型名称，如 veo-3.0-generate-001 |
-| prompt | string | 是 | 文本提示词，描述要生成的视频内容 |
-| metadata | object | 否 | 扩展参数对象 |
+    ```json
+    {
+      "model": "veo-3.1-generate-preview",
+      "prompt": "A cat playing piano in a beautiful garden",
+      "metadata": {
+        "aspectRatio": "16:9",
+        "durationSeconds": 8,
+        "negativePrompt": "blurry, low quality",
+        "personGeneration": "allow_all",
+        "resolution": "1080p",
+        "sampleCount": 1
+      }
+    }
+    ```
+  </ExampleTab>
 
-### metadata 参数说明:
+  <ExampleTab id="image-to-video-example">
+    在 `image` 中提供 base64 编码图像，该图像将作为视频首帧。
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| aspectRatio | string | 否 | 视频宽高比，可选值："16:9"、"9:16" |
-| durationSeconds | number | 否 | 视频时长（秒），可选值：4、6、8 |
-| negativePrompt | string | 否 | 负面提示词，描述不希望在视频中出现的内容 |
-| personGeneration | string | 否 | 人物生成策略，可选值："allow_all"（文生视频）、"allow_adult"（图生视频） |
-| resolution | string | 否 | 视频分辨率，如 "1080p"、"720p" |
+    ```json
+    {
+      "model": "veo-3.1-generate-preview",
+      "prompt": "The cat begins playing the piano as flowers sway in the breeze",
+      "image": "<BASE64_ENCODED_IMAGE_DATA>",
+      "metadata": {
+        "aspectRatio": "16:9",
+        "durationSeconds": 8,
+        "personGeneration": "allow_adult"
+      }
+    }
+    ```
+  </ExampleTab>
 
-### metadata 参数说明:
+  <ExampleTab id="first-last-frame-example">
+    使用 `image` 指定首帧，使用 `metadata.lastFrame` 指定末帧。Veo 3.1 模型支持此模式。
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| sampleCount | number | 否 | 生成视频数量，默认 1 |
-| storageUri | string | 否 | Google Cloud Storage URI，用于存储生成的视频 |
+    ```json
+    {
+      "model": "veo-3.1-generate-preview",
+      "prompt": "The garden changes gradually from sunrise to sunset",
+      "image": "<BASE64_ENCODED_FIRST_FRAME>",
+      "metadata": {
+        "lastFrame": "<BASE64_ENCODED_LAST_FRAME>",
+        "durationSeconds": 8
+      }
+    }
+    ```
+  </ExampleTab>
 
-## 1. 提交视频生成任务
+  <ExampleTab id="reference-images-example">
+    传入首帧 `image`，并在 `metadata.referenceImages` 中提供最多三张素材或风格参考图。此模式仅支持 `veo-3.1-generate-preview`。
 
-### 完整请求：
+    ```json
+    {
+      "model": "veo-3.1-generate-preview",
+      "prompt": "A cat plays piano in a garden matching the supplied visual style",
+      "image": "<BASE64_ENCODED_FIRST_FRAME>",
+      "metadata": {
+        "referenceImages": [
+          {
+            "image": "<BASE64_ENCODED_CAT_REFERENCE>",
+            "referenceType": "asset"
+          },
+          {
+            "image": "<BASE64_ENCODED_STYLE_REFERENCE>",
+            "referenceType": "style"
+          }
+        ]
+      }
+    }
+    ```
+  </ExampleTab>
+</ExampleTabs>
+
+### 完整请求
 
 ```bash
-curl -X POST "((SITE_URL))/v1/video/generations" -H "Content-Type: application/json" -H "Authorization: Bearer API_KEY" -d @veoTest.json
+curl -X POST "((SITE_URL))/v1/video/generations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer API_KEY" \
+  -d @request-body.json
 ```
 
-### 接口地址: 
+### 请求头
 
-```
-POST /v1/video/generations
-```
+| 请求头 | 必填 | 值 |
+| --- | --- | --- |
+| `Content-Type` | 是 | `application/json` |
+| `Authorization` | 是 | `Bearer API_KEY` |
 
-### 请求头:
+### 请求体字段
 
-| 参数 | 类型 | 必填 | 描述 |
-|------|------|------|------|
-| Content-Type | string | 是 | application/json |
-| Authorization | string | 是 | Bearer API_KEY |
+<ParameterTree locale="zh">
+  <ParameterField id="veo-request-model" name="model" type="string" required>
+    Veo 模型名称，可使用 `veo-3.1-generate-preview` 或
+    `veo-3.1-fast-generate-preview`。
+  </ParameterField>
+  <ParameterField id="veo-request-prompt" name="prompt" type="string" required>
+    描述目标视频内容的文本提示词。
+  </ParameterField>
+  <ParameterField id="veo-request-image" name="image" type="string">
+    base64 编码的首帧图像。图生视频、首末帧和参考图模式需要此字段；文生视频应省略。
+  </ParameterField>
+  <ParameterField id="veo-request-metadata" name="metadata" type="object">
+    可选生成设置和额外图像输入。
+    <ParameterChildren>
+      <ParameterField id="veo-request-metadata-aspect-ratio" name="aspectRatio" type="string">
+        输出宽高比，可选 `16:9` 或 `9:16`。
+      </ParameterField>
+      <ParameterField id="veo-request-metadata-duration" name="durationSeconds" type="number">
+        视频时长（秒），可选 `4`、`6` 或 `8`。
+      </ParameterField>
+      <ParameterField id="veo-request-metadata-negative-prompt" name="negativePrompt" type="string">
+        不希望出现在生成视频中的内容或视觉特征。
+      </ParameterField>
+      <ParameterField id="veo-request-metadata-person-generation" name="personGeneration" type="string">
+        人物生成策略。文生视频可使用 `allow_all`，图生视频在支持时可使用 `allow_adult`。
+      </ParameterField>
+      <ParameterField id="veo-request-metadata-resolution" name="resolution" type="string">
+        输出分辨率，例如 `720p` 或 `1080p`。
+      </ParameterField>
+      <ParameterField id="veo-request-metadata-sample-count" name="sampleCount" type="number">
+        生成视频的数量，默认为 `1`。
+      </ParameterField>
+      <ParameterField id="veo-request-metadata-storage-uri" name="storageUri" type="string">
+        用于存储生成视频的 Google Cloud Storage URI。
+      </ParameterField>
+      <ParameterField id="veo-request-metadata-last-frame" name="lastFrame" type="string">
+        首末帧模式使用的 base64 编码末帧图像。
+      </ParameterField>
+      <ParameterField id="veo-request-metadata-reference-images" name="referenceImages" type="object[]">
+        最多三张素材或风格参考图，仅 `veo-3.1-generate-preview` 支持。
+        <ParameterChildren>
+          <ParameterField id="veo-request-reference-image" name="image" type="string" required>
+            base64 编码的参考图像。
+          </ParameterField>
+          <ParameterField id="veo-request-reference-type" name="referenceType" type="string" required>
+            参考图用途，可选 `asset` 或 `style`。
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
-### 响应示例:
+### 响应示例
 
 ```json
 {
   "id": "TASK_ID",
   "task_id": "TASK_ID",
   "object": "video",
-  "model": "veo-3.0-generate-001",
-  "status": "",
+  "model": "veo-3.1-generate-preview",
+  "status": "queued",
   "progress": 0,
   "created_at": 1764616538
 }
 ```
 
-### 响应字段说明:
+### 响应体字段
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| task_id | string | 任务 ID，用于后续查询任务状态 |
-| model | string | 生成视频的模型 |
+<ParameterTree locale="zh" requiredLabel="始终返回" optionalLabel="条件返回">
+  <ParameterField id="veo-submit-id" name="id" type="string" required>
+    用于后续状态查询的任务 ID。
+  </ParameterField>
+  <ParameterField id="veo-submit-task-id" name="task_id" type="string">
+    `id` 的别名，部分响应路径会返回此字段。
+  </ParameterField>
+  <ParameterField id="veo-submit-object" name="object" type="string" required>
+    对象类型，固定为 `video`。
+  </ParameterField>
+  <ParameterField id="veo-submit-model" name="model" type="string" required>
+    任务使用的模型。
+  </ParameterField>
+  <ParameterField id="veo-submit-status" name="status" type="string" required>
+    初始任务状态，通常为 `queued`。
+  </ParameterField>
+  <ParameterField id="veo-submit-progress" name="progress" type="integer" required>
+    初始进度，通常为 `0`。
+  </ParameterField>
+  <ParameterField id="veo-submit-created" name="created_at" type="integer" required>
+    任务创建时间的 Unix 时间戳。
+  </ParameterField>
+</ParameterTree>
 
-## 2. 查询任务状态
+## 2. 查询任务状态 (/v1/video/generations/\{task_id\})
 
-### 完整标准格式接口
+### 完整请求
 
 ```bash
-curl -X GET "((SITE_URL))/v1/video/generations/TASK_ID" -H "Authorization: Bearer API_KEY"
+curl -X GET "((SITE_URL))/v1/video/generations/TASK_ID" \
+  -H "Authorization: Bearer API_KEY"
 ```
 
-### 接口地址: 
+### 请求头
 
-```
-GET /v1/video/generations/{task_id}
-```
+| 请求头 | 必填 | 值 |
+| --- | --- | --- |
+| `Authorization` | 是 | `Bearer API_KEY` |
 
-### 请求头:
+### 路径参数
 
-| 参数 | 类型 | 必填 | 描述 |
-|------|------|------|------|
-| Authorization | string | 是 | Bearer API_KEY |
+<ParameterTree>
+  <ParameterField id="veo-video-table-task-id-1" name="task_id" type="string" required>
 
-### 路径参数:
+    提交生成任务时返回的任务 ID
+  </ParameterField>
+</ParameterTree>
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| task_id | string | 是 | 任务 ID |
+### 响应示例
 
-### 响应示例（处理中）:
+<ExampleTabs items={['处理中', '成功', '失败']}>
+  <ExampleTab id="veo-processing-response">
+    ```json
+    {
+      "code": "success",
+      "message": "",
+      "data": {
+        "bytes_base64_encoded": "",
+        "error": null,
+        "format": "mp4",
+        "metadata": null,
+        "status": "processing",
+        "task_id": "TASK_ID",
+        "url": ""
+      }
+    }
+    ```
+  </ExampleTab>
+  <ExampleTab id="veo-success-response">
+    ```json
+    {
+      "code": "success",
+      "message": "",
+      "data": {
+        "bytes_base64_encoded": "",
+        "error": null,
+        "format": "mp4",
+        "metadata": null,
+        "status": "succeeded",
+        "task_id": "TASK_ID",
+        "url": "((SITE_URL))/v1/videos/TASK_ID/content"
+      }
+    }
+    ```
+  </ExampleTab>
+  <ExampleTab id="veo-failed-response">
+    ```json
+    {
+      "code": "success",
+      "message": "",
+      "data": {
+        "bytes_base64_encoded": "",
+        "error": null,
+        "format": "mp4",
+        "metadata": null,
+        "status": "failed",
+        "task_id": "TASK_ID",
+        "url": "Reference to video does not support this mix of reference images."
+      }
+    }
+    ```
 
-```json
-{
-  "code": "success",
-  "message": "",
-  "data": {
-    "error": null,
-    "format": "mp4",
-    "metadata": null,
-    "status": "processing",
-    "task_id": "TASK_ID",
-    "url": ""
-  }
-}
-```
+    任务失败时，`url` 可能包含渠道错误信息，而不是视频 URL。
+  </ExampleTab>
+</ExampleTabs>
 
-### 响应示例（成功）:
+### 响应体字段
 
-```json
-{
-  "code": "success",
-  "message": "",
-  "data": {
-    "error": null,
-    "format": "mp4",
-    "metadata": null,
-    "status": "succeeded",
-    "task_id": "TASK_ID",
-    "url": "((SITE_URL))/v1/videos/TASK_ID/content"
-  }
-}
-```
-
-可在返回的url下载视频
-
-### 响应字段说明:
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| code | string | 响应状态码，"success" 表示成功 |
-| data | object | 任务数据对象 |
-| data.task_id | string | 任务 ID |
-| data.status | string | 任务状态：queued、in_progress、succeeded、failed |
-| data.format | string | 视频格式，如 "mp4" |
-| data.url | string | 视频访问 URL（任务成功时） |
-| data.error | object | 错误信息（任务失败时） |
-| message | string | 错误消息 |
+<ParameterTree locale="zh" requiredLabel="始终返回" optionalLabel="条件返回">
+  <ParameterField id="veo-status-code" name="code" type="string" required>
+    包装层状态。`success` 表示查询请求本身执行成功。
+  </ParameterField>
+  <ParameterField id="veo-status-message" name="message" type="string" required>
+    包装层消息，查询成功时通常为空。
+  </ParameterField>
+  <ParameterField id="veo-status-data" name="data" type="object" required>
+    任务状态和生成结果。
+    <ParameterChildren>
+      <ParameterField id="veo-status-task-id" name="task_id" type="string" required>
+        视频生成任务 ID。
+      </ParameterField>
+      <ParameterField id="veo-status-state" name="status" type="string" required>
+        任务状态，例如 `queued`、`processing`、`succeeded` 或 `failed`。
+      </ParameterField>
+      <ParameterField id="veo-status-format" name="format" type="string" required>
+        视频格式，通常为 `mp4`。
+      </ParameterField>
+      <ParameterField id="veo-status-url" name="url" type="string">
+        成功时为视频访问地址；部分失败响应会在此返回渠道错误信息。
+      </ParameterField>
+      <ParameterField id="veo-status-base64" name="bytes_base64_encoded" type="string">
+        Vertex 等渠道返回的 base64 编码视频。
+      </ParameterField>
+      <ParameterField id="veo-status-error" name="error" type="object | null">
+        渠道返回的结构化错误详情。
+      </ParameterField>
+      <ParameterField id="veo-status-metadata" name="metadata" type="object | null">
+        渠道元数据，包括适用时的 Responsible AI 过滤信息。
+        <ParameterChildren>
+          <ParameterField id="veo-status-filtered-count" name="rai_media_filtered_count" type="integer">
+            被 Responsible AI 过滤的输出数量。
+          </ParameterField>
+          <ParameterField id="veo-status-filtered-reasons" name="rai_media_filtered_reasons" type="string[]">
+            输出被过滤的原因。
+          </ParameterField>
+        </ParameterChildren>
+      </ParameterField>
+    </ParameterChildren>
+  </ParameterField>
+</ParameterTree>
 
 ## 重要提示
 
-**注意：** 由于 [Google 的负责任 AI 指南](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/responsible-ai-and-usage-guidelines)，某些通过 Gemini 通道的请求可能会返回成功响应，但视频输出会被阻止。在这种情况下，过滤详情将在 `metadata.rai_media_filtered_count` 和 `metadata.rai_media_filtered_reasons` 字段中可见，如下例所示：
-
-```json
-{
-  "code": "success",
-  "message": "",
-  "data": {
-    "bytes_base64_encoded": "",
-    "error": null,
-    "format": "mp4",
-    "metadata": {
-      "rai_media_filtered_count": 1,
-      "rai_media_filtered_reasons": ["Sorry, we can't create videos with real people's names or likenesses. Please remove the celebrity reference and try again."]
-    },
-    "status": "succeeded",
-    "task_id": "bW9kZWxzL3Zlby0zLjAtZmFzdC1nZW5lcmF0ZS0wMDEvb3BlcmF0aW9ucy9hd2IxZDhsNDVydGM",
-    "url": "Sorry, we can't create videos with real people's names or likenesses. Please remove the celebrity reference and try again."
-  }
-}
-```
+根据 [Google Responsible AI 指南](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/responsible-ai-and-usage-guidelines)，Gemini 渠道的任务可能成功完成，但输出被拦截。遇到空结果时，请先检查 `data.metadata.rai_media_filtered_count` 和 `data.metadata.rai_media_filtered_reasons`，不要直接将其视为传输失败。
 
 ## 相关链接
 
-- [Google Veo 官方文档](https://deepmind.google/models/veo/)
+- [Google Veo](https://deepmind.google/models/veo/)
 - [Vertex AI 文档](https://cloud.google.com/vertex-ai/docs)
 - [Gemini API 文档](https://ai.google.dev/api)
